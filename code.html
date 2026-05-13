@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CapitalTrust - Loan Management Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "on-primary-fixed-variant":"#003ea8","surface-container-high":"#e6e8ea",
+        "tertiary-fixed-dim":"#b7c8e1","background":"#f7f9fb","on-tertiary":"#ffffff",
+        "on-tertiary-container":"#e9f0ff","primary-container":"#2563eb",
+        "inverse-on-surface":"#eff1f3","on-tertiary-fixed-variant":"#38485d",
+        "secondary-container":"#dae2fd","error":"#ba1a1a","error-container":"#ffdad6",
+        "primary-fixed-dim":"#b4c5ff","on-primary-container":"#eeefff",
+        "on-surface-variant":"#434655","surface-container":"#eceef0",
+        "on-error":"#ffffff","on-secondary":"#ffffff",
+        "surface-container-lowest":"#ffffff","secondary":"#565e74",
+        "on-background":"#191c1e","primary":"#004ac6","on-primary":"#ffffff",
+        "surface-bright":"#f7f9fb","surface":"#f7f9fb",
+        "surface-container-low":"#f2f4f6","secondary-fixed-dim":"#bec6e0",
+        "on-secondary-fixed-variant":"#3f465c","on-tertiary-fixed":"#0b1c30",
+        "surface-container-highest":"#e0e3e5","tertiary":"#46566c",
+        "surface-variant":"#e0e3e5","tertiary-fixed":"#d3e4fe",
+        "on-secondary-container":"#5c647a","surface-dim":"#d8dadc",
+        "secondary-fixed":"#dae2fd","on-secondary-fixed":"#131b2e",
+        "tertiary-container":"#5e6e85","inverse-primary":"#b4c5ff",
+        "on-primary-fixed":"#00174b","inverse-surface":"#2d3133",
+        "on-error-container":"#93000a","outline":"#737686",
+        "surface-tint":"#0053db","outline-variant":"#c3c6d7",
+        "on-surface":"#191c1e","primary-fixed":"#dbe1ff"
+      },
+      borderRadius: {"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},
+      spacing: {"container-max-width":"1440px","gutter":"24px","unit":"8px","margin-desktop":"40px","margin-mobile":"16px"},
+      fontFamily: {
+        "data-mono":["JetBrains Mono"],"display-lg":["Inter"],"body-base":["Inter"],
+        "label-caps":["Inter"],"headline-md":["Inter"],"body-sm":["Inter"],
+        "display-lg-mobile":["Inter"]
+      },
+      fontSize: {
+        "data-mono":["14px",{"lineHeight":"20px","fontWeight":"500"}],
+        "display-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],
+        "body-base":["16px",{"lineHeight":"24px","fontWeight":"400"}],
+        "label-caps":["12px",{"lineHeight":"16px","letterSpacing":"0.05em","fontWeight":"600"}],
+        "headline-md":["20px",{"lineHeight":"28px","fontWeight":"600"}],
+        "body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],
+        "display-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}]
+      }
+    }
+  }
+};
+</script>
+<style type="text/tailwindcss">
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+body { font-family: 'Inter', sans-serif; }
+.nav-link { @apply flex items-center gap-3 px-4 py-3 text-secondary hover:text-primary hover:bg-surface-container-low transition-colors duration-100 cursor-pointer; }
+.nav-link.active { @apply text-primary font-bold border-r-2 border-primary bg-surface-container-low; }
+.card { @apply bg-surface border border-outline-variant p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow; }
+.badge { @apply px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center; }
+.badge-ok { @apply bg-[#DCFCE7] text-[#166534]; }
+.badge-warn { @apply bg-[#FEF3C7] text-[#92400E]; }
+.badge-err { @apply bg-[#FEE2E2] text-[#991B1B]; }
+.badge-blue { @apply bg-[#DBEAFE] text-[#1E40AF]; }
+.badge-grey { @apply bg-surface-container-high text-on-surface-variant; }
+.btn-p { @apply px-4 py-2 bg-primary text-on-primary rounded-lg font-bold flex items-center gap-2 hover:bg-on-primary-fixed-variant transition-all active:scale-95; }
+.btn-s { @apply px-4 py-2 bg-surface border border-outline-variant rounded-lg text-body-sm font-bold text-secondary flex items-center gap-2 hover:bg-surface-container-low transition-colors; }
+.pg { display: none; }
+.pg.active { display: block; }
+.trow:hover { background: #f2f4f6; }
+.m-overlay { @apply fixed inset-0 bg-black/50 z-[100] flex items-center justify-center; }
+.m-box { @apply bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-auto p-8; }
+.uzone { @apply border-2 border-dashed border-outline-variant rounded-xl p-12 text-center transition-all cursor-pointer; }
+.uzone.dragover { @apply border-primary bg-primary-fixed/10; }
+.fadein { animation: fadeIn 0.3s ease-in; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:#f1f5f9; }
+::-webkit-scrollbar-thumb { background:#c3c6d7; border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:#737686; }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body-base overflow-x-hidden">
+
+<!-- ========== SIDEBAR ========== -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col py-8 z-50">
+  <div class="px-6 mb-8">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-on-primary">
+        <span class="material-symbols-outlined">account_balance</span>
+      </div>
+      <div>
+        <h1 class="font-headline-md text-headline-md font-bold text-primary">CapitalTrust</h1>
+        <p class="text-[10px] text-secondary uppercase tracking-widest font-bold">Loan Management System</p>
+      </div>
+    </div>
+  </div>
+  <nav class="flex-1 px-4 space-y-1">
+    <a class="nav-link active" data-page="dashboard" onclick="switchPage('dashboard')">
+      <span class="material-symbols-outlined">dashboard</span><span class="font-body-base">Dashboard</span>
+    </a>
+    <a class="nav-link" data-page="applications" onclick="switchPage('applications')">
+      <span class="material-symbols-outlined">description</span><span class="font-body-base">Applications</span>
+    </a>
+    <a class="nav-link" data-page="upload" onclick="switchPage('upload')">
+      <span class="material-symbols-outlined">cloud_upload</span><span class="font-body-base">Bulk Upload</span>
+    </a>
+    <a class="nav-link" data-page="audit" onclick="switchPage('audit')">
+      <span class="material-symbols-outlined">history</span><span class="font-body-base">Audit Logs</span>
+    </a>
+  </nav>
+  <div class="px-4 mt-auto space-y-2">
+    <div id="dataStatus" class="text-xs text-secondary text-center mb-1">No data loaded</div>
+    <button onclick="openAddModal()" class="w-full py-3 bg-primary text-on-primary rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-on-primary-fixed-variant transition-all active:scale-95">
+      <span class="material-symbols-outlined">add_circle</span> New Application
+    </button>
+    <button onclick="document.getElementById('csvFileHidden').click()" class="w-full py-2.5 bg-surface border border-outline-variant text-secondary rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-surface-container-low transition-all active:scale-95 text-body-sm">
+      <span class="material-symbols-outlined text-sm">upload_file</span> Load CSV
+    </button>
+    <input type="file" id="csvFileHidden" accept=".csv" class="hidden" onchange="handleFileUpload(this.files[0])"/>
+  </div>
+</aside>
+
+<!-- ========== TOP BAR ========== -->
+<header class="h-16 fixed top-0 right-0 left-64 bg-surface border-b border-outline-variant flex justify-between items-center px-gutter z-40">
+  <div class="flex items-center w-1/2">
+    <div class="relative w-full max-w-md">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+      <input id="globalSearch" class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-body-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="Search applications, clients, or IDs..." type="text" oninput="handleGlobalSearch()"/>
+    </div>
+  </div>
+  <div class="flex items-center gap-4">
+    <button onclick="exportCurrentView()" class="btn-s text-xs">
+      <span class="material-symbols-outlined text-sm">file_download</span> Export CSV
+    </button>
+    <button onclick="toggleNotifications()" class="hover:bg-surface-container-high rounded-full p-2 transition-all duration-200 relative" id="notifBtn">
+      <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+      <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full" id="notifDot"></span>
+    </button>
+    <div id="notifPanel" class="absolute top-14 right-40 w-96 bg-white border border-outline-variant rounded-xl shadow-2xl z-50 overflow-hidden" style="display:none">
+      <div class="flex justify-between items-center px-4 py-3 border-b border-outline-variant bg-surface-container-low">
+        <h4 class="font-bold text-body-sm text-on-surface">Notifications</h4>
+        <button onclick="clearNotifications()" class="text-xs text-primary font-bold hover:underline">Clear All</button>
+      </div>
+      <div id="notifList" class="max-h-80 overflow-y-auto"></div>
+      <div class="px-4 py-2 border-t border-outline-variant text-center">
+        <button onclick="switchPage('audit');toggleNotifications()" class="text-xs text-primary font-bold hover:underline">View All Activity</button>
+      </div>
+    </div>
+    <button class="hover:bg-surface-container-high rounded-full p-2 transition-all duration-200">
+      <span class="material-symbols-outlined text-on-surface-variant">settings</span>
+    </button>
+    <div class="h-8 w-[1px] bg-outline-variant mx-2"></div>
+    <div class="flex items-center gap-3">
+      <div class="text-right">
+        <p class="font-body-sm font-bold text-on-surface">Alex Mercer</p>
+        <p class="text-[10px] text-secondary">Senior Credit Analyst</p>
+      </div>
+      <img alt="User profile photo" class="w-10 h-10 rounded-full border border-outline-variant object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2Z5jUOP4fhmKtoHRfWbbcT-gpiaOEj2yVa44hCmQgDpuj49wwzg206qU2YTlIsFfQPhYkFKYiGO_fXZIJOAfzwe4JXNA0X2hyzSzrOJuXtB5Nlw7m26e7Yn6PdDENBnzihpiKOg6sRpcRg3-IdjoYy9lehNFmy76FGYNuYOtds31LNn0E92iHt9nMJVCnSpRdfgpCOdpA9djOoZ-GX-bnpGH6wuDwnpoh8omcFGmXpqcOwnnCN8FxJN9nPWB6o1GH5KcHTnw58EE"/>
+    </div>
+  </div>
+</header>
+
+<!-- ========== MAIN CONTENT ========== -->
+<main class="ml-64 pt-16 p-margin-desktop min-h-screen">
+<div class="max-w-container-max-width mx-auto">
+
+<!-- ==================== DASHBOARD ==================== -->
+<div id="page-dashboard" class="pg active fadein">
+  <div class="flex justify-between items-end mb-8">
+    <div>
+      <h2 class="font-display-lg text-display-lg text-on-surface">Dashboard Overview</h2>
+      <p class="text-secondary font-body-base" id="dashSubtitle">Upload a CSV file to see live data analytics.</p>
+    </div>
+    <div class="flex gap-2">
+      <select id="dashDateFilter" class="btn-s text-xs" onchange="applyDashboardFilters()">
+        <option value="all">All Time</option>
+        <option value="30">Last 30 Days</option>
+        <option value="90">Last 90 Days</option>
+        <option value="180">Last 6 Months</option>
+      </select>
+      <select id="dashAreaFilter" class="btn-s text-xs" onchange="applyDashboardFilters()">
+        <option value="all">All Areas</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
+    <div class="card">
+      <div class="flex justify-between items-start mb-3">
+        <div class="p-2 bg-secondary-container rounded-lg"><span class="material-symbols-outlined text-primary">assessment</span></div>
+        <span class="text-label-caps text-on-surface-variant" id="statTotalPct"></span>
+      </div>
+      <p class="text-label-caps text-secondary uppercase mb-1">Total Apps</p>
+      <h3 class="font-display-lg text-2xl text-on-surface" id="statTotal">0</h3>
+    </div>
+    <div class="card border-l-4 border-l-[#DCFCE7]">
+      <div class="flex justify-between items-start mb-3">
+        <div class="p-2 bg-[#DCFCE7] rounded-lg"><span class="material-symbols-outlined text-[#166534]">check_circle</span></div>
+        <span class="text-label-caps text-[#166534]" id="statApprovedPct">0%</span>
+      </div>
+      <p class="text-label-caps text-secondary uppercase mb-1">Approved</p>
+      <h3 class="font-display-lg text-2xl text-on-surface" id="statApproved">0</h3>
+    </div>
+    <div class="card border-l-4 border-l-[#FEF3C7]">
+      <div class="flex justify-between items-start mb-3">
+        <div class="p-2 bg-[#FEF3C7] rounded-lg"><span class="material-symbols-outlined text-[#92400E]">pending</span></div>
+      </div>
+      <p class="text-label-caps text-secondary uppercase mb-1">Pending</p>
+      <h3 class="font-display-lg text-2xl text-on-surface" id="statPending">0</h3>
+    </div>
+    <div class="card border-l-4 border-l-[#FEE2E2]">
+      <div class="flex justify-between items-start mb-3">
+        <div class="p-2 bg-[#FEE2E2] rounded-lg"><span class="material-symbols-outlined text-[#991B1B]">cancel</span></div>
+      </div>
+      <p class="text-label-caps text-secondary uppercase mb-1">Rejected</p>
+      <h3 class="font-display-lg text-2xl text-on-surface" id="statRejected">0</h3>
+    </div>
+    <div class="bg-primary p-5 rounded-xl shadow-lg hover:shadow-xl transition-shadow text-on-primary">
+      <div class="flex justify-between items-start mb-3">
+        <div class="p-2 bg-on-primary-fixed-variant/20 rounded-lg"><span class="material-symbols-outlined text-on-primary">payments</span></div>
+      </div>
+      <p class="text-label-caps text-on-primary/80 uppercase mb-1">Disbursed</p>
+      <h3 class="font-display-lg text-2xl" id="statAmount">&#8377;0</h3>
+    </div>
+    <div class="card">
+      <div class="flex justify-between items-start mb-3">
+        <div class="p-2 bg-tertiary-fixed rounded-lg"><span class="material-symbols-outlined text-tertiary">rate_review</span></div>
+      </div>
+      <p class="text-label-caps text-secondary uppercase mb-1">Credit Review</p>
+      <h3 class="font-display-lg text-2xl text-on-surface" id="statCreditReview">0</h3>
+    </div>
+  </div>
+
+  <!-- Main Charts and Lists Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Center Column -->
+    <div class="lg:col-span-2 space-y-8">
+      <div class="bg-surface border border-outline-variant rounded-xl p-8 shadow-sm">
+        <div class="flex justify-between items-center mb-8">
+          <div>
+            <h4 class="font-headline-md text-headline-md text-on-surface">Application Volume Trend</h4>
+            <p class="text-body-sm text-secondary">Historical flow of loan submissions over the last 6 months.</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-primary"></span><span class="text-label-caps text-secondary">Corporate</span></div>
+            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-tertiary-fixed-dim"></span><span class="text-label-caps text-secondary">SME</span></div>
+          </div>
+        </div>
+        <div class="h-64"><canvas id="chartMonthly"></canvas></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-surface border border-outline-variant rounded-xl p-6">
+          <h4 class="font-body-sm font-bold text-on-surface mb-6 uppercase tracking-wider">Approval Funnel</h4>
+          <div id="funnelStats" class="space-y-4"></div>
+        </div>
+        <div class="bg-surface-container border border-outline-variant rounded-xl p-6 relative overflow-hidden group">
+          <div class="relative z-10">
+            <h4 class="font-body-sm font-bold text-on-surface mb-2">Loan Portfolio Quality</h4>
+            <p class="text-body-sm text-on-surface-variant mb-4" id="nplRatio">Overall NPL ratio is currently at a record low of 1.2%.</p>
+            <button onclick="switchPage('audit')" class="text-primary font-bold text-body-sm flex items-center gap-1 group-hover:gap-2 transition-all">
+              View Full Audit <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+          </div>
+          <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-9xl text-outline-variant/20 rotate-12 group-hover:rotate-0 transition-transform duration-500">verified_user</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
+          <h4 class="text-headline-md text-on-surface mb-1">Status Distribution</h4>
+          <p class="text-body-sm text-secondary mb-4">Breakdown of application statuses</p>
+          <div class="h-64"><canvas id="chartStatus"></canvas></div>
+        </div>
+        <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
+          <h4 class="text-headline-md text-on-surface mb-4">Loan Type Breakdown</h4>
+          <div class="h-64"><canvas id="chartLoanType"></canvas></div>
+        </div>
+      </div>
+
+      <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
+        <h4 class="text-headline-md text-on-surface mb-4">Top Area Offices</h4>
+        <div id="topAreas" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="space-y-8">
+      <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
+        <div class="flex justify-between items-center mb-6">
+          <h4 class="font-body-sm font-bold text-on-surface uppercase tracking-wider">Upcoming PDs</h4>
+          <span class="text-xs bg-tertiary-container text-on-tertiary-container px-2 py-1 rounded">Today</span>
+        </div>
+        <div class="space-y-4" id="upcomingPDs">
+          <div class="flex gap-4 items-start p-3 rounded-lg hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant">
+            <div class="bg-secondary-container p-2 rounded-lg shrink-0"><span class="material-symbols-outlined text-primary text-xl">person</span></div>
+            <div class="flex-1 min-w-0"><p class="font-body-sm font-bold text-on-surface truncate">Vanguard Logistics Ltd</p><p class="text-[12px] text-secondary">14:00 PM &bull; Remote Call</p></div>
+            <button class="text-primary material-symbols-outlined hover:scale-110 transition-transform">videocam</button>
+          </div>
+          <div class="flex gap-4 items-start p-3 rounded-lg hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant">
+            <div class="bg-secondary-container p-2 rounded-lg shrink-0"><span class="material-symbols-outlined text-primary text-xl">store</span></div>
+            <div class="flex-1 min-w-0"><p class="font-body-sm font-bold text-on-surface truncate">Green Horizon Farms</p><p class="text-[12px] text-secondary">16:30 PM &bull; On-site Visit</p></div>
+            <button class="text-primary material-symbols-outlined hover:scale-110 transition-transform">directions</button>
+          </div>
+          <div class="flex gap-4 items-start p-3 rounded-lg hover:bg-surface-container-low transition-colors border border-transparent hover:border-outline-variant">
+            <div class="bg-secondary-container p-2 rounded-lg shrink-0"><span class="material-symbols-outlined text-primary text-xl">factory</span></div>
+            <div class="flex-1 min-w-0"><p class="font-body-sm font-bold text-on-surface truncate">Apex Metal Works</p><p class="text-[12px] text-secondary">Tomorrow &bull; 09:00 AM</p></div>
+            <button class="text-outline-variant material-symbols-outlined cursor-not-allowed">videocam</button>
+          </div>
+        </div>
+        <button class="w-full mt-6 py-2 border border-outline-variant rounded-lg text-body-sm font-bold text-secondary hover:bg-surface-container-low transition-colors">View Schedule</button>
+      </div>
+
+      <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
+        <h4 class="font-body-sm font-bold text-on-surface uppercase tracking-wider mb-6">Recent Activities</h4>
+        <div id="recentActivities" class="relative space-y-6 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[1px] before:bg-outline-variant">
+          <div class="relative pl-8">
+            <div class="absolute left-0 top-1 w-6 h-6 bg-surface border-2 border-[#DCFCE7] rounded-full flex items-center justify-center"><div class="w-2 h-2 bg-[#166534] rounded-full"></div></div>
+            <p class="text-body-sm"><span class="font-bold">App #LN-9082</span> was approved by System Auto-Check.</p>
+            <p class="text-[10px] text-secondary uppercase font-bold mt-1">2 minutes ago</p>
+          </div>
+          <div class="relative pl-8">
+            <div class="absolute left-0 top-1 w-6 h-6 bg-surface border-2 border-primary rounded-full flex items-center justify-center"><div class="w-2 h-2 bg-primary rounded-full"></div></div>
+            <p class="text-body-sm"><span class="font-bold">Alex Mercer</span> moved <span class="font-bold">K. Smith</span> to Credit Review.</p>
+            <p class="text-[10px] text-secondary uppercase font-bold mt-1">45 minutes ago</p>
+          </div>
+          <div class="relative pl-8">
+            <div class="absolute left-0 top-1 w-6 h-6 bg-surface border-2 border-[#FEE2E2] rounded-full flex items-center justify-center"><div class="w-2 h-2 bg-[#991B1B] rounded-full"></div></div>
+            <p class="text-body-sm"><span class="font-bold">Loan #LN-8911</span> rejected due to DTI ratio &gt; 45%.</p>
+            <p class="text-[10px] text-secondary uppercase font-bold mt-1">2 hours ago</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-br from-primary to-on-primary-fixed-variant rounded-xl p-6 text-on-primary shadow-xl">
+        <span class="material-symbols-outlined text-4xl mb-4">support_agent</span>
+        <h4 class="font-headline-md mb-2">Need help with a case?</h4>
+        <p class="text-body-sm text-on-primary/80 mb-6">Connect with a senior underwriter for complex loan structures or policy clarifications.</p>
+        <button class="w-full py-3 bg-white text-primary rounded-lg font-bold hover:bg-blue-50 transition-colors">Request Advisory</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="mt-8 pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4 text-body-sm text-secondary">
+    <p>&copy; 2024 CapitalTrust LMS. All rights reserved.</p>
+    <div class="flex gap-6">
+      <a class="hover:text-primary transition-colors" href="#">Compliance Policy</a>
+      <a class="hover:text-primary transition-colors" href="#">System Status</a>
+      <a class="hover:text-primary transition-colors" href="#">Help Center</a>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== APPLICATIONS ==================== -->
+<div id="page-applications" class="pg fadein">
+  <div class="flex justify-between items-end mb-6">
+    <div>
+      <h2 class="font-display-lg text-display-lg text-on-surface">Applications</h2>
+      <p class="text-secondary font-body-base">Browse, search, filter, and edit loan application records.</p>
+    </div>
+    <button onclick="openAddModal()" class="btn-p text-sm"><span class="material-symbols-outlined text-sm">add</span> Add Record</button>
+  </div>
+
+  <div class="bg-surface border border-outline-variant rounded-xl p-4 mb-4 flex flex-wrap gap-3 items-end">
+    <div><label class="text-label-caps text-secondary block mb-1">Status</label>
+      <select id="filterStatus" class="text-body-sm border border-outline-variant rounded-lg px-3 py-2 bg-white" onchange="applyFilters()"><option value="all">All Statuses</option></select></div>
+    <div><label class="text-label-caps text-secondary block mb-1">Loan Type</label>
+      <select id="filterLoanType" class="text-body-sm border border-outline-variant rounded-lg px-3 py-2 bg-white" onchange="applyFilters()"><option value="all">All Types</option></select></div>
+    <div><label class="text-label-caps text-secondary block mb-1">Area Office</label>
+      <select id="filterArea" class="text-body-sm border border-outline-variant rounded-lg px-3 py-2 bg-white" onchange="applyFilters()"><option value="all">All Areas</option></select></div>
+    <div><label class="text-label-caps text-secondary block mb-1">Date From</label>
+      <input type="date" id="filterDateFrom" class="text-body-sm border border-outline-variant rounded-lg px-3 py-2 bg-white" onchange="applyFilters()"/></div>
+    <div><label class="text-label-caps text-secondary block mb-1">Date To</label>
+      <input type="date" id="filterDateTo" class="text-body-sm border border-outline-variant rounded-lg px-3 py-2 bg-white" onchange="applyFilters()"/></div>
+    <button onclick="clearFilters()" class="btn-s text-xs h-fit"><span class="material-symbols-outlined text-sm">filter_alt_off</span> Clear</button>
+    <div class="ml-auto text-body-sm text-secondary" id="filterCount">0 records</div>
+  </div>
+
+  <div class="bg-surface border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-body-sm">
+        <thead class="bg-surface-container-low border-b border-outline-variant"><tr id="tableHeader"></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="flex justify-between items-center px-4 py-3 border-t border-outline-variant bg-surface-container-low">
+      <div class="flex items-center gap-2">
+        <span class="text-body-sm text-secondary">Rows per page:</span>
+        <select id="pageSize" class="text-body-sm border border-outline-variant rounded px-2 py-1 bg-white" onchange="currentPage=1;renderTable()">
+          <option value="25">25</option><option value="50">50</option><option value="100">100</option><option value="500">500</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-body-sm text-secondary" id="paginationInfo">0 records</span>
+        <button onclick="goToPage(currentPage-1)" class="p-1 rounded hover:bg-surface-container-high transition-colors" id="btnPrev"><span class="material-symbols-outlined">chevron_left</span></button>
+        <button onclick="goToPage(currentPage+1)" class="p-1 rounded hover:bg-surface-container-high transition-colors" id="btnNext"><span class="material-symbols-outlined">chevron_right</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== BULK UPLOAD ==================== -->
+<div id="page-upload" class="pg fadein">
+  <div class="mb-6">
+    <h2 class="font-display-lg text-display-lg text-on-surface">Bulk Upload</h2>
+    <p class="text-secondary font-body-base">Upload CSV data to refresh or append records. Use this for daily or monthly data updates.</p>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div>
+      <div id="uploadZone" class="uzone" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="event.preventDefault();this.classList.remove('dragover');handleBulkUpload(event.dataTransfer.files[0])" onclick="document.getElementById('uploadFileInput').click()">
+        <span class="material-symbols-outlined text-6xl text-outline-variant mb-4">cloud_upload</span>
+        <p class="text-headline-md text-on-surface mb-2">Drag &amp; drop your CSV file here</p>
+        <p class="text-body-sm text-secondary mb-4">or click to browse files</p>
+        <p class="text-label-caps text-outline">Supports: .csv files</p>
+        <input type="file" id="uploadFileInput" accept=".csv" class="hidden" onchange="handleBulkUpload(this.files[0])"/>
+      </div>
+      <div class="mt-6 bg-surface border border-outline-variant rounded-xl p-6">
+        <h4 class="text-headline-md text-on-surface mb-4">Upload Mode</h4>
+        <div class="space-y-3">
+          <label class="flex items-start gap-3 p-3 border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors">
+            <input type="radio" name="uploadMode" value="replace" checked class="mt-1 text-primary focus:ring-primary"/>
+            <div><p class="font-bold text-body-sm">Replace All Data</p><p class="text-xs text-secondary">Remove existing data and load fresh CSV. Best for monthly full refreshes.</p></div>
+          </label>
+          <label class="flex items-start gap-3 p-3 border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors">
+            <input type="radio" name="uploadMode" value="append" class="mt-1 text-primary focus:ring-primary"/>
+            <div><p class="font-bold text-body-sm">Append / Update</p><p class="text-xs text-secondary">Add new records and update existing ones by Application ID. Best for daily updates.</p></div>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="bg-surface border border-outline-variant rounded-xl p-6 mb-6">
+        <h4 class="text-headline-md text-on-surface mb-4">Current Data Summary</h4>
+        <div class="space-y-3">
+          <div class="flex justify-between py-2 border-b border-outline-variant"><span class="text-secondary text-body-sm">Total Records</span><span class="font-mono font-bold" id="sumTotal">0</span></div>
+          <div class="flex justify-between py-2 border-b border-outline-variant"><span class="text-secondary text-body-sm">Last Upload</span><span class="font-mono font-bold" id="sumLastUpload">Never</span></div>
+          <div class="flex justify-between py-2 border-b border-outline-variant"><span class="text-secondary text-body-sm">Date Range</span><span class="font-mono font-bold" id="sumDateRange">&mdash;</span></div>
+          <div class="flex justify-between py-2"><span class="text-secondary text-body-sm">Area Offices</span><span class="font-mono font-bold" id="sumAreas">0</span></div>
+        </div>
+      </div>
+      <div class="bg-surface border border-outline-variant rounded-xl p-6">
+        <h4 class="text-headline-md text-on-surface mb-4">Upload History</h4>
+        <div id="uploadHistory" class="space-y-3"><p class="text-body-sm text-secondary">No uploads yet.</p></div>
+      </div>
+      <div class="mt-6 bg-surface border border-outline-variant rounded-xl p-6">
+        <h4 class="text-headline-md text-on-surface mb-4">Data Actions</h4>
+        <div class="flex flex-wrap gap-3">
+          <button onclick="exportAllData()" class="btn-s text-sm"><span class="material-symbols-outlined text-sm">download</span> Export All Data</button>
+          <button onclick="confirmClearData()" class="btn-s text-sm text-error border-error/30 hover:bg-error-container"><span class="material-symbols-outlined text-sm">delete</span> Clear All Data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== AUDIT LOGS ==================== -->
+<div id="page-audit" class="pg fadein">
+  <div class="mb-6">
+    <h2 class="font-display-lg text-display-lg text-on-surface">Audit Logs</h2>
+    <p class="text-secondary font-body-base">Track all data changes made through the dashboard.</p>
+  </div>
+  <div class="bg-surface border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+    <table class="w-full text-body-sm">
+      <thead class="bg-surface-container-low border-b border-outline-variant">
+        <tr>
+          <th class="text-left px-4 py-3 text-label-caps text-secondary">Timestamp</th>
+          <th class="text-left px-4 py-3 text-label-caps text-secondary">Action</th>
+          <th class="text-left px-4 py-3 text-label-caps text-secondary">Application ID</th>
+          <th class="text-left px-4 py-3 text-label-caps text-secondary">Field</th>
+          <th class="text-left px-4 py-3 text-label-caps text-secondary">Old Value</th>
+          <th class="text-left px-4 py-3 text-label-caps text-secondary">New Value</th>
+        </tr>
+      </thead>
+      <tbody id="auditBody"><tr><td colspan="6" class="px-4 py-8 text-center text-secondary">No audit logs yet.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+</main>
+
+<!-- ========== EDIT MODAL ========== -->
+<div id="editModal" class="m-overlay" style="display:none">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col">
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center px-8 py-5 border-b border-outline-variant bg-surface-container-low">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-primary rounded-lg" id="modalIcon"><span class="material-symbols-outlined text-on-primary">edit_note</span></div>
+        <div>
+          <h3 class="text-headline-md font-bold text-on-surface" id="modalTitle">Edit Application</h3>
+          <p class="text-xs text-secondary" id="modalSubtitle">Update the fields below and save changes</p>
+        </div>
+      </div>
+      <button onclick="closeEditModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors" title="Close"><span class="material-symbols-outlined text-secondary">close</span></button>
+    </div>
+    <!-- Modal Body -->
+    <div class="flex-1 overflow-y-auto px-8 py-6">
+      <div id="modalFields"></div>
+    </div>
+    <!-- Modal Footer -->
+    <div class="flex justify-between items-center px-8 py-4 border-t border-outline-variant bg-surface-container-low" id="modalActions">
+      <p class="text-xs text-secondary" id="modalFieldCount"></p>
+      <div class="flex gap-3">
+        <button onclick="closeEditModal()" class="px-5 py-2.5 bg-surface border border-outline-variant rounded-lg text-body-sm font-bold text-secondary hover:bg-surface-container-high transition-colors">Cancel</button>
+        <button onclick="saveEditModal()" class="px-5 py-2.5 bg-primary text-on-primary rounded-lg font-bold flex items-center gap-2 hover:bg-on-primary-fixed-variant transition-all active:scale-95"><span class="material-symbols-outlined text-sm">save</span> Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== LOADING ========== -->
+<div id="loadingOverlay" class="fixed inset-0 bg-black/30 z-[200] flex items-center justify-center" style="display:none">
+  <div class="bg-white rounded-xl p-8 flex flex-col items-center gap-4 shadow-2xl">
+    <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+    <p class="text-body-base font-bold" id="loadingText">Processing...</p>
+  </div>
+</div>
+
+<!-- ========== TOAST ========== -->
+<div id="toast" class="fixed bottom-6 right-6 z-[300]" style="display:none">
+  <div class="bg-inverse-surface text-inverse-on-surface px-6 py-3 rounded-xl shadow-xl flex items-center gap-3">
+    <span class="material-symbols-outlined" id="toastIcon">check_circle</span>
+    <span id="toastMsg"></span>
+  </div>
+</div>
+
+<!-- ========== JAVASCRIPT ========== -->
+<script>
+// ============================================================
+// STATE
+// ============================================================
+var allData = [];
+var filteredData = [];
+var dashFilteredData = [];
+var currentPage = 1;
+var sortCol = null;
+var sortAsc = true;
+var editingRowIdx = null;
+var isAddMode = false;
+var auditLogs = [];
+var uploadHistory = [];
+var chartMonthlyInst = null;
+var chartStatusInst = null;
+var chartLoanTypeInst = null;
+
+var DB_NAME = 'CapitalTrustLMS';
+var DB_VERSION = 2;
+var STORE_DATA = 'loanData';
+var STORE_META = 'meta';
+
+var TABLE_COLUMNS = [
+  'application_id','areaoffice_name','loan_type','application-date',
+  'borrower_name','borrower_id','applicationstatus','stage',
+  'loanamountrequired','disbursement_amount','disbursement_date',
+  'ro_name','funnel_status'
+];
+
+var COLUMN_LABELS = {
+  'application_id':'App ID','areaoffice_name':'Area Office',
+  'loan_type':'Loan Type','application-date':'App Date',
+  'borrower_name':'Borrower','borrower_id':'Borrower ID',
+  'applicationstatus':'Status','stage':'Stage',
+  'loanamountrequired':'Amount Req','disbursement_amount':'Disbursed Amt',
+  'disbursement_date':'Disburse Date','ro_name':'RO Name',
+  'funnel_status':'Funnel Status'
+};
+
+var EDITABLE_FIELDS = [
+  'application_id','areaoffice_name','loan_type','application-date',
+  'borrower_name','borrower_id','pincode','microarea',
+  'loanamountrequired','loanpurpose','applicationstatus','stage','substage',
+  'disbursement_amount','disbursement_date','maxloanamt','proposedloanamtinpd',
+  'ro_name','ro_id','coapplicant1_name','coapplicant2_name',
+  'comments','remarks','funnel_status'
+];
+
+var FIELD_GROUPS = [
+  { title:'Application Info', icon:'description', fields:['application_id','areaoffice_name','loan_type','application-date','applicationstatus','stage','substage','funnel_status'] },
+  { title:'Borrower Details', icon:'person', fields:['borrower_name','borrower_id','pincode','microarea','coapplicant1_name','coapplicant2_name'] },
+  { title:'Loan & Financials', icon:'payments', fields:['loanamountrequired','loanpurpose','disbursement_amount','disbursement_date','maxloanamt','proposedloanamtinpd'] },
+  { title:'Officer & Notes', icon:'badge', fields:['ro_name','ro_id','comments','remarks'] }
+];
+
+// ============================================================
+// INDEXED DB
+// ============================================================
+function openDB() {
+  return new Promise(function(resolve, reject) {
+    var req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = function(e) {
+      var db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_DATA)) db.createObjectStore(STORE_DATA, { keyPath:'_rowId', autoIncrement:true });
+      if (!db.objectStoreNames.contains(STORE_META)) db.createObjectStore(STORE_META, { keyPath:'key' });
+    };
+    req.onsuccess = function() { resolve(req.result); };
+    req.onerror = function() { reject(req.error); };
+  });
+}
+
+function saveDataToDB(data) {
+  return openDB().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(STORE_DATA, 'readwrite');
+      var store = tx.objectStore(STORE_DATA);
+      store.clear();
+      for (var i = 0; i < data.length; i++) { data[i]._rowId = i + 1; store.put(data[i]); }
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+  });
+}
+
+function loadDataFromDB() {
+  return openDB().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(STORE_DATA, 'readonly');
+      var req = tx.objectStore(STORE_DATA).getAll();
+      req.onsuccess = function() { resolve(req.result || []); };
+      req.onerror = function() { reject(req.error); };
+    });
+  });
+}
+
+function saveMeta(key, value) {
+  return openDB().then(function(db) {
+    var tx = db.transaction(STORE_META, 'readwrite');
+    tx.objectStore(STORE_META).put({ key:key, value:value });
+  });
+}
+
+function loadMeta(key) {
+  return openDB().then(function(db) {
+    return new Promise(function(resolve) {
+      var tx = db.transaction(STORE_META, 'readonly');
+      var req = tx.objectStore(STORE_META).get(key);
+      req.onsuccess = function() { resolve(req.result ? req.result.value : null); };
+      req.onerror = function() { resolve(null); };
+    });
+  });
+}
+
+// ============================================================
+// CSV PARSING
+// ============================================================
+function handleFileUpload(file) {
+  if (!file) return;
+  showLoading('Parsing CSV file...');
+  Papa.parse(file, {
+    header:true, skipEmptyLines:true,
+    complete:function(r) { allData = r.data; processDataLoaded('replace', file.name); },
+    error:function() { hideLoading(); showToast('Failed to parse CSV','error'); }
+  });
+}
+
+function handleBulkUpload(file) {
+  if (!file) return;
+  var mode = document.querySelector('input[name="uploadMode"]:checked').value;
+  showLoading('Processing CSV (' + mode + ')...');
+  Papa.parse(file, {
+    header:true, skipEmptyLines:true,
+    complete:function(r) {
+      if (mode === 'replace') {
+        allData = r.data;
+      } else {
+        var map = {};
+        allData.forEach(function(row, i) { if (row.application_id) map[row.application_id] = i; });
+        var added = 0, updated = 0;
+        r.data.forEach(function(row) {
+          if (row.application_id && map.hasOwnProperty(row.application_id)) {
+            var idx = map[row.application_id];
+            var rid = allData[idx]._rowId;
+            Object.assign(allData[idx], row);
+            allData[idx]._rowId = rid;
+            updated++;
+          } else {
+            allData.push(row);
+            added++;
+          }
+        });
+        showToast('Added ' + added + ', updated ' + updated + ' records', 'success');
+      }
+      processDataLoaded(mode, file.name);
+    },
+    error:function() { hideLoading(); showToast('Failed to parse CSV','error'); }
+  });
+}
+
+function processDataLoaded(mode, fileName) {
+  saveDataToDB(allData).then(function() {
+    var now = new Date().toLocaleString();
+    uploadHistory.unshift({ date:now, file:fileName, mode:mode, count:allData.length });
+    if (uploadHistory.length > 20) uploadHistory = uploadHistory.slice(0,20);
+    saveMeta('uploadHistory', uploadHistory);
+    saveMeta('lastUpload', now);
+    addAuditLog('UPLOAD','-','data','-', mode + ': ' + allData.length + ' records from ' + fileName);
+    initAfterLoad();
+    hideLoading();
+    showToast('Loaded ' + allData.length.toLocaleString() + ' records','success');
+  });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  loadDataFromDB().then(function(data) {
+    if (data && data.length > 0) { allData = data; initAfterLoad(); }
+    return loadMeta('uploadHistory');
+  }).then(function(hist) {
+    if (hist) uploadHistory = hist;
+    return loadMeta('auditLogs');
+  }).then(function(logs) {
+    if (logs) { auditLogs = logs; renderAuditLogs(); }
+    renderUploadSummary();
+    renderUploadHistory();
+  }).catch(function(e) { console.error('Init error:', e); });
+}
+
+function initAfterLoad() {
+  filteredData = allData.slice();
+  dashFilteredData = allData.slice();
+  populateFilterDropdowns();
+  buildTableHeader();
+  applyFilters();
+  applyDashboardFilters();
+  renderUploadSummary();
+  renderUploadHistory();
+  updateDataStatus();
+}
+
+function updateDataStatus() {
+  document.getElementById('dataStatus').textContent = allData.length.toLocaleString() + ' records loaded';
+  document.getElementById('dashSubtitle').textContent = 'Showing analytics for ' + dashFilteredData.length.toLocaleString() + ' loan applications.';
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function switchPage(page) {
+  document.querySelectorAll('.pg').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-link').forEach(function(n) { n.classList.remove('active'); });
+  document.getElementById('page-' + page).classList.add('active');
+  var nav = document.querySelector('[data-page="' + page + '"]');
+  if (nav) nav.classList.add('active');
+}
+
+// ============================================================
+// FILTERS
+// ============================================================
+function populateFilterDropdowns() {
+  fillSelect('filterStatus', getUnique('applicationstatus'));
+  fillSelect('filterLoanType', getUnique('loan_type'));
+  fillSelect('filterArea', getUnique('areaoffice_name'));
+  fillSelect('dashAreaFilter', getUnique('areaoffice_name'));
+}
+
+function getUnique(field) {
+  var s = {}; allData.forEach(function(r) { if (r[field]) s[r[field]] = 1; });
+  return Object.keys(s).sort();
+}
+
+function fillSelect(id, options) {
+  var sel = document.getElementById(id);
+  var cur = sel.value;
+  while (sel.options.length > 1) sel.remove(1);
+  options.forEach(function(o) { var opt = document.createElement('option'); opt.value = o; opt.textContent = o; sel.appendChild(opt); });
+  sel.value = cur;
+}
+
+function applyFilters() {
+  var status = document.getElementById('filterStatus').value;
+  var loanType = document.getElementById('filterLoanType').value;
+  var area = document.getElementById('filterArea').value;
+  var dateFrom = document.getElementById('filterDateFrom').value;
+  var dateTo = document.getElementById('filterDateTo').value;
+  var search = document.getElementById('globalSearch').value.toLowerCase().trim();
+
+  filteredData = allData.filter(function(row) {
+    if (status !== 'all' && row.applicationstatus !== status) return false;
+    if (loanType !== 'all' && row.loan_type !== loanType) return false;
+    if (area !== 'all' && row.areaoffice_name !== area) return false;
+    if (dateFrom && row['application-date'] < dateFrom) return false;
+    if (dateTo && row['application-date'] > dateTo) return false;
+    if (search) {
+      var h = [row.application_id, row.borrower_name, row.borrower_id, row.areaoffice_name, row.ro_name, row.applicationstatus].join(' ').toLowerCase();
+      if (h.indexOf(search) === -1) return false;
+    }
+    return true;
+  });
+
+  if (sortCol) {
+    filteredData.sort(function(a, b) {
+      var va = a[sortCol] || '', vb = b[sortCol] || '';
+      var na = parseFloat(va), nb = parseFloat(vb);
+      if (!isNaN(na) && !isNaN(nb)) return sortAsc ? na - nb : nb - na;
+      return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    });
+  }
+
+  currentPage = 1;
+  renderTable();
+  document.getElementById('filterCount').textContent = filteredData.length.toLocaleString() + ' records';
+}
+
+function clearFilters() {
+  document.getElementById('filterStatus').value = 'all';
+  document.getElementById('filterLoanType').value = 'all';
+  document.getElementById('filterArea').value = 'all';
+  document.getElementById('filterDateFrom').value = '';
+  document.getElementById('filterDateTo').value = '';
+  document.getElementById('globalSearch').value = '';
+  applyFilters();
+}
+
+// ============================================================
+// TABLE
+// ============================================================
+function buildTableHeader() {
+  var row = document.getElementById('tableHeader');
+  row.innerHTML = '';
+  TABLE_COLUMNS.forEach(function(col) {
+    var th = document.createElement('th');
+    th.className = 'text-left px-3 py-3 text-label-caps text-secondary cursor-pointer select-none hover:text-primary transition-colors whitespace-nowrap';
+    var arrow = sortCol === col ? (sortAsc ? 'arrow_upward' : 'arrow_downward') : 'unfold_more';
+    th.innerHTML = esc(COLUMN_LABELS[col] || col) + ' <span class="material-symbols-outlined text-xs align-middle">' + arrow + '</span>';
+    th.onclick = (function(c) { return function() {
+      if (sortCol === c) sortAsc = !sortAsc; else { sortCol = c; sortAsc = true; }
+      buildTableHeader(); applyFilters();
+    }; })(col);
+    row.appendChild(th);
+  });
+  var th2 = document.createElement('th');
+  th2.className = 'text-left px-3 py-3 text-label-caps text-secondary whitespace-nowrap sticky right-0 bg-surface-container-low z-10 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]';
+  th2.textContent = 'Actions';
+  row.appendChild(th2);
+}
+
+function renderTable() {
+  var tbody = document.getElementById('tableBody');
+  var ps = parseInt(document.getElementById('pageSize').value);
+  var start = (currentPage - 1) * ps;
+  var end = Math.min(start + ps, filteredData.length);
+  var page = filteredData.slice(start, end);
+
+  if (page.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="' + (TABLE_COLUMNS.length + 1) + '" class="px-4 py-12 text-center text-secondary">No records found. Upload a CSV to get started.</td></tr>';
+  } else {
+    var html = '';
+    for (var i = 0; i < page.length; i++) {
+      var r = page[i];
+      var gi = r._rowId ? (r._rowId - 1) : allData.indexOf(r);
+      html += '<tr class="trow border-b border-surface-container-low transition-colors">';
+      for (var j = 0; j < TABLE_COLUMNS.length; j++) {
+        html += '<td class="px-3 py-2.5 whitespace-nowrap max-w-[200px] truncate font-data-mono text-data-mono">' + fmtCell(TABLE_COLUMNS[j], r[TABLE_COLUMNS[j]]) + '</td>';
+      }
+      html += '<td class="px-3 py-2.5 whitespace-nowrap sticky right-0 bg-surface z-10 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">';
+      html += '<button onclick="openEditModal(' + gi + ')" class="p-1.5 hover:bg-primary/10 rounded-lg transition-colors" title="Edit"><span class="material-symbols-outlined text-sm text-primary">edit</span></button> ';
+      html += '<button onclick="viewRow(' + gi + ')" class="p-1.5 hover:bg-surface-container-high rounded-lg transition-colors" title="View"><span class="material-symbols-outlined text-sm text-secondary">visibility</span></button>';
+      html += '</td></tr>';
+    }
+    tbody.innerHTML = html;
+  }
+
+  var tp = Math.ceil(filteredData.length / ps) || 1;
+  document.getElementById('paginationInfo').textContent = filteredData.length > 0 ? (start + 1) + '-' + end + ' of ' + filteredData.length.toLocaleString() : '0 records';
+  document.getElementById('btnPrev').disabled = currentPage <= 1;
+  document.getElementById('btnNext').disabled = currentPage >= tp;
+}
+
+function fmtCell(col, val) {
+  if (!val || val === '') return '<span class="text-outline">\u2014</span>';
+  if (col === 'applicationstatus') return statusBadge(val);
+  if (col === 'loan_type') return '<span class="badge badge-blue">' + esc(val) + '</span>';
+  if (col === 'loanamountrequired' || col === 'disbursement_amount') {
+    var n = parseFloat(val); if (!isNaN(n)) return '\u20B9' + n.toLocaleString('en-IN');
+  }
+  return esc(String(val));
+}
+
+function statusBadge(s) {
+  var u = String(s).toUpperCase();
+  if (u.indexOf('DISBURSED') !== -1 && u.indexOf('FAILED') === -1) return '<span class="badge badge-ok">' + esc(s) + '</span>';
+  if (u.indexOf('REJECTED') !== -1) return '<span class="badge badge-err">' + esc(s) + '</span>';
+  if (u.indexOf('EXPIRED') !== -1) return '<span class="badge badge-grey">' + esc(s) + '</span>';
+  if (u.indexOf('FILLING') !== -1) return '<span class="badge badge-warn">' + esc(s) + '</span>';
+  return '<span class="badge badge-blue">' + esc(s) + '</span>';
+}
+
+function goToPage(p) {
+  var tp = Math.ceil(filteredData.length / parseInt(document.getElementById('pageSize').value)) || 1;
+  if (p < 1 || p > tp) return;
+  currentPage = p; renderTable();
+}
+
+// ============================================================
+// EDIT / ADD / VIEW MODAL
+// ============================================================
+function openEditModal(idx) {
+  if (idx < 0 || idx >= allData.length || !allData[idx]) { showToast('Record not found. Please refresh the page.','error'); return; }
+  editingRowIdx = idx; isAddMode = false;
+  document.getElementById('modalTitle').textContent = 'Edit Application';
+  document.getElementById('modalSubtitle').textContent = 'Application #' + (allData[idx].application_id || idx) + ' — Update fields below';
+  document.getElementById('modalIcon').innerHTML = '<span class="material-symbols-outlined text-on-primary">edit_note</span>';
+  document.getElementById('modalIcon').className = 'p-2 bg-primary rounded-lg';
+  buildModalFields(allData[idx], false);
+  document.getElementById('modalActions').style.display = '';
+  document.getElementById('editModal').style.display = 'flex';
+}
+
+function openAddModal() {
+  isAddMode = true; editingRowIdx = null;
+  document.getElementById('modalTitle').textContent = 'New Application';
+  document.getElementById('modalSubtitle').textContent = 'Fill in the details to create a new loan application';
+  document.getElementById('modalIcon').innerHTML = '<span class="material-symbols-outlined text-on-primary">add_circle</span>';
+  document.getElementById('modalIcon').className = 'p-2 bg-[#166534] rounded-lg';
+  buildModalFields({}, false);
+  document.getElementById('modalActions').style.display = '';
+  document.getElementById('editModal').style.display = 'flex';
+}
+
+function buildModalFields(row, readOnly) {
+  var c = document.getElementById('modalFields');
+  var fieldCount = 0;
+  var html = '';
+  FIELD_GROUPS.forEach(function(g) {
+    html += '<div class="mb-6">';
+    html += '<div class="flex items-center gap-2 mb-3 pb-2 border-b border-outline-variant">';
+    html += '<span class="material-symbols-outlined text-primary text-lg">' + g.icon + '</span>';
+    html += '<h4 class="text-body-sm font-bold text-on-surface uppercase tracking-wider">' + g.title + '</h4>';
+    html += '</div>';
+    html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">';
+    g.fields.forEach(function(f) {
+      var v = row[f] || '';
+      var label = COLUMN_LABELS[f] || f.replace(/_/g,' ').replace(/-/g,' ');
+      fieldCount++;
+      if (readOnly) {
+        html += '<div><label class="text-[11px] font-semibold text-secondary uppercase tracking-wide block mb-1">' + esc(label) + '</label>';
+        html += '<div class="px-3 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-body-sm font-data-mono">' + (esc(String(v)) || '<span class="text-outline">\u2014</span>') + '</div></div>';
+      } else {
+        var isLarge = (f === 'comments' || f === 'remarks');
+        html += '<div' + (isLarge ? ' class="md:col-span-2"' : '') + '>';
+        html += '<label class="text-[11px] font-semibold text-secondary uppercase tracking-wide block mb-1">' + esc(label) + '</label>';
+        if (isLarge) {
+          html += '<textarea data-field="' + f + '" rows="2" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg text-body-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none">' + esc(String(v)) + '</textarea>';
+        } else {
+          html += '<input type="text" data-field="' + f + '" value="' + escA(String(v)) + '" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg text-body-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all hover:border-primary/50"/>';
+        }
+        html += '</div>';
+      }
+    });
+    html += '</div></div>';
+  });
+
+  // For view mode, show ALL remaining fields not in groups
+  if (readOnly) {
+    var grouped = {};
+    FIELD_GROUPS.forEach(function(g) { g.fields.forEach(function(f) { grouped[f]=1; }); });
+    var extra = Object.keys(row).filter(function(k) { return k !== '_rowId' && !grouped[k]; });
+    if (extra.length > 0) {
+      html += '<div class="mb-6"><div class="flex items-center gap-2 mb-3 pb-2 border-b border-outline-variant">';
+      html += '<span class="material-symbols-outlined text-primary text-lg">more_horiz</span>';
+      html += '<h4 class="text-body-sm font-bold text-on-surface uppercase tracking-wider">Additional Fields</h4>';
+      html += '</div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3">';
+      extra.forEach(function(f) {
+        var v = row[f] || '';
+        fieldCount++;
+        html += '<div><label class="text-[11px] font-semibold text-secondary uppercase tracking-wide block mb-1">' + esc(f.replace(/_/g,' ')) + '</label>';
+        html += '<div class="px-3 py-2 bg-surface-container-low border border-outline-variant rounded-lg text-xs font-data-mono truncate" title="' + escA(String(v)) + '">' + (esc(String(v)) || '<span class="text-outline">\u2014</span>') + '</div></div>';
+      });
+      html += '</div></div>';
+    }
+  }
+  c.innerHTML = html;
+  var fc = document.getElementById('modalFieldCount');
+  if (fc) fc.textContent = fieldCount + ' fields';
+}
+
+function viewRow(idx) {
+  if (idx < 0 || idx >= allData.length || !allData[idx]) { showToast('Record not found. Please refresh the page.','error'); return; }
+  var row = allData[idx];
+  document.getElementById('modalTitle').textContent = 'Application Details';
+  document.getElementById('modalSubtitle').textContent = '#' + (row.application_id || idx) + ' — Read-only view';
+  document.getElementById('modalIcon').innerHTML = '<span class="material-symbols-outlined text-on-primary">visibility</span>';
+  document.getElementById('modalIcon').className = 'p-2 bg-tertiary rounded-lg';
+  buildModalFields(row, true);
+  document.getElementById('modalActions').style.display = 'none';
+  document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+
+// ============================================================
+// GLOBAL SEARCH
+// ============================================================
+var searchDebounce = null;
+function handleGlobalSearch() {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(function() {
+    var q = document.getElementById('globalSearch').value.trim();
+    if (q.length > 0) {
+      switchPage('applications');
+    }
+    applyFilters();
+  }, 300);
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+var notifications = [];
+var notifOpen = false;
+
+function toggleNotifications() {
+  notifOpen = !notifOpen;
+  var panel = document.getElementById('notifPanel');
+  panel.style.display = notifOpen ? 'block' : 'none';
+  if (notifOpen) {
+    document.getElementById('notifDot').style.display = 'none';
+    renderNotifications();
+  }
+}
+
+function addNotification(icon, text, type) {
+  notifications.unshift({ icon:icon, text:text, type:type||'info', time:new Date().toLocaleTimeString() });
+  if (notifications.length > 50) notifications = notifications.slice(0,50);
+  document.getElementById('notifDot').style.display = '';
+}
+
+function renderNotifications() {
+  var c = document.getElementById('notifList');
+  if (notifications.length === 0) {
+    c.innerHTML = '<div class="px-4 py-8 text-center text-secondary text-body-sm">No notifications yet.</div>';
+    return;
+  }
+  c.innerHTML = notifications.slice(0,20).map(function(n) {
+    var bg = n.type==='success'?'bg-[#DCFCE7]':n.type==='error'?'bg-[#FEE2E2]':n.type==='warn'?'bg-[#FEF3C7]':'bg-[#DBEAFE]';
+    var tc = n.type==='success'?'text-[#166534]':n.type==='error'?'text-[#991B1B]':n.type==='warn'?'text-[#92400E]':'text-[#1E40AF]';
+    return '<div class="flex gap-3 items-start px-4 py-3 border-b border-surface-container-low hover:bg-surface-container-low transition-colors cursor-default">'+
+      '<div class="p-1.5 rounded-lg shrink-0 '+bg+'"><span class="material-symbols-outlined text-sm '+tc+'">'+n.icon+'</span></div>'+
+      '<div class="flex-1 min-w-0"><p class="text-body-sm text-on-surface">'+n.text+'</p><p class="text-[10px] text-secondary mt-0.5">'+n.time+'</p></div></div>';
+  }).join('');
+}
+
+function clearNotifications() {
+  notifications = [];
+  renderNotifications();
+  document.getElementById('notifDot').style.display = 'none';
+}
+
+// Close notification panel when clicking outside
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('notifPanel');
+  var btn = document.getElementById('notifBtn');
+  if (notifOpen && !panel.contains(e.target) && !btn.contains(e.target)) {
+    notifOpen = false;
+    panel.style.display = 'none';
+  }
+});
+
+function saveEditModal() {
+  var inputs = document.querySelectorAll('#modalFields input[data-field], #modalFields textarea[data-field]');
+  if (isAddMode) {
+    var newRow = {};
+    inputs.forEach(function(inp) { newRow[inp.dataset.field] = inp.value; });
+    allData.push(newRow);
+    addAuditLog('ADD', newRow.application_id || 'N/A', '-', '-', 'New record added');
+  } else {
+    var row = allData[editingRowIdx];
+    inputs.forEach(function(inp) {
+      var f = inp.dataset.field, ov = row[f] || '', nv = inp.value;
+      if (ov !== nv) { addAuditLog('EDIT', row.application_id || String(editingRowIdx), f, ov, nv); row[f] = nv; }
+    });
+  }
+  saveDataToDB(allData).then(function() {
+    closeEditModal();
+    applyFilters();
+    applyDashboardFilters();
+    showToast(isAddMode ? 'Record added' : 'Record updated', 'success');
+  }).catch(function(err) {
+    console.error('Save failed:', err);
+    showToast('Failed to save. Please try again.', 'error');
+  });
+}
+
+// ============================================================
+// DASHBOARD STATS
+// ============================================================
+function applyDashboardFilters() {
+  var days = document.getElementById('dashDateFilter').value;
+  var area = document.getElementById('dashAreaFilter').value;
+  dashFilteredData = allData.filter(function(row) {
+    if (area !== 'all' && row.areaoffice_name !== area) return false;
+    if (days !== 'all') {
+      var d = row['application-date'];
+      if (!d) return false;
+      var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - parseInt(days));
+      if (new Date(d) < cutoff) return false;
+    }
+    return true;
+  });
+  updateDataStatus();
+  renderDashboardStats();
+  renderDashboardCharts();
+  renderTopAreas();
+  renderFunnel();
+}
+
+function renderDashboardStats() {
+  var d = dashFilteredData, total = d.length;
+  var approved = 0, rejected = 0, pending = 0, creditReview = 0, totalAmt = 0;
+
+  d.forEach(function(r) {
+    var s = (r.applicationstatus || '').toUpperCase();
+    if (s.indexOf('DISBURSED') !== -1) approved++;
+    else if (s.indexOf('REJECTED') !== -1) rejected++;
+    else pending++;
+
+    if (r['submit_for_credit_review'] && !r['disbursement_date'] && s.indexOf('REJECTED') === -1 && s.indexOf('EXPIRED') === -1) {
+      creditReview++;
+    }
+    var amt = parseFloat(r.disbursement_amount);
+    if (!isNaN(amt)) totalAmt += amt;
+  });
+
+  document.getElementById('statTotal').textContent = total.toLocaleString();
+  document.getElementById('statApproved').textContent = approved.toLocaleString();
+  document.getElementById('statApprovedPct').textContent = total > 0 ? Math.round(approved / total * 100) + '%' : '0%';
+  document.getElementById('statPending').textContent = pending.toLocaleString();
+  document.getElementById('statRejected').textContent = rejected.toLocaleString();
+  document.getElementById('statCreditReview').textContent = creditReview.toLocaleString();
+
+  var amtStr;
+  if (totalAmt >= 10000000) amtStr = '\u20B9' + (totalAmt / 10000000).toFixed(2) + ' Cr';
+  else if (totalAmt >= 100000) amtStr = '\u20B9' + (totalAmt / 100000).toFixed(2) + ' L';
+  else amtStr = '\u20B9' + totalAmt.toLocaleString('en-IN');
+  document.getElementById('statAmount').textContent = amtStr;
+
+  var nplEl = document.getElementById('nplRatio');
+  if (nplEl && total > 0) {
+    var npl = ((rejected / total) * 100).toFixed(1);
+    nplEl.textContent = 'Overall rejection ratio is ' + npl + '% across ' + total.toLocaleString() + ' applications.';
+  }
+}
+
+function renderDashboardCharts() {
+  var monthMap = {};
+  dashFilteredData.forEach(function(r) {
+    var d = r['application-date']; if (!d) return;
+    var m = d.substring(0, 7); monthMap[m] = (monthMap[m] || 0) + 1;
+  });
+  var sortedM = Object.keys(monthMap).sort();
+  var mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var mLabels = sortedM.map(function(m) { var p = m.split('-'); return mNames[parseInt(p[1]) - 1] + ' ' + p[0].slice(2); });
+
+  if (chartMonthlyInst) chartMonthlyInst.destroy();
+  chartMonthlyInst = new Chart(document.getElementById('chartMonthly'), {
+    type:'bar',
+    data:{ labels:mLabels, datasets:[{ label:'Applications', data:sortedM.map(function(m){return monthMap[m];}), backgroundColor:'#2563eb', borderRadius:6, barPercentage:0.6 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, grid:{ color:'#f1f5f9' } }, x:{ grid:{ display:false } } } }
+  });
+
+  var statusMap = {};
+  dashFilteredData.forEach(function(r) { var s = r.applicationstatus || 'UNKNOWN'; statusMap[s] = (statusMap[s] || 0) + 1; });
+  var sLabels = Object.keys(statusMap).sort(function(a,b){return statusMap[b]-statusMap[a];}).slice(0,8);
+  var sColors = sLabels.map(function(s) {
+    var u = s.toUpperCase();
+    if (u.indexOf('DISBURSED') !== -1 && u.indexOf('FAILED') === -1) return '#16a34a';
+    if (u.indexOf('REJECTED') !== -1) return '#dc2626';
+    if (u.indexOf('EXPIRED') !== -1) return '#6b7280';
+    if (u.indexOf('FILLING') !== -1) return '#f59e0b';
+    if (u.indexOf('FAILED') !== -1) return '#ea580c';
+    return '#2563eb';
+  });
+
+  if (chartStatusInst) chartStatusInst.destroy();
+  chartStatusInst = new Chart(document.getElementById('chartStatus'), {
+    type:'doughnut',
+    data:{ labels:sLabels, datasets:[{ data:sLabels.map(function(s){return statusMap[s];}), backgroundColor:sColors, borderWidth:2, borderColor:'#fff' }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, font:{ size:11 } } } } }
+  });
+
+  var ltMap = {};
+  dashFilteredData.forEach(function(r) { var t = r.loan_type || 'UNKNOWN'; ltMap[t] = (ltMap[t] || 0) + 1; });
+  var ltLabels = Object.keys(ltMap).sort(function(a,b){return ltMap[b]-ltMap[a];});
+  var ltColors = ['#2563eb','#7c3aed','#0891b2','#059669','#d97706','#e11d48'];
+
+  if (chartLoanTypeInst) chartLoanTypeInst.destroy();
+  chartLoanTypeInst = new Chart(document.getElementById('chartLoanType'), {
+    type:'bar',
+    data:{ labels:ltLabels.map(function(l){return l.replace(/_/g,' ');}), datasets:[{ label:'Count', data:ltLabels.map(function(l){return ltMap[l];}), backgroundColor:ltColors.slice(0,ltLabels.length), borderRadius:6 }] },
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ beginAtZero:true, grid:{ color:'#f1f5f9' } }, y:{ grid:{ display:false } } } }
+  });
+}
+
+function renderTopAreas() {
+  var m = {};
+  dashFilteredData.forEach(function(r) { var a = r.areaoffice_name || 'Unknown'; m[a] = (m[a]||0)+1; });
+  var sorted = Object.entries(m).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+  var max = sorted[0] ? sorted[0][1] : 1;
+  document.getElementById('topAreas').innerHTML = sorted.map(function(e) {
+    return '<div><div class="flex justify-between text-body-sm mb-1"><span class="text-secondary truncate max-w-[180px]">'+esc(e[0])+'</span><span class="font-bold font-mono">'+e[1].toLocaleString()+'</span></div><div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full" style="width:'+Math.round(e[1]/max*100)+'%"></div></div></div>';
+  }).join('');
+}
+
+function renderFunnel() {
+  var d = dashFilteredData, total = d.length;
+  var a1=0, hh=0, pd=0, cr=0, dis=0;
+  d.forEach(function(r) {
+    if (r['app1 pass date']) a1++;
+    if (r['HH credit-o-meter submitted']) hh++;
+    if (r['PD Completed']) pd++;
+    if (r['credit review date']) cr++;
+    if (r['disbursement_date']) dis++;
+  });
+  var steps = [
+    {l:'App Submitted',c:total},{l:'App1 BRE Pass',c:a1},{l:'HH Credit Check',c:hh},
+    {l:'PD Completed',c:pd},{l:'Credit Review',c:cr},{l:'Disbursed',c:dis}
+  ];
+  document.getElementById('funnelStats').innerHTML = steps.map(function(s) {
+    var pct = total > 0 ? Math.round(s.c/total*100) : 0;
+    return '<div><div class="flex justify-between text-body-sm mb-1"><span class="text-secondary">'+s.l+'</span><span class="font-bold">'+pct+'% <span class="text-outline font-normal">('+s.c.toLocaleString()+')</span></span></div><div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full" style="width:'+pct+'%"></div></div></div>';
+  }).join('');
+}
+
+// ============================================================
+// UPLOAD PAGE
+// ============================================================
+function renderUploadSummary() {
+  document.getElementById('sumTotal').textContent = allData.length.toLocaleString();
+  document.getElementById('sumLastUpload').textContent = uploadHistory[0] ? uploadHistory[0].date : 'Never';
+  var dates = allData.map(function(r){return r['application-date'];}).filter(Boolean).sort();
+  document.getElementById('sumDateRange').textContent = dates.length > 0 ? dates[0]+' to '+dates[dates.length-1] : '\u2014';
+  var areas = {}; allData.forEach(function(r){if(r.areaoffice_name) areas[r.areaoffice_name]=1;});
+  document.getElementById('sumAreas').textContent = Object.keys(areas).length;
+}
+
+function renderUploadHistory() {
+  var c = document.getElementById('uploadHistory');
+  if (uploadHistory.length === 0) { c.innerHTML = '<p class="text-body-sm text-secondary">No uploads yet.</p>'; return; }
+  c.innerHTML = uploadHistory.slice(0,10).map(function(h) {
+    return '<div class="flex items-center gap-3 p-3 bg-surface-container-low rounded-lg"><span class="material-symbols-outlined text-primary">cloud_done</span><div class="flex-1"><p class="text-body-sm font-bold">'+esc(h.file)+'</p><p class="text-xs text-secondary">'+h.date+' \u2022 '+h.mode+' \u2022 '+h.count.toLocaleString()+' records</p></div></div>';
+  }).join('');
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportCurrentView() {
+  if (filteredData.length === 0) { showToast('No data to export','error'); return; }
+  downloadCSV(Papa.unparse(filteredData.map(function(r){var c=Object.assign({},r);delete c._rowId;return c;})), 'loan_data_export.csv');
+}
+
+function exportAllData() {
+  if (allData.length === 0) { showToast('No data to export','error'); return; }
+  downloadCSV(Papa.unparse(allData.map(function(r){var c=Object.assign({},r);delete c._rowId;return c;})), 'loan_data_full_export.csv');
+}
+
+function downloadCSV(csv, fn) {
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href = url; a.download = fn;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Exported '+fn,'success');
+}
+
+function confirmClearData() {
+  if (!confirm('Are you sure you want to clear ALL data? This cannot be undone.')) return;
+  allData = []; filteredData = []; dashFilteredData = [];
+  saveDataToDB([]).then(function() {
+    addAuditLog('CLEAR','-','-','-','All data cleared');
+    initAfterLoad();
+    showToast('All data cleared','success');
+  });
+}
+
+// ============================================================
+// AUDIT LOGS
+// ============================================================
+function addAuditLog(action, appId, field, oldVal, newVal) {
+  auditLogs.unshift({ timestamp:new Date().toLocaleString(), action:action, appId:String(appId), field:field, oldVal:String(oldVal).substring(0,100), newVal:String(newVal).substring(0,100) });
+  if (auditLogs.length > 500) auditLogs = auditLogs.slice(0,500);
+  saveMeta('auditLogs', auditLogs);
+  renderAuditLogs();
+}
+
+function renderAuditLogs() {
+  var tb = document.getElementById('auditBody');
+  if (auditLogs.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-secondary">No audit logs yet.</td></tr>'; return; }
+  tb.innerHTML = auditLogs.slice(0,100).map(function(l) {
+    var bc = l.action==='EDIT'?'badge-warn':l.action==='ADD'?'badge-ok':l.action==='UPLOAD'?'badge-blue':'badge-err';
+    return '<tr class="border-b border-surface-container-low"><td class="px-4 py-2 font-mono text-xs whitespace-nowrap">'+l.timestamp+'</td><td class="px-4 py-2"><span class="badge '+bc+'">'+l.action+'</span></td><td class="px-4 py-2 font-mono">'+esc(l.appId)+'</td><td class="px-4 py-2 text-secondary">'+esc(l.field)+'</td><td class="px-4 py-2 text-xs max-w-[150px] truncate">'+esc(l.oldVal)+'</td><td class="px-4 py-2 text-xs max-w-[150px] truncate">'+esc(l.newVal)+'</td></tr>';
+  }).join('');
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function esc(s) { var d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+function escA(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function showLoading(t) { document.getElementById('loadingText').textContent = t || 'Processing...'; document.getElementById('loadingOverlay').style.display = 'flex'; }
+function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
+
+function showToast(msg, type) {
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').textContent = type === 'error' ? 'error' : 'check_circle';
+  var t = document.getElementById('toast'); t.style.display = 'block';
+  setTimeout(function() { t.style.display = 'none'; }, 3000);
+  var icon = type === 'error' ? 'error' : type === 'success' ? 'check_circle' : 'info';
+  addNotification(icon, msg, type || 'info');
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+init();
+</script>
+</body>
+</html>
