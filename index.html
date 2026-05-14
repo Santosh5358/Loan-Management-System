@@ -6,6 +6,7 @@
 <title>CapitalTrust - Loan Management Dashboard</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -201,9 +202,9 @@ img { max-width: 100%; height: auto; }
       <span class="material-symbols-outlined">add_circle</span> <span class="btn-label">New Application</span>
     </button>
     <button onclick="document.getElementById('csvFileHidden').click()" class="w-full py-2.5 bg-surface border border-outline-variant text-secondary rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-surface-container-low transition-all active:scale-95 text-body-sm">
-      <span class="material-symbols-outlined text-sm">upload_file</span> <span class="btn-label">Load CSV</span>
+      <span class="material-symbols-outlined text-sm">upload_file</span> <span class="btn-label">Load File</span>
     </button>
-    <input type="file" id="csvFileHidden" accept=".csv" class="hidden" onchange="handleFileUpload(this.files[0])"/>
+    <input type="file" id="csvFileHidden" accept=".csv,.xlsx,.xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hidden" onchange="handleFileUpload(this.files[0])"/>
   </div>
 </aside>
 
@@ -228,6 +229,9 @@ img { max-width: 100%; height: auto; }
   <div class="flex items-center gap-2 md:gap-4">
     <button onclick="exportCurrentView()" class="btn-s text-xs hidden md:flex">
       <span class="material-symbols-outlined text-sm">file_download</span> Export CSV
+    </button>
+    <button onclick="exportCurrentView()" class="md:hidden hover:bg-surface-container-high rounded-full p-2 transition-all" title="Export CSV">
+      <span class="material-symbols-outlined text-on-surface-variant text-sm">file_download</span>
     </button>
     <button onclick="toggleNotifications()" class="hover:bg-surface-container-high rounded-full p-2 transition-all duration-200 relative" id="notifBtn">
       <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
@@ -306,18 +310,20 @@ img { max-width: 100%; height: auto; }
         <option value="all">All Areas</option>
       </select>
     </div>
+    <p class="text-xs text-secondary mt-1" id="dashDateRangeLabel"></p>
   </div>
 
   <!-- Stat Cards -->
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-6 mb-6 md:mb-8">
-    <div class="card">
+    <div class="card cursor-pointer hover:border-tertiary/60 hover:bg-tertiary-fixed/30 transition-all" onclick="filterToStatus('credit')" title="Click to view Credit Review applications">
       <div class="flex justify-between items-start mb-3">
         <div class="p-2 bg-tertiary-fixed rounded-lg"><span class="material-symbols-outlined text-tertiary">rate_review</span></div>
+        <span class="text-[10px] text-tertiary bg-tertiary-fixed px-1.5 py-0.5 rounded font-bold" id="statCreditReviewPct"></span>
       </div>
       <p class="text-label-caps text-secondary uppercase mb-1">Credit Review</p>
       <h3 class="font-display-lg text-2xl text-on-surface" id="statCreditReview">0</h3>
     </div>
-    <div class="card border-l-4 border-l-[#DCFCE7]">
+    <div class="card border-l-4 border-l-[#DCFCE7] cursor-pointer hover:bg-[#DCFCE7]/30 transition-all" onclick="filterToStatus('disbursed')" title="Click to view Approved/Disbursed applications">
       <div class="flex justify-between items-start mb-3">
         <div class="p-2 bg-[#DCFCE7] rounded-lg"><span class="material-symbols-outlined text-[#166534]">check_circle</span></div>
         <span class="text-label-caps text-[#166534]" id="statApprovedPct">0%</span>
@@ -325,21 +331,21 @@ img { max-width: 100%; height: auto; }
       <p class="text-label-caps text-secondary uppercase mb-1">Approved</p>
       <h3 class="font-display-lg text-2xl text-on-surface" id="statApproved">0</h3>
     </div>
-    <div class="card border-l-4 border-l-[#FEF3C7]">
+    <div class="card border-l-4 border-l-[#FEF3C7] cursor-pointer hover:bg-[#FEF3C7]/40 transition-all" onclick="filterToStatus('pending')" title="Click to view Pending applications">
       <div class="flex justify-between items-start mb-3">
         <div class="p-2 bg-[#FEF3C7] rounded-lg"><span class="material-symbols-outlined text-[#92400E]">pending</span></div>
       </div>
       <p class="text-label-caps text-secondary uppercase mb-1">Pending</p>
       <h3 class="font-display-lg text-2xl text-on-surface" id="statPending">0</h3>
     </div>
-    <div class="card border-l-4 border-l-[#FEE2E2]">
+    <div class="card border-l-4 border-l-[#FEE2E2] cursor-pointer hover:bg-[#FEE2E2]/40 transition-all" onclick="filterToStatus('rejected')" title="Click to view Rejected applications">
       <div class="flex justify-between items-start mb-3">
         <div class="p-2 bg-[#FEE2E2] rounded-lg"><span class="material-symbols-outlined text-[#991B1B]">cancel</span></div>
       </div>
       <p class="text-label-caps text-secondary uppercase mb-1">Rejected</p>
       <h3 class="font-display-lg text-2xl text-on-surface" id="statRejected">0</h3>
     </div>
-    <div class="card">
+    <div class="card cursor-pointer hover:border-primary/40 transition-all" onclick="filterToStatus('all')" title="Click to view all applications">
       <div class="flex justify-between items-start mb-3">
         <div class="p-2 bg-secondary-container rounded-lg"><span class="material-symbols-outlined text-primary">assessment</span></div>
         <span class="text-label-caps text-on-surface-variant" id="statTotalPct"></span>
@@ -347,7 +353,7 @@ img { max-width: 100%; height: auto; }
       <p class="text-label-caps text-secondary uppercase mb-1">Total Apps</p>
       <h3 class="font-display-lg text-2xl text-on-surface" id="statTotal">0</h3>
     </div>
-    <div class="bg-primary p-5 rounded-xl shadow-lg hover:shadow-xl transition-shadow text-on-primary">
+    <div class="bg-primary p-5 rounded-xl shadow-lg hover:shadow-xl transition-shadow text-on-primary cursor-pointer" onclick="filterToStatus('disbursed')" title="Click to view disbursed applications">
       <div class="flex justify-between items-start mb-3">
         <div class="p-2 bg-on-primary-fixed-variant/20 rounded-lg"><span class="material-symbols-outlined text-on-primary">payments</span></div>
       </div>
@@ -435,6 +441,7 @@ img { max-width: 100%; height: auto; }
             </div>
           </div>
         </div>
+        <p class="text-center text-xs text-secondary -mt-2 mb-2" id="fillingOfTotal"></p>
         <div id="fillingStatusRows" class="space-y-2 mt-4"></div>
         <button onclick="switchPage('applications')" class="w-full mt-4 py-2 border border-outline-variant rounded-lg text-body-sm font-bold text-secondary hover:bg-surface-container-low transition-colors">View All Applications</button>
       </div>
@@ -541,7 +548,10 @@ img { max-width: 100%; height: auto; }
     <div class="w-[calc(50%-4px)] sm:w-auto"><label class="text-label-caps text-secondary block mb-1">Date To</label>
       <input type="date" id="filterDateTo" class="w-full sm:w-auto text-body-sm border border-outline-variant rounded-lg px-3 py-2 bg-white" onchange="applyFilters()"/></div>
     <button onclick="clearFilters()" class="btn-s text-xs h-fit"><span class="material-symbols-outlined text-sm">filter_alt_off</span> Clear</button>
-    <div class="ml-auto text-body-sm text-secondary" id="filterCount">0 records</div>
+    <div class="flex items-center gap-2 ml-auto">
+      <span id="activeFilterBadge" class="hidden bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded-full">0 filters</span>
+      <div class="text-body-sm text-secondary" id="filterCount">0 records</div>
+    </div>
   </div>
 
   <div class="bg-surface border border-outline-variant rounded-xl shadow-sm overflow-hidden">
@@ -561,7 +571,9 @@ img { max-width: 100%; height: auto; }
       <div class="flex items-center gap-3">
         <span class="text-body-sm text-secondary" id="paginationInfo">0 records</span>
         <button onclick="goToPage(currentPage-1)" class="p-1 rounded hover:bg-surface-container-high transition-colors" id="btnPrev"><span class="material-symbols-outlined">chevron_left</span></button>
+        <span class="text-body-sm text-secondary font-mono" id="pageIndicator">1 / 1</span>
         <button onclick="goToPage(currentPage+1)" class="p-1 rounded hover:bg-surface-container-high transition-colors" id="btnNext"><span class="material-symbols-outlined">chevron_right</span></button>
+        <input type="number" id="jumpToPage" min="1" class="w-14 text-xs border border-outline-variant rounded px-2 py-1 text-center bg-white" placeholder="Go" onkeydown="if(event.key==='Enter'){goToPage(parseInt(this.value));this.value='';}" title="Jump to page"/>
       </div>
     </div>
   </div>
@@ -577,10 +589,10 @@ img { max-width: 100%; height: auto; }
     <div>
       <div id="uploadZone" class="uzone" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="event.preventDefault();this.classList.remove('dragover');handleBulkUpload(event.dataTransfer.files[0])" onclick="document.getElementById('uploadFileInput').click()">
         <span class="material-symbols-outlined text-6xl text-outline-variant mb-4">cloud_upload</span>
-        <p class="text-headline-md text-on-surface mb-2">Drag &amp; drop your CSV file here</p>
+        <p class="text-headline-md text-on-surface mb-2">Drag &amp; drop your CSV or Excel file here</p>
         <p class="text-body-sm text-secondary mb-4">or click to browse files</p>
-        <p class="text-label-caps text-outline">Supports: .csv files</p>
-        <input type="file" id="uploadFileInput" accept=".csv" class="hidden" onchange="handleBulkUpload(this.files[0])"/>
+        <p class="text-label-caps text-outline">Supports: .csv, .xlsx, .xls</p>
+        <input type="file" id="uploadFileInput" accept=".csv,.xlsx,.xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hidden" onchange="handleBulkUpload(this.files[0])"/>
       </div>
       <div class="mt-6 bg-surface border border-outline-variant rounded-xl p-6">
         <h4 class="text-headline-md text-on-surface mb-4">Upload Mode</h4>
@@ -737,4 +749,1179 @@ var COLUMN_LABELS = {
 var EDITABLE_FIELDS = [
   'application_id','areaoffice_name','loan_type','application-date',
   'borrower_name','borrower_id','pincode','microarea',
-  'loanamountrequired','loanpurp
+  'loanamountrequired','loanpurpose','applicationstatus','stage','substage',
+  'disbursement_amount','disbursement_date','maxloanamt','proposedloanamtinpd',
+  'ro_name','ro_id','coapplicant1_name','coapplicant2_name',
+  'comments','remarks','funnel_status'
+];
+
+var FIELD_GROUPS = [
+  { title:'Application Info', icon:'description', fields:['application_id','areaoffice_name','loan_type','application-date','applicationstatus','stage','substage','funnel_status'] },
+  { title:'Borrower Details', icon:'person', fields:['borrower_name','borrower_id','pincode','microarea','coapplicant1_name','coapplicant2_name'] },
+  { title:'Loan & Financials', icon:'payments', fields:['loanamountrequired','loanpurpose','disbursement_amount','disbursement_date','maxloanamt','proposedloanamtinpd'] },
+  { title:'Officer & Notes', icon:'badge', fields:['ro_name','ro_id','comments','remarks'] }
+];
+
+// ============================================================
+// INDEXED DB
+// ============================================================
+function openDB() {
+  return new Promise(function(resolve, reject) {
+    var req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = function(e) {
+      var db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_DATA)) db.createObjectStore(STORE_DATA, { keyPath:'_rowId', autoIncrement:true });
+      if (!db.objectStoreNames.contains(STORE_META)) db.createObjectStore(STORE_META, { keyPath:'key' });
+    };
+    req.onsuccess = function() { resolve(req.result); };
+    req.onerror = function() { reject(req.error); };
+  });
+}
+
+function saveDataToDB(data) {
+  return openDB().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(STORE_DATA, 'readwrite');
+      var store = tx.objectStore(STORE_DATA);
+      store.clear();
+      for (var i = 0; i < data.length; i++) { data[i]._rowId = i + 1; store.put(data[i]); }
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+  });
+}
+
+function saveOneRecord(record) {
+  return openDB().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(STORE_DATA, 'readwrite');
+      tx.objectStore(STORE_DATA).put(record);
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+  });
+}
+
+function addOneRecord(record) {
+  return openDB().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(STORE_DATA, 'readwrite');
+      var req = tx.objectStore(STORE_DATA).add(record);
+      req.onsuccess = function() { record._rowId = req.result; resolve(); };
+      tx.onerror = reject;
+    });
+  });
+}
+
+function loadDataFromDB() {
+  return openDB().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(STORE_DATA, 'readonly');
+      var req = tx.objectStore(STORE_DATA).getAll();
+      req.onsuccess = function() { resolve(req.result || []); };
+      req.onerror = function() { reject(req.error); };
+    });
+  });
+}
+
+function saveMeta(key, value) {
+  return openDB().then(function(db) {
+    var tx = db.transaction(STORE_META, 'readwrite');
+    tx.objectStore(STORE_META).put({ key:key, value:value });
+  });
+}
+
+function loadMeta(key) {
+  return openDB().then(function(db) {
+    return new Promise(function(resolve) {
+      var tx = db.transaction(STORE_META, 'readonly');
+      var req = tx.objectStore(STORE_META).get(key);
+      req.onsuccess = function() { resolve(req.result ? req.result.value : null); };
+      req.onerror = function() { resolve(null); };
+    });
+  });
+}
+
+// ============================================================
+// CSV PARSING
+// ============================================================
+function isExcelFile(file) {
+  return !!(file && /\.(xlsx|xls)$/i.test(file.name || ''));
+}
+
+function parseUploadedFile(file) {
+  return new Promise(function(resolve, reject) {
+    if (!file) { resolve([]); return; }
+
+    if (isExcelFile(file)) {
+      file.arrayBuffer().then(function(buffer) {
+        var workbook = XLSX.read(buffer, { type:'array' });
+        var sheetName = workbook.SheetNames[0];
+        if (!sheetName) { resolve([]); return; }
+        var sheet = workbook.Sheets[sheetName];
+        resolve(XLSX.utils.sheet_to_json(sheet, { defval:'', raw:false }));
+      }).catch(reject);
+      return;
+    }
+
+    Papa.parse(file, {
+      header:true,
+      skipEmptyLines:true,
+      complete:function(result) { resolve(result.data || []); },
+      error:reject
+    });
+  });
+}
+
+function handleFileUpload(file) {
+  if (!file) return;
+  showLoading('Parsing ' + (isExcelFile(file) ? 'Excel' : 'CSV') + ' file...');
+  parseUploadedFile(file).then(function(rows) {
+    allData = rows;
+    processDataLoaded('replace', file.name);
+  }).catch(function() {
+    hideLoading();
+    showToast('Failed to parse file','error');
+  });
+}
+
+function handleBulkUpload(file) {
+  if (!file) return;
+  var mode = document.querySelector('input[name="uploadMode"]:checked').value;
+  showLoading('Processing ' + (isExcelFile(file) ? 'Excel' : 'CSV') + ' (' + mode + ')...');
+  parseUploadedFile(file).then(function(rows) {
+      if (mode === 'replace') {
+        allData = rows;
+      } else {
+        var map = {};
+        allData.forEach(function(row, i) { if (row.application_id) map[row.application_id] = i; });
+        var added = 0, updated = 0;
+        rows.forEach(function(row) {
+          if (row.application_id && map.hasOwnProperty(row.application_id)) {
+            var idx = map[row.application_id];
+            var rid = allData[idx]._rowId;
+            Object.assign(allData[idx], row);
+            allData[idx]._rowId = rid;
+            updated++;
+          } else {
+            allData.push(row);
+            added++;
+          }
+        });
+        showToast('Added ' + added + ', updated ' + updated + ' records', 'success');
+      }
+      processDataLoaded(mode, file.name);
+  }).catch(function() {
+    hideLoading();
+    showToast('Failed to parse file','error');
+  });
+}
+
+function processDataLoaded(mode, fileName) {
+  saveDataToDB(allData).then(function() {
+    var now = new Date().toLocaleString();
+    uploadHistory.unshift({ date:now, file:fileName, mode:mode, count:allData.length });
+    if (uploadHistory.length > 20) uploadHistory = uploadHistory.slice(0,20);
+    saveMeta('uploadHistory', uploadHistory);
+    saveMeta('lastUpload', now);
+    addAuditLog('UPLOAD','-','data','-', mode + ': ' + allData.length + ' records from ' + fileName);
+    initAfterLoad();
+    hideLoading();
+    showToast('Loaded ' + allData.length.toLocaleString() + ' records','success');
+  });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+var DEFAULT_CSV = '../Page_1_Raw_Data - 2026-05-04T064339.055.csv';
+
+function init() {
+  loadDataFromDB().then(function(data) {
+    if (data && data.length > 0) {
+      allData = data;
+      initAfterLoad();
+    } else {
+      autoLoadCSV();
+    }
+    return loadMeta('uploadHistory');
+  }).then(function(hist) {
+    if (hist) uploadHistory = hist;
+    return loadMeta('auditLogs');
+  }).then(function(logs) {
+    if (logs) { auditLogs = logs; renderAuditLogs(); }
+    renderUploadSummary();
+    renderUploadHistory();
+  }).catch(function(e) { console.error('Init error:', e); });
+}
+
+function autoLoadCSV() {
+  showLoading('Loading default dataset...');
+  fetch(DEFAULT_CSV).then(function(res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.text();
+  }).then(function(text) {
+    var result = Papa.parse(text, { header:true, skipEmptyLines:true });
+    if (result.data && result.data.length > 0) {
+      allData = result.data;
+      processDataLoaded('replace', 'Default Dataset');
+    } else {
+      hideLoading();
+    }
+  }).catch(function(err) {
+    console.log('Auto-load CSV not available (expected when opening as file://):', err.message);
+    hideLoading();
+  });
+}
+
+function initAfterLoad() {
+  filteredData = allData.slice();
+  dashFilteredData = allData.slice();
+  populateFilterDropdowns();
+  buildTableHeader();
+  applyFilters();
+  applyDashboardFilters();
+  renderFillingStatus();
+  renderUploadSummary();
+  renderUploadHistory();
+  updateDataStatus();
+}
+
+function updateDataStatus() {
+  document.getElementById('dataStatus').textContent = allData.length.toLocaleString() + ' records loaded';
+  document.getElementById('dashSubtitle').textContent = 'Showing analytics for ' + dashFilteredData.length.toLocaleString() + ' loan applications.';
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function switchPage(page) {
+  document.querySelectorAll('.pg').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-link').forEach(function(n) { n.classList.remove('active'); });
+  document.getElementById('page-' + page).classList.add('active');
+  var nav = document.querySelector('[data-page="' + page + '"]');
+  if (nav) nav.classList.add('active');
+  if (window.innerWidth < 768) closeMobileSidebar();
+  else if (sidebarCollapsed) toggleSidebar();
+}
+
+// ============================================================
+// SIDEBAR TOGGLE
+// ============================================================
+var sidebarCollapsed = false;
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  document.body.classList.toggle('sidebar-collapsed', sidebarCollapsed);
+  document.getElementById('sidebarToggleBtn').style.left = sidebarCollapsed ? '72px' : '256px';
+}
+
+function openMobileSidebar() {
+  document.getElementById('sidebar').classList.add('mobile-open');
+  document.getElementById('mobileOverlay').classList.add('active');
+}
+function closeMobileSidebar() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('mobileOverlay').classList.remove('active');
+}
+
+// ============================================================
+// PROFILE DROPDOWN
+// ============================================================
+var profileOpen = false;
+function toggleProfile() {
+  profileOpen = !profileOpen;
+  document.getElementById('profilePanel').style.display = profileOpen ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('profilePanel');
+  var btn = document.getElementById('profileBtn');
+  if (profileOpen && !panel.contains(e.target) && !btn.contains(e.target)) {
+    profileOpen = false;
+    panel.style.display = 'none';
+  }
+});
+
+// ============================================================
+// FILTERS
+// ============================================================
+// ============================================================
+// MULTI-SELECT FILTER STATE
+// ============================================================
+var msSelected = { status: [], loantype: [], area: [] };
+var msOptions  = { status: [], loantype: [], area: [] };
+var msFieldMap = { status:'applicationstatus', loantype:'loan_type', area:'areaoffice_name' };
+var msLabelAll = { status:'All Statuses', loantype:'All Types', area:'All Areas' };
+
+function toggleMsDropdown(key) {
+  var drop = document.getElementById('ms-drop-' + key);
+  var isOpen = !drop.classList.contains('hidden');
+  // close all
+  ['status','loantype','area'].forEach(function(k) {
+    document.getElementById('ms-drop-' + k).classList.add('hidden');
+  });
+  if (!isOpen) drop.classList.remove('hidden');
+}
+
+document.addEventListener('click', function(e) {
+  ['status','loantype','area'].forEach(function(k) {
+    var wrap = document.getElementById('ms-wrap-' + k);
+    if (wrap && !wrap.contains(e.target)) {
+      var drop = document.getElementById('ms-drop-' + k);
+      if (drop) drop.classList.add('hidden');
+    }
+  });
+});
+
+function buildMsOptions(key, options) {
+  msOptions[key] = options;
+  var container = document.getElementById('ms-options-' + key);
+  if (!container) return;
+  container.innerHTML = '';
+  options.forEach(function(opt) {
+    var checked = msSelected[key].indexOf(opt) !== -1;
+    var li = document.createElement('label');
+    li.className = 'flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors text-body-sm';
+    li.innerHTML = '<input type="checkbox" class="rounded text-primary" value="' + esc(opt) + '" ' + (checked ? 'checked' : '') + ' onchange="onMsChange(\'' + key + '\',this)"/> <span class="truncate">' + esc(opt) + '</span>';
+    container.appendChild(li);
+  });
+  updateMsLabel(key);
+}
+
+function onMsChange(key, cb) {
+  if (cb.checked) {
+    if (msSelected[key].indexOf(cb.value) === -1) msSelected[key].push(cb.value);
+  } else {
+    msSelected[key] = msSelected[key].filter(function(v) { return v !== cb.value; });
+  }
+  updateMsLabel(key);
+  applyFilters();
+}
+
+function msSelectAll(key) {
+  msSelected[key] = msOptions[key].slice();
+  buildMsOptions(key, msOptions[key]);
+  applyFilters();
+}
+
+function msClearAll(key) {
+  msSelected[key] = [];
+  buildMsOptions(key, msOptions[key]);
+  applyFilters();
+}
+
+function updateMsLabel(key) {
+  var lbl = document.getElementById('ms-label-' + key);
+  if (!lbl) return;
+  var sel = msSelected[key];
+  if (sel.length === 0) lbl.textContent = msLabelAll[key];
+  else if (sel.length === 1) lbl.textContent = sel[0];
+  else lbl.textContent = sel.length + ' selected';
+}
+
+function populateFilterDropdowns() {
+  buildMsOptions('status', getUnique('applicationstatus'));
+  buildMsOptions('loantype', getUnique('loan_type'));
+  buildMsOptions('area', getUnique('areaoffice_name'));
+  fillSelect('dashAreaFilter', getUnique('areaoffice_name'));
+}
+
+function getUnique(field) {
+  var s = {}; allData.forEach(function(r) { if (r[field]) s[r[field]] = 1; });
+  return Object.keys(s).sort();
+}
+
+function fillSelect(id, options) {
+  var sel = document.getElementById(id);
+  if (!sel) return;
+  var cur = sel.value;
+  while (sel.options.length > 1) sel.remove(1);
+  options.forEach(function(o) { var opt = document.createElement('option'); opt.value = o; opt.textContent = o; sel.appendChild(opt); });
+  sel.value = cur;
+}
+
+function applyFilters() {
+  var selStatus   = msSelected.status;
+  var selLoanType = msSelected.loantype;
+  var selArea     = msSelected.area;
+  var dateFrom = document.getElementById('filterDateFrom').value;
+  var dateTo = document.getElementById('filterDateTo').value;
+  var search = document.getElementById('globalSearch').value.toLowerCase().trim();
+
+  filteredData = allData.filter(function(row) {
+    if (selStatus.length   > 0 && selStatus.indexOf(row.applicationstatus) === -1) return false;
+    if (selLoanType.length > 0 && selLoanType.indexOf(row.loan_type) === -1) return false;
+    if (selArea.length     > 0 && selArea.indexOf(row.areaoffice_name) === -1) return false;
+    if (dateFrom && row['application-date'] < dateFrom) return false;
+    if (dateTo && row['application-date'] > dateTo) return false;
+    if (search) {
+      var h = [row.application_id, row.borrower_name, row.borrower_id, row.areaoffice_name, row.ro_name, row.applicationstatus].join(' ').toLowerCase();
+      if (h.indexOf(search) === -1) return false;
+    }
+    return true;
+  });
+
+  if (sortCol) {
+    filteredData.sort(function(a, b) {
+      var va = a[sortCol] || '', vb = b[sortCol] || '';
+      var na = parseFloat(va), nb = parseFloat(vb);
+      if (!isNaN(na) && !isNaN(nb)) return sortAsc ? na - nb : nb - na;
+      return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    });
+  }
+
+  currentPage = 1;
+  renderTable();
+  document.getElementById('filterCount').textContent = filteredData.length.toLocaleString() + ' records';
+  // Active filter badge
+  var activeCount = (msSelected.status.length > 0 ? 1 : 0) + (msSelected.loantype.length > 0 ? 1 : 0) + (msSelected.area.length > 0 ? 1 : 0);
+  var badge = document.getElementById('activeFilterBadge');
+  if (badge) {
+    if (activeCount > 0) { badge.textContent = activeCount + ' filter' + (activeCount > 1 ? 's' : '') + ' active'; badge.classList.remove('hidden'); }
+    else { badge.classList.add('hidden'); }
+  }
+}
+
+function clearFilters() {
+  msSelected.status = []; msSelected.loantype = []; msSelected.area = [];
+  buildMsOptions('status', msOptions.status);
+  buildMsOptions('loantype', msOptions.loantype);
+  buildMsOptions('area', msOptions.area);
+  document.getElementById('filterDateFrom').value = '';
+  document.getElementById('filterDateTo').value = '';
+  document.getElementById('globalSearch').value = '';
+  applyFilters();
+}
+
+// ============================================================
+// TABLE
+// ============================================================
+function buildTableHeader() {
+  var row = document.getElementById('tableHeader');
+  row.innerHTML = '';
+  TABLE_COLUMNS.forEach(function(col) {
+    var th = document.createElement('th');
+    th.className = 'text-left px-3 py-3 text-label-caps text-secondary cursor-pointer select-none hover:text-primary transition-colors whitespace-nowrap';
+    var arrow = sortCol === col ? (sortAsc ? 'arrow_upward' : 'arrow_downward') : 'unfold_more';
+    th.innerHTML = esc(COLUMN_LABELS[col] || col) + ' <span class="material-symbols-outlined text-xs align-middle">' + arrow + '</span>';
+    th.onclick = (function(c) { return function() {
+      if (sortCol === c) sortAsc = !sortAsc; else { sortCol = c; sortAsc = true; }
+      buildTableHeader(); applyFilters();
+    }; })(col);
+    row.appendChild(th);
+  });
+  var th2 = document.createElement('th');
+  th2.className = 'text-left px-3 py-3 text-label-caps text-secondary whitespace-nowrap sticky right-0 bg-surface-container-low z-10 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]';
+  th2.textContent = 'Actions';
+  row.appendChild(th2);
+}
+
+function renderTable() {
+  var tbody = document.getElementById('tableBody');
+  var ps = parseInt(document.getElementById('pageSize').value);
+  var start = (currentPage - 1) * ps;
+  var end = Math.min(start + ps, filteredData.length);
+  var page = filteredData.slice(start, end);
+
+  if (page.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="' + (TABLE_COLUMNS.length + 1) + '" class="px-4 py-12 text-center text-secondary">No records found. Upload a CSV to get started.</td></tr>';
+  } else {
+    var html = '';
+    for (var i = 0; i < page.length; i++) {
+      var r = page[i];
+      var gi = r._rowId ? (r._rowId - 1) : allData.indexOf(r);
+      html += '<tr class="trow border-b border-surface-container-low transition-colors">';
+      for (var j = 0; j < TABLE_COLUMNS.length; j++) {
+        html += '<td class="px-3 py-2.5 whitespace-nowrap max-w-[200px] truncate font-data-mono text-data-mono">' + fmtCell(TABLE_COLUMNS[j], r[TABLE_COLUMNS[j]]) + '</td>';
+      }
+      html += '<td class="px-3 py-2.5 whitespace-nowrap sticky right-0 bg-surface z-10 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">';
+      html += '<button onclick="openEditModal(' + gi + ')" class="p-1.5 hover:bg-primary/10 rounded-lg transition-colors" title="Edit"><span class="material-symbols-outlined text-sm text-primary">edit</span></button> ';
+      html += '<button onclick="viewRow(' + gi + ')" class="p-1.5 hover:bg-surface-container-high rounded-lg transition-colors" title="View"><span class="material-symbols-outlined text-sm text-secondary">visibility</span></button>';
+      html += '</td></tr>';
+    }
+    tbody.innerHTML = html;
+  }
+
+  var tp = Math.ceil(filteredData.length / ps) || 1;
+  document.getElementById('paginationInfo').textContent = filteredData.length > 0 ? (start + 1) + '-' + end + ' of ' + filteredData.length.toLocaleString() : '0 records';
+  var pi = document.getElementById('pageIndicator'); if (pi) pi.textContent = currentPage + ' / ' + tp;
+  document.getElementById('btnPrev').disabled = currentPage <= 1;
+  document.getElementById('btnNext').disabled = currentPage >= tp;
+}
+
+function fmtCell(col, val) {
+  if (!val || val === '') return '<span class="text-outline">\u2014</span>';
+  if (col === 'applicationstatus') return statusBadge(val);
+  if (col === 'loan_type') return '<span class="badge badge-blue">' + esc(val) + '</span>';
+  if (col === 'loanamountrequired' || col === 'disbursement_amount') {
+    var n = parseFloat(val); if (!isNaN(n)) return '\u20B9' + n.toLocaleString('en-IN');
+  }
+  return esc(String(val));
+}
+
+function statusBadge(s) {
+  var u = String(s).toUpperCase();
+  if (u.indexOf('DISBURSED') !== -1 && u.indexOf('FAILED') === -1) return '<span class="badge badge-ok">' + esc(s) + '</span>';
+  if (u.indexOf('REJECTED') !== -1) return '<span class="badge badge-err">' + esc(s) + '</span>';
+  if (u.indexOf('EXPIRED') !== -1) return '<span class="badge badge-grey">' + esc(s) + '</span>';
+  if (u.indexOf('FILLING') !== -1) return '<span class="badge badge-warn">' + esc(s) + '</span>';
+  return '<span class="badge badge-blue">' + esc(s) + '</span>';
+}
+
+function goToPage(p) {
+  var tp = Math.ceil(filteredData.length / parseInt(document.getElementById('pageSize').value)) || 1;
+  if (p < 1 || p > tp) return;
+  currentPage = p; renderTable();
+}
+
+// ============================================================
+// EDIT / ADD / VIEW MODAL
+// ============================================================
+function openEditModal(idx) {
+  if (idx < 0 || idx >= allData.length || !allData[idx]) { showToast('Record not found. Please refresh the page.','error'); return; }
+  editingRowIdx = idx; isAddMode = false;
+  document.getElementById('modalTitle').textContent = 'Edit Application';
+  document.getElementById('modalSubtitle').textContent = 'Application #' + (allData[idx].application_id || idx) + ' — Update fields below';
+  document.getElementById('modalIcon').innerHTML = '<span class="material-symbols-outlined text-on-primary">edit_note</span>';
+  document.getElementById('modalIcon').className = 'p-2 bg-primary rounded-lg';
+  buildModalFields(allData[idx], false);
+  document.getElementById('modalActions').style.display = '';
+  document.getElementById('editModal').style.display = 'flex';
+}
+
+function openAddModal() {
+  isAddMode = true; editingRowIdx = null;
+  document.getElementById('modalTitle').textContent = 'New Application';
+  document.getElementById('modalSubtitle').textContent = 'Fill in the details to create a new loan application';
+  document.getElementById('modalIcon').innerHTML = '<span class="material-symbols-outlined text-on-primary">add_circle</span>';
+  document.getElementById('modalIcon').className = 'p-2 bg-[#166534] rounded-lg';
+  buildModalFields({}, false);
+  document.getElementById('modalActions').style.display = '';
+  document.getElementById('editModal').style.display = 'flex';
+}
+
+function buildModalFields(row, readOnly) {
+  var c = document.getElementById('modalFields');
+  var fieldCount = 0;
+  var html = '';
+  FIELD_GROUPS.forEach(function(g) {
+    html += '<div class="mb-6">';
+    html += '<div class="flex items-center gap-2 mb-3 pb-2 border-b border-outline-variant">';
+    html += '<span class="material-symbols-outlined text-primary text-lg">' + g.icon + '</span>';
+    html += '<h4 class="text-body-sm font-bold text-on-surface uppercase tracking-wider">' + g.title + '</h4>';
+    html += '</div>';
+    html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">';
+    g.fields.forEach(function(f) {
+      var v = row[f] || '';
+      var label = COLUMN_LABELS[f] || f.replace(/_/g,' ').replace(/-/g,' ');
+      fieldCount++;
+      if (readOnly) {
+        html += '<div><label class="text-[11px] font-semibold text-secondary uppercase tracking-wide block mb-1">' + esc(label) + '</label>';
+        html += '<div class="px-3 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-body-sm font-data-mono">' + (esc(String(v)) || '<span class="text-outline">\u2014</span>') + '</div></div>';
+      } else {
+        var isLarge = (f === 'comments' || f === 'remarks');
+        html += '<div' + (isLarge ? ' class="md:col-span-2"' : '') + '>';
+        html += '<label class="text-[11px] font-semibold text-secondary uppercase tracking-wide block mb-1">' + esc(label) + '</label>';
+        if (isLarge) {
+          html += '<textarea data-field="' + f + '" rows="2" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg text-body-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none">' + esc(String(v)) + '</textarea>';
+        } else {
+          html += '<input type="text" data-field="' + f + '" value="' + escA(String(v)) + '" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg text-body-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all hover:border-primary/50"/>';
+        }
+        html += '</div>';
+      }
+    });
+    html += '</div></div>';
+  });
+
+  // For view mode, show ALL remaining fields not in groups
+  if (readOnly) {
+    var grouped = {};
+    FIELD_GROUPS.forEach(function(g) { g.fields.forEach(function(f) { grouped[f]=1; }); });
+    var extra = Object.keys(row).filter(function(k) { return k !== '_rowId' && !grouped[k]; });
+    if (extra.length > 0) {
+      html += '<div class="mb-6"><div class="flex items-center gap-2 mb-3 pb-2 border-b border-outline-variant">';
+      html += '<span class="material-symbols-outlined text-primary text-lg">more_horiz</span>';
+      html += '<h4 class="text-body-sm font-bold text-on-surface uppercase tracking-wider">Additional Fields</h4>';
+      html += '</div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3">';
+      extra.forEach(function(f) {
+        var v = row[f] || '';
+        fieldCount++;
+        html += '<div><label class="text-[11px] font-semibold text-secondary uppercase tracking-wide block mb-1">' + esc(f.replace(/_/g,' ')) + '</label>';
+        html += '<div class="px-3 py-2 bg-surface-container-low border border-outline-variant rounded-lg text-xs font-data-mono truncate" title="' + escA(String(v)) + '">' + (esc(String(v)) || '<span class="text-outline">\u2014</span>') + '</div></div>';
+      });
+      html += '</div></div>';
+    }
+  }
+  c.innerHTML = html;
+  var fc = document.getElementById('modalFieldCount');
+  if (fc) fc.textContent = fieldCount + ' fields';
+}
+
+function viewRow(idx) {
+  if (idx < 0 || idx >= allData.length || !allData[idx]) { showToast('Record not found. Please refresh the page.','error'); return; }
+  var row = allData[idx];
+  document.getElementById('modalTitle').textContent = 'Application Details';
+  document.getElementById('modalSubtitle').textContent = '#' + (row.application_id || idx) + ' — Read-only view';
+  document.getElementById('modalIcon').innerHTML = '<span class="material-symbols-outlined text-on-primary">visibility</span>';
+  document.getElementById('modalIcon').className = 'p-2 bg-tertiary rounded-lg';
+  buildModalFields(row, true);
+  document.getElementById('modalActions').style.display = 'none';
+  document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+
+// ============================================================
+// GLOBAL SEARCH
+// ============================================================
+var searchDebounce = null;
+function handleGlobalSearch() {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(function() {
+    var q = document.getElementById('globalSearch').value.trim();
+    if (q.length > 0) {
+      switchPage('applications');
+    }
+    applyFilters();
+  }, 300);
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+var notifications = [];
+var notifOpen = false;
+
+function toggleNotifications() {
+  notifOpen = !notifOpen;
+  var panel = document.getElementById('notifPanel');
+  panel.style.display = notifOpen ? 'block' : 'none';
+  if (notifOpen) {
+    document.getElementById('notifDot').style.display = 'none';
+    renderNotifications();
+  }
+}
+
+function addNotification(icon, text, type) {
+  notifications.unshift({ icon:icon, text:text, type:type||'info', time:new Date().toLocaleTimeString() });
+  if (notifications.length > 50) notifications = notifications.slice(0,50);
+  document.getElementById('notifDot').style.display = '';
+}
+
+function renderNotifications() {
+  var c = document.getElementById('notifList');
+  if (notifications.length === 0) {
+    c.innerHTML = '<div class="px-4 py-8 text-center text-secondary text-body-sm">No notifications yet.</div>';
+    return;
+  }
+  c.innerHTML = notifications.slice(0,20).map(function(n) {
+    var bg = n.type==='success'?'bg-[#DCFCE7]':n.type==='error'?'bg-[#FEE2E2]':n.type==='warn'?'bg-[#FEF3C7]':'bg-[#DBEAFE]';
+    var tc = n.type==='success'?'text-[#166534]':n.type==='error'?'text-[#991B1B]':n.type==='warn'?'text-[#92400E]':'text-[#1E40AF]';
+    return '<div class="flex gap-3 items-start px-4 py-3 border-b border-surface-container-low hover:bg-surface-container-low transition-colors cursor-default">'+
+      '<div class="p-1.5 rounded-lg shrink-0 '+bg+'"><span class="material-symbols-outlined text-sm '+tc+'">'+n.icon+'</span></div>'+
+      '<div class="flex-1 min-w-0"><p class="text-body-sm text-on-surface">'+n.text+'</p><p class="text-[10px] text-secondary mt-0.5">'+n.time+'</p></div></div>';
+  }).join('');
+}
+
+function clearNotifications() {
+  notifications = [];
+  renderNotifications();
+  document.getElementById('notifDot').style.display = 'none';
+}
+
+// Close notification panel when clicking outside
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('notifPanel');
+  var btn = document.getElementById('notifBtn');
+  if (notifOpen && !panel.contains(e.target) && !btn.contains(e.target)) {
+    notifOpen = false;
+    panel.style.display = 'none';
+  }
+});
+
+function saveEditModal() {
+  var inputs = document.querySelectorAll('#modalFields input[data-field], #modalFields textarea[data-field]');
+  var savePromise;
+  if (isAddMode) {
+    var newRow = {};
+    inputs.forEach(function(inp) { newRow[inp.dataset.field] = inp.value; });
+    allData.push(newRow);
+    addAuditLog('ADD', newRow.application_id || 'N/A', '-', '-', 'New record added');
+    savePromise = addOneRecord(newRow);
+  } else {
+    var row = allData[editingRowIdx];
+    inputs.forEach(function(inp) {
+      var f = inp.dataset.field, ov = row[f] || '', nv = inp.value;
+      if (ov !== nv) { addAuditLog('EDIT', row.application_id || String(editingRowIdx), f, ov, nv); row[f] = nv; }
+    });
+    savePromise = saveOneRecord(row);
+  }
+  closeEditModal();
+  applyFilters();
+  showToast(isAddMode ? 'Record added' : 'Record updated', 'success');
+  savePromise.then(function() {
+    setTimeout(applyDashboardFilters, 100);
+  }).catch(function(err) {
+    console.error('Save failed:', err);
+    showToast('DB sync failed — changes are in memory.', 'error');
+  });
+}
+
+// ============================================================
+// DASHBOARD STATS
+// ============================================================
+function applyDashboardFilters() {
+  var period = document.getElementById('dashDateFilter').value;
+  var region = document.getElementById('dashRegionFilter').value;
+  var area   = document.getElementById('dashAreaFilter').value;
+
+  var now = new Date(); now.setHours(0,0,0,0);
+  var todayStr = now.toISOString().slice(0,10);
+  var yesterStr = new Date(now - 86400000).toISOString().slice(0,10);
+  // start of week (Monday)
+  var weekStart = new Date(now); weekStart.setDate(now.getDate() - now.getDay() + (now.getDay()===0?-6:1));
+  var weekStartStr = weekStart.toISOString().slice(0,10);
+  // start of month
+  var monthStartStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-01';
+
+  dashFilteredData = allData.filter(function(row) {
+    // Region filter by App ID prefix
+    if (region !== 'all') {
+      var appId = String(row.application_id || '').trim();
+      if (region === 'south' && appId.charAt(0) !== '1') return false;
+      if (region === 'north' && appId.charAt(0) !== '2') return false;
+    }
+    // Area filter — refreshed below based on region
+    if (area !== 'all' && row.areaoffice_name !== area) return false;
+    // Date filter
+    var d = row['application-date'];
+    if (period === 'today') {
+      if (!d || d.slice(0,10) !== todayStr) return false;
+    } else if (period === 'yesterday') {
+      if (!d || d.slice(0,10) !== yesterStr) return false;
+    } else if (period === 'week') {
+      if (!d || d.slice(0,10) < weekStartStr) return false;
+    } else if (period === 'month') {
+      if (!d || d.slice(0,10) < monthStartStr) return false;
+    } else if (period !== 'all') {
+      if (!d) return false;
+      var cutoff = new Date(now); cutoff.setDate(now.getDate() - parseInt(period));
+      if (new Date(d) < cutoff) return false;
+    }
+    return true;
+  });
+
+  // Refresh area dropdown filtered by region
+  var regionAreas = {};
+  dashFilteredData.forEach(function(r) { if (r.areaoffice_name) regionAreas[r.areaoffice_name] = 1; });
+  var prevArea = document.getElementById('dashAreaFilter').value;
+  fillSelect('dashAreaFilter', Object.keys(regionAreas).sort());
+  if (regionAreas[prevArea]) document.getElementById('dashAreaFilter').value = prevArea;
+
+  // Date range label
+  var rangeLabel = document.getElementById('dashDateRangeLabel');
+  if (rangeLabel) {
+    var dates = dashFilteredData.map(function(r){return r['application-date'];}).filter(Boolean).sort();
+    if (dates.length > 0) {
+      var fmt = function(d) { var p=d.slice(0,10).split('-'); return p[2]+'/'+p[1]+'/'+p[0].slice(2); };
+      rangeLabel.textContent = 'Showing: ' + fmt(dates[0]) + ' – ' + fmt(dates[dates.length-1]) + ' · ' + dashFilteredData.length.toLocaleString() + ' records';
+    } else { rangeLabel.textContent = ''; }
+  }
+
+  updateDataStatus();
+  renderDashboardStats();
+  renderDashboardCharts();
+  renderTopAreas();
+  renderFunnel();
+  renderFillingStatus();
+}
+
+// ============================================================
+// APPLICATION FILLING STATUS WIDGET
+// ============================================================
+function renderFillingStatus() {
+  var fillingKeywords = ['filling','application filling','under filling','being filled','in filing','filing'];
+  var fillingRows = dashFilteredData.filter(function(r) {
+    return fillingKeywords.some(function(kw) {
+      return (r.applicationstatus || '').toLowerCase().indexOf(kw) !== -1 ||
+             (r.stage || '').toLowerCase().indexOf(kw) !== -1;
+    });
+  });
+
+  // Also count any status that literally contains 'fill'
+  if (fillingRows.length === 0) {
+    fillingRows = dashFilteredData.filter(function(r) {
+      return (r.applicationstatus || '').toLowerCase().indexOf('fill') !== -1;
+    });
+  }
+
+  var total = dashFilteredData.length;
+  var count = fillingRows.length;
+  var pct = total > 0 ? Math.round(count / total * 100) : 0;
+  var circumference = 251.3;
+  var offset = circumference - (circumference * pct / 100);
+
+  var badge = document.getElementById('fillingBadge');
+  var countEl = document.getElementById('fillingCount');
+  var circle = document.getElementById('fillingCircle');
+  var ofTotalEl = document.getElementById('fillingOfTotal');
+  if (badge) badge.textContent = count.toLocaleString();
+  if (countEl) countEl.textContent = count.toLocaleString();
+  if (circle) circle.setAttribute('stroke-dashoffset', offset);
+  if (ofTotalEl) ofTotalEl.textContent = total > 0 ? pct + '% of ' + total.toLocaleString() + ' total' : '';
+
+  // Breakdown by area
+  var areaMap = {};
+  fillingRows.forEach(function(r) {
+    var a = r.areaoffice_name || 'Unknown';
+    areaMap[a] = (areaMap[a] || 0) + 1;
+  });
+  var rows = document.getElementById('fillingStatusRows');
+  if (!rows) return;
+  rows.innerHTML = '';
+  var sorted = Object.entries(areaMap).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+  if (sorted.length === 0 && total > 0) {
+    rows.innerHTML = '<p class="text-center text-secondary text-body-sm py-2">No applications in filling stage</p>';
+    return;
+  }
+  sorted.forEach(function(pair) {
+    var barPct = count > 0 ? Math.round(pair[1]/count*100) : 0;
+    var div = document.createElement('div');
+    div.innerHTML = '<div class="flex justify-between text-xs mb-1"><span class="text-secondary truncate max-w-[150px]">' + esc(pair[0]) + '</span><span class="font-bold text-on-surface">' + pair[1] + '</span></div><div class="h-1.5 bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full" style="width:' + barPct + '%"></div></div>';
+    rows.appendChild(div);
+  });
+}
+
+// ============================================================
+// STAT CARD CLICK — FILTER TO STATUS
+// ============================================================
+function filterToStatus(type) {
+  // Clear multi-select filters first
+  msSelected.status = []; msSelected.loantype = []; msSelected.area = [];
+  if (type === 'disbursed') {
+    msSelected.status = msOptions.status.filter(function(s) { return s.toUpperCase().indexOf('DISBURSED') !== -1; });
+  } else if (type === 'rejected') {
+    msSelected.status = msOptions.status.filter(function(s) { return s.toUpperCase().indexOf('REJECTED') !== -1; });
+  } else if (type === 'pending') {
+    msSelected.status = msOptions.status.filter(function(s) {
+      var u = s.toUpperCase();
+      return u.indexOf('DISBURSED') === -1 && u.indexOf('REJECTED') === -1 && u.indexOf('EXPIRED') === -1;
+    });
+  } else if (type === 'credit') {
+    msSelected.status = msOptions.status.filter(function(s) {
+      var u = s.toUpperCase();
+      return u.indexOf('CREDIT') !== -1 || u.indexOf('REVIEW') !== -1;
+    });
+  }
+  buildMsOptions('status', msOptions.status);
+  buildMsOptions('loantype', msOptions.loantype);
+  buildMsOptions('area', msOptions.area);
+  switchPage('applications');
+  applyFilters();
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  // ESC closes modals
+  if (e.key === 'Escape') {
+    closeEditModal();
+    var notifPanel = document.getElementById('notifPanel');
+    if (notifOpen) { notifOpen = false; notifPanel.style.display = 'none'; }
+    if (profileOpen) { profileOpen = false; document.getElementById('profilePanel').style.display = 'none'; }
+  }
+  // Ctrl+K or / focuses search
+  if ((e.ctrlKey && e.key === 'k') || (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA')) {
+    e.preventDefault();
+    document.getElementById('globalSearch').focus();
+  }
+});
+
+function renderDashboardStats() {
+  var d = dashFilteredData, total = d.length;
+  var approved = 0, rejected = 0, pending = 0, creditReview = 0, totalAmt = 0;
+
+  d.forEach(function(r) {
+    var s = (r.applicationstatus || '').toUpperCase();
+    if (s.indexOf('DISBURSED') !== -1) approved++;
+    else if (s.indexOf('REJECTED') !== -1) rejected++;
+    else pending++;
+
+    if (r['submit_for_credit_review'] && !r['disbursement_date'] && s.indexOf('REJECTED') === -1 && s.indexOf('EXPIRED') === -1) {
+      creditReview++;
+    }
+    var amt = parseFloat(r.disbursement_amount);
+    if (!isNaN(amt)) totalAmt += amt;
+  });
+
+  document.getElementById('statTotal').textContent = total.toLocaleString();
+  document.getElementById('statApproved').textContent = approved.toLocaleString();
+  document.getElementById('statApprovedPct').textContent = total > 0 ? Math.round(approved / total * 100) + '%' : '0%';
+  document.getElementById('statPending').textContent = pending.toLocaleString();
+  document.getElementById('statRejected').textContent = rejected.toLocaleString();
+  document.getElementById('statCreditReview').textContent = creditReview.toLocaleString();
+
+  var amtStr;
+  if (totalAmt >= 10000000) amtStr = '\u20B9' + (totalAmt / 10000000).toFixed(2) + ' Cr';
+  else if (totalAmt >= 100000) amtStr = '\u20B9' + (totalAmt / 100000).toFixed(2) + ' L';
+  else amtStr = '\u20B9' + totalAmt.toLocaleString('en-IN');
+  document.getElementById('statAmount').textContent = amtStr;
+
+  var creditReviewPctEl = document.getElementById('statCreditReviewPct');
+  if (creditReviewPctEl) creditReviewPctEl.textContent = total > 0 ? Math.round(creditReview/total*100) + '%' : '';
+
+  var nplEl = document.getElementById('nplRatio');
+  if (nplEl && total > 0) {
+    var npl = ((rejected / total) * 100).toFixed(1);
+    nplEl.textContent = 'Overall rejection ratio is ' + npl + '% across ' + total.toLocaleString() + ' applications.';
+  }
+}
+
+function renderDashboardCharts() {
+  renderTrendChart();
+}
+
+function setTrendView(view) {
+  trendView = view;
+  ['daily','weekly','monthly'].forEach(function(v) {
+    var btn = document.getElementById('trendBtn' + v.charAt(0).toUpperCase() + v.slice(1));
+    if (v === view) { btn.className = 'px-3 py-1.5 text-xs font-bold rounded-md transition-all bg-primary text-on-primary'; }
+    else { btn.className = 'px-3 py-1.5 text-xs font-bold rounded-md transition-all text-secondary hover:text-primary'; }
+  });
+  renderTrendChart();
+}
+
+function getWeekKey(dateStr) {
+  var d = new Date(dateStr);
+  var day = d.getDay(); var diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  var mon = new Date(d.setDate(diff));
+  return mon.toISOString().substring(0,10);
+}
+
+function renderTrendChart() {
+  var dataMap = {};
+  var mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  dashFilteredData.forEach(function(r) {
+    var d = r['application-date']; if (!d) return;
+    var key;
+    if (trendView === 'daily') { key = d; }
+    else if (trendView === 'weekly') { key = getWeekKey(d); }
+    else { key = d.substring(0,7); }
+    dataMap[key] = (dataMap[key] || 0) + 1;
+  });
+
+  var sorted = Object.keys(dataMap).sort();
+
+  // Limit labels for daily view to last 60 days to avoid clutter
+  if (trendView === 'daily' && sorted.length > 60) { sorted = sorted.slice(sorted.length - 60); }
+  if (trendView === 'weekly' && sorted.length > 26) { sorted = sorted.slice(sorted.length - 26); }
+
+  var labels = sorted.map(function(k) {
+    if (trendView === 'monthly') {
+      var p = k.split('-'); return mNames[parseInt(p[1]) - 1] + ' ' + p[0].slice(2);
+    } else if (trendView === 'weekly') {
+      var p2 = k.split('-'); return p2[2] + ' ' + mNames[parseInt(p2[1]) - 1];
+    } else {
+      var p3 = k.split('-'); return p3[2] + '/' + p3[1];
+    }
+  });
+
+  var values = sorted.map(function(k) { return dataMap[k]; });
+  var chartType = trendView === 'daily' ? 'line' : 'bar';
+
+  if (chartMonthlyInst) chartMonthlyInst.destroy();
+  chartMonthlyInst = new Chart(document.getElementById('chartMonthly'), {
+    type: chartType,
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Applications',
+        data: values,
+        backgroundColor: trendView === 'daily' ? 'rgba(37,99,235,0.1)' : '#2563eb',
+        borderColor: '#2563eb',
+        borderWidth: trendView === 'daily' ? 2 : 0,
+        borderRadius: chartType === 'bar' ? 6 : 0,
+        barPercentage: 0.6,
+        fill: trendView === 'daily',
+        tension: 0.3,
+        pointRadius: trendView === 'daily' ? 2 : 0,
+        pointHoverRadius: 5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+        x: { grid: { display: false }, ticks: { maxRotation: trendView === 'daily' ? 45 : 0, font: { size: 10 } } }
+      }
+    }
+  });
+
+  // Continue rendering other charts
+  var statusMap = {};
+  dashFilteredData.forEach(function(r) { var s = r.applicationstatus || 'UNKNOWN'; statusMap[s] = (statusMap[s] || 0) + 1; });
+  var sLabels = Object.keys(statusMap).sort(function(a,b){return statusMap[b]-statusMap[a];}).slice(0,8);
+  var sColors = sLabels.map(function(s) {
+    var u = s.toUpperCase();
+    if (u.indexOf('DISBURSED') !== -1 && u.indexOf('FAILED') === -1) return '#16a34a';
+    if (u.indexOf('REJECTED') !== -1) return '#dc2626';
+    if (u.indexOf('EXPIRED') !== -1) return '#6b7280';
+    if (u.indexOf('FILLING') !== -1) return '#f59e0b';
+    if (u.indexOf('FAILED') !== -1) return '#ea580c';
+    return '#2563eb';
+  });
+
+  if (chartStatusInst) chartStatusInst.destroy();
+  chartStatusInst = new Chart(document.getElementById('chartStatus'), {
+    type:'doughnut',
+    data:{ labels:sLabels, datasets:[{ data:sLabels.map(function(s){return statusMap[s];}), backgroundColor:sColors, borderWidth:2, borderColor:'#fff' }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, font:{ size:11 } } } } }
+  });
+
+  var ltMap = {};
+  dashFilteredData.forEach(function(r) { var t = r.loan_type || 'UNKNOWN'; ltMap[t] = (ltMap[t] || 0) + 1; });
+  var ltLabels = Object.keys(ltMap).sort(function(a,b){return ltMap[b]-ltMap[a];});
+  var ltColors = ['#2563eb','#7c3aed','#0891b2','#059669','#d97706','#e11d48'];
+
+  if (chartLoanTypeInst) chartLoanTypeInst.destroy();
+  chartLoanTypeInst = new Chart(document.getElementById('chartLoanType'), {
+    type:'bar',
+    data:{ labels:ltLabels.map(function(l){return l.replace(/_/g,' ');}), datasets:[{ label:'Count', data:ltLabels.map(function(l){return ltMap[l];}), backgroundColor:ltColors.slice(0,ltLabels.length), borderRadius:6 }] },
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ beginAtZero:true, grid:{ color:'#f1f5f9' } }, y:{ grid:{ display:false } } } }
+  });
+}
+
+function renderTopAreas() {
+  var m = {};
+  dashFilteredData.forEach(function(r) { var a = r.areaoffice_name || 'Unknown'; m[a] = (m[a]||0)+1; });
+  var sorted = Object.entries(m).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+  var max = sorted[0] ? sorted[0][1] : 1;
+  document.getElementById('topAreas').innerHTML = sorted.map(function(e) {
+    var regionTag = '';
+    var firstChar = String(e[0] || '').charAt(0);
+    // tag by region based on majority of app IDs in this area
+    var appIdsInArea = dashFilteredData.filter(function(r) { return r.areaoffice_name === e[0]; });
+    var southCount = appIdsInArea.filter(function(r) { return String(r.application_id || '').charAt(0) === '1'; }).length;
+    var northCount = appIdsInArea.filter(function(r) { return String(r.application_id || '').charAt(0) === '2'; }).length;
+    if (southCount > northCount) regionTag = '<span class="ml-1 text-[9px] bg-[#DCFCE7] text-[#166534] px-1 rounded font-bold">S</span>';
+    else if (northCount > southCount) regionTag = '<span class="ml-1 text-[9px] bg-[#DBEAFE] text-[#1E40AF] px-1 rounded font-bold">N</span>';
+    return '<div><div class="flex justify-between text-body-sm mb-1"><span class="text-secondary truncate max-w-[180px] flex items-center gap-1">'+esc(e[0])+regionTag+'</span><span class="font-bold font-mono">'+e[1].toLocaleString()+'</span></div><div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full" style="width:'+Math.round(e[1]/max*100)+'%"></div></div></div>';
+  }).join('');
+}
+
+function renderFunnel() {
+  var d = dashFilteredData, total = d.length;
+  var a1=0, hh=0, pd=0, cr=0, dis=0;
+  d.forEach(function(r) {
+    if (r['app1 pass date']) a1++;
+    if (r['HH credit-o-meter submitted']) hh++;
+    if (r['PD Completed']) pd++;
+    if (r['credit review date']) cr++;
+    if (r['disbursement_date']) dis++;
+  });
+  var steps = [
+    {l:'App Submitted',c:total},{l:'App1 BRE Pass',c:a1},{l:'HH Credit Check',c:hh},
+    {l:'PD Completed',c:pd},{l:'Credit Review',c:cr},{l:'Disbursed',c:dis}
+  ];
+  document.getElementById('funnelStats').innerHTML = steps.map(function(s) {
+    var pct = total > 0 ? Math.round(s.c/total*100) : 0;
+    return '<div><div class="flex justify-between text-body-sm mb-1"><span class="text-secondary">'+s.l+'</span><span class="font-bold">'+pct+'% <span class="text-outline font-normal">('+s.c.toLocaleString()+')</span></span></div><div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full" style="width:'+pct+'%"></div></div></div>';
+  }).join('');
+}
+
+// ============================================================
+// UPLOAD PAGE
+// ============================================================
+function renderUploadSummary() {
+  document.getElementById('sumTotal').textContent = allData.length.toLocaleString();
+  document.getElementById('sumLastUpload').textContent = uploadHistory[0] ? uploadHistory[0].date : 'Never';
+  var dates = allData.map(function(r){return r['application-date'];}).filter(Boolean).sort();
+  document.getElementById('sumDateRange').textContent = dates.length > 0 ? dates[0]+' to '+dates[dates.length-1] : '\u2014';
+  var areas = {}; allData.forEach(function(r){if(r.areaoffice_name) areas[r.areaoffice_name]=1;});
+  document.getElementById('sumAreas').textContent = Object.keys(areas).length;
+}
+
+function renderUploadHistory() {
+  var c = document.getElementById('uploadHistory');
+  if (uploadHistory.length === 0) { c.innerHTML = '<p class="text-body-sm text-secondary">No uploads yet.</p>'; return; }
+  c.innerHTML = uploadHistory.slice(0,10).map(function(h) {
+    return '<div class="flex items-center gap-3 p-3 bg-surface-container-low rounded-lg"><span class="material-symbols-outlined text-primary">cloud_done</span><div class="flex-1"><p class="text-body-sm font-bold">'+esc(h.file)+'</p><p class="text-xs text-secondary">'+h.date+' \u2022 '+h.mode+' \u2022 '+h.count.toLocaleString()+' records</p></div></div>';
+  }).join('');
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportCurrentView() {
+  if (filteredData.length === 0) { showToast('No data to export','error'); return; }
+  downloadCSV(Papa.unparse(filteredData.map(function(r){var c=Object.assign({},r);delete c._rowId;return c;})), 'loan_data_export.csv');
+}
+
+function exportAllData() {
+  if (allData.length === 0) { showToast('No data to export','error'); return; }
+  downloadCSV(Papa.unparse(allData.map(function(r){var c=Object.assign({},r);delete c._rowId;return c;})), 'loan_data_full_export.csv');
+}
+
+function downloadCSV(csv, fn) {
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href = url; a.download = fn;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Exported '+fn,'success');
+}
+
+function confirmClearData() {
+  if (!confirm('Are you sure you want to clear ALL data? This cannot be undone.')) return;
+  allData = []; filteredData = []; dashFilteredData = [];
+  saveDataToDB([]).then(function() {
+    addAuditLog('CLEAR','-','-','-','All data cleared');
+    initAfterLoad();
+    showToast('All data cleared','success');
+  });
+}
+
+// ============================================================
+// AUDIT LOGS
+// ============================================================
+function addAuditLog(action, appId, field, oldVal, newVal) {
+  auditLogs.unshift({ timestamp:new Date().toLocaleString(), action:action, appId:String(appId), field:field, oldVal:String(oldVal).substring(0,100), newVal:String(newVal).substring(0,100) });
+  if (auditLogs.length > 500) auditLogs = auditLogs.slice(0,500);
+  saveMeta('auditLogs', auditLogs);
+  renderAuditLogs();
+}
+
+function renderAuditLogs() {
+  var tb = document.getElementById('auditBody');
+  if (auditLogs.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-secondary">No audit logs yet.</td></tr>'; return; }
+  tb.innerHTML = auditLogs.slice(0,100).map(function(l) {
+    var bc = l.action==='EDIT'?'badge-warn':l.action==='ADD'?'badge-ok':l.action==='UPLOAD'?'badge-blue':'badge-err';
+    return '<tr class="border-b border-surface-container-low"><td class="px-4 py-2 font-mono text-xs whitespace-nowrap">'+l.timestamp+'</td><td class="px-4 py-2"><span class="badge '+bc+'">'+l.action+'</span></td><td class="px-4 py-2 font-mono">'+esc(l.appId)+'</td><td class="px-4 py-2 text-secondary">'+esc(l.field)+'</td><td class="px-4 py-2 text-xs max-w-[150px] truncate">'+esc(l.oldVal)+'</td><td class="px-4 py-2 text-xs max-w-[150px] truncate">'+esc(l.newVal)+'</td></tr>';
+  }).join('');
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function esc(s) { var d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+function escA(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function showLoading(t) { document.getElementById('loadingText').textContent = t || 'Processing...'; document.getElementById('loadingOverlay').style.display = 'flex'; }
+function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
+
+function showToast(msg, type) {
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').textContent = type === 'error' ? 'error' : 'check_circle';
+  var t = document.getElementById('toast'); t.style.display = 'block';
+  setTimeout(function() { t.style.display = 'none'; }, 3000);
+  var icon = type === 'error' ? 'error' : type === 'success' ? 'check_circle' : 'info';
+  addNotification(icon, msg, type || 'info');
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+init();
+</script>
+</body>
+</html>
