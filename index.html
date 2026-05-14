@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<title>CapitalTrust - Loan Management Dashboard</title>
+<title>Inprime Finserv - Loan Management Dashboard</title>
+<link href="company-logo.png" rel="icon" type="image/png"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -82,12 +83,26 @@ body { font-family: 'Inter', sans-serif; }
 .uzone.dragover { @apply border-primary bg-primary-fixed/10; }
 .sidebar-collapsed .sidebar-text { display:none; }
 .sidebar-collapsed .sidebar-brand-text { display:none; }
-.sidebar-collapsed aside { width:72px; }
-.sidebar-collapsed header { left:72px; }
-.sidebar-collapsed main { margin-left:72px; }
+.sidebar-collapsed aside { width:88px; padding:16px 0 !important; }
+.sidebar-collapsed header { left:88px; }
+.sidebar-collapsed main { margin-left:88px; }
+/* Logo styling when collapsed */
+.sidebar-collapsed .px-6 { padding:12px 4px !important; margin-bottom:0 !important; }
+.sidebar-collapsed .flex.items-center.gap-3 { justify-content:center; }
+.sidebar-collapsed .w-20 { width:52px !important; height:52px !important; border-radius:10px !important; }
+/* Navigation styling when collapsed */
+.sidebar-collapsed nav { padding:12px 0; }
+.sidebar-collapsed .nav-link { padding:0 !important; height:48px; margin:4px 8px; border-radius:8px; border-right:none; border-left:none; justify-content:center; color:#64748b; transition:all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-size:22px; }
+.sidebar-collapsed .nav-link:hover { background:#e5f3ff; color:#2563eb; }
+.sidebar-collapsed .nav-link.active { background:#dbeafe; color:#2563eb; }
+/* Buttons styling when collapsed */
+.sidebar-collapsed .sidebar-bottom-btns { padding:12px 4px; border-top:1px solid #e5e7eb; }
 .sidebar-collapsed .sidebar-bottom-btns .btn-label { display:none; }
-.sidebar-collapsed .sidebar-bottom-btns button { justify-content:center; padding-left:0; padding-right:0; }
-.sidebar-collapsed .nav-link { justify-content:center; padding-left:0; padding-right:0; }
+.sidebar-collapsed .sidebar-bottom-btns button { width:60px; height:48px; margin:4px auto; padding:0 !important; border-radius:8px; display:flex; justify-content:center; align-items:center; font-size:20px; transition:all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.sidebar-collapsed .sidebar-bottom-btns button.bg-primary { background:#2563eb; color:white; }
+.sidebar-collapsed .sidebar-bottom-btns button.bg-primary:hover { background:#1d4ed8; }
+.sidebar-collapsed .sidebar-bottom-btns button.bg-surface { background:#f5f5f5; color:#64748b; border:1px solid #e5e7eb; }
+.sidebar-collapsed .sidebar-bottom-btns button.bg-surface:hover { background:#e5e7eb; color:#2563eb; }
 .sidebar-collapsed #dataStatus { display:none; }
 
 /* Mobile: sidebar off-canvas */
@@ -147,7 +162,7 @@ body { font-family: 'Inter', sans-serif; }
 /* Fix panels on mobile - prevent horizontal overflow */
 @media (max-width: 767px) {
   #notifPanel { width: calc(100vw - 32px) !important; right: 16px !important; left: auto !important; max-width: 400px; }
-  #profilePanel { width: calc(100vw - 32px) !important; right: 0 !important; max-width: 320px; }
+  #profilePanel { width: calc(100vw - 32px) !important; right: 16px !important; left: auto !important; max-width: 360px; }
 }
 
 /* Landscape phone handling */
@@ -173,35 +188,38 @@ img { max-width: 100%; height: auto; }
 <aside id="sidebar" class="h-screen w-64 fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col py-8 z-50 transition-all duration-200">
   <div class="px-6 mb-8">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-on-primary shrink-0">
-        <span class="material-symbols-outlined">account_balance</span>
+      <div class="w-20 h-20 rounded-xl overflow-hidden border border-outline-variant bg-white shrink-0 relative">
+        <img alt="Inprime Finserv logo" class="w-full h-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" src="company-logo.png"/>
+        <div class="absolute inset-0 hidden items-center justify-center bg-primary text-on-primary">
+          <span class="material-symbols-outlined">account_balance</span>
+        </div>
       </div>
       <div class="sidebar-brand-text overflow-hidden">
-        <h1 class="font-headline-md text-headline-md font-bold text-primary">CapitalTrust</h1>
-        <p class="text-[10px] text-secondary uppercase tracking-widest font-bold">Loan Management System</p>
+        <h1 class="font-bold text-primary text-[22px] leading-[1.05] tracking-tight">InPrime<span class="block text-[18px] mt-0.5">Finserv</span></h1>
+        <p class="text-[10px] text-secondary uppercase tracking-widest font-bold mt-1">Loan Management System</p>
       </div>
     </div>
   </div>
   <nav class="flex-1 px-4 space-y-1">
-    <a class="nav-link active" data-page="dashboard" href="javascript:void(0)" onclick="switchPage('dashboard')">
+    <a class="nav-link active" data-page="dashboard" href="javascript:void(0)" onclick="switchPage('dashboard')" title="Dashboard">
       <span class="material-symbols-outlined">dashboard</span><span class="font-body-base sidebar-text">Dashboard</span>
     </a>
-    <a class="nav-link" data-page="applications" href="javascript:void(0)" onclick="switchPage('applications')">
+    <a class="nav-link" data-page="applications" href="javascript:void(0)" onclick="switchPage('applications')" title="Applications">
       <span class="material-symbols-outlined">description</span><span class="font-body-base sidebar-text">Applications</span>
     </a>
-    <a class="nav-link" data-page="upload" href="javascript:void(0)" onclick="switchPage('upload')">
+    <a class="nav-link" data-page="upload" href="javascript:void(0)" onclick="switchPage('upload')" title="Bulk Upload">
       <span class="material-symbols-outlined">cloud_upload</span><span class="font-body-base sidebar-text">Bulk Upload</span>
     </a>
-    <a class="nav-link" data-page="audit" href="javascript:void(0)" onclick="switchPage('audit')">
+    <a class="nav-link" data-page="audit" href="javascript:void(0)" onclick="switchPage('audit')" title="Audit Logs">
       <span class="material-symbols-outlined">history</span><span class="font-body-base sidebar-text">Audit Logs</span>
     </a>
   </nav>
   <div class="px-4 mt-auto space-y-2 sidebar-bottom-btns">
     <div id="dataStatus" class="text-xs text-secondary text-center mb-1 sidebar-text">No data loaded</div>
-    <button onclick="openAddModal()" class="w-full py-3 bg-primary text-on-primary rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-on-primary-fixed-variant transition-all active:scale-95">
+    <button onclick="openAddModal()" class="w-full py-3 bg-primary text-on-primary rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-on-primary-fixed-variant transition-all active:scale-95" title="Add New Application">
       <span class="material-symbols-outlined">add_circle</span> <span class="btn-label">New Application</span>
     </button>
-    <button onclick="document.getElementById('csvFileHidden').click()" class="w-full py-2.5 bg-surface border border-outline-variant text-secondary rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-surface-container-low transition-all active:scale-95 text-body-sm">
+    <button onclick="document.getElementById('csvFileHidden').click()" class="w-full py-2.5 bg-surface border border-outline-variant text-secondary rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-surface-container-low transition-all active:scale-95 text-body-sm" title="Load CSV/Excel File">
       <span class="material-symbols-outlined text-sm">upload_file</span> <span class="btn-label">Load File</span>
     </button>
     <input type="file" id="csvFileHidden" accept=".csv,.xlsx,.xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hidden" onchange="handleFileUpload(this.files[0])"/>
@@ -254,28 +272,40 @@ img { max-width: 100%; height: auto; }
     <div class="relative">
       <button onclick="toggleProfile()" id="profileBtn" class="flex items-center gap-2 md:gap-3 hover:bg-surface-container-low rounded-lg px-2 py-1 transition-colors">
         <div class="text-right hidden md:block">
-          <p class="font-body-sm font-bold text-on-surface">Alex Mercer</p>
-          <p class="text-[10px] text-secondary">Senior Credit Analyst</p>
+          <p class="font-body-sm font-bold text-on-surface">Abhi Ranjan</p>
+          <p class="text-[10px] text-secondary">Credit Analyst</p>
         </div>
         <img alt="User profile photo" class="w-10 h-10 rounded-full border-2 border-outline-variant object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2Z5jUOP4fhmKtoHRfWbbcT-gpiaOEj2yVa44hCmQgDpuj49wwzg206qU2YTlIsFfQPhYkFKYiGO_fXZIJOAfzwe4JXNA0X2hyzSzrOJuXtB5Nlw7m26e7Yn6PdDENBnzihpiKOg6sRpcRg3-IdjoYy9lehNFmy76FGYNuYOtds31LNn0E92iHt9nMJVCnSpRdfgpCOdpA9djOoZ-GX-bnpGH6wuDwnpoh8omcFGmXpqcOwnnCN8FxJN9nPWB6o1GH5KcHTnw58EE"/>
       </button>
       <!-- Profile Dropdown -->
-      <div id="profilePanel" class="absolute top-14 right-0 w-72 bg-white border border-outline-variant rounded-xl shadow-2xl z-50 overflow-hidden" style="display:none">
-        <div class="bg-gradient-to-br from-primary to-on-primary-fixed-variant p-6 text-center">
-          <img alt="Profile" class="w-16 h-16 rounded-full border-3 border-white shadow-lg mx-auto mb-3 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2Z5jUOP4fhmKtoHRfWbbcT-gpiaOEj2yVa44hCmQgDpuj49wwzg206qU2YTlIsFfQPhYkFKYiGO_fXZIJOAfzwe4JXNA0X2hyzSzrOJuXtB5Nlw7m26e7Yn6PdDENBnzihpiKOg6sRpcRg3-IdjoYy9lehNFmy76FGYNuYOtds31LNn0E92iHt9nMJVCnSpRdfgpCOdpA9djOoZ-GX-bnpGH6wuDwnpoh8omcFGmXpqcOwnnCN8FxJN9nPWB6o1GH5KcHTnw58EE"/>
-          <h4 class="text-white font-bold text-base">Alex Mercer</h4>
-          <p class="text-white/80 text-xs">Senior Credit Analyst</p>
+      <div id="profilePanel" class="absolute top-14 right-0 w-80 max-w-[calc(100vw-24px)] bg-white border border-outline-variant rounded-2xl shadow-2xl z-50 overflow-hidden" style="display:none">
+        <div class="bg-gradient-to-br from-primary to-on-primary-fixed-variant px-5 pt-6 pb-5 text-center">
+          <img alt="Profile" class="w-16 h-16 rounded-full border-4 border-white/90 shadow-lg mx-auto mb-3 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2Z5jUOP4fhmKtoHRfWbbcT-gpiaOEj2yVa44hCmQgDpuj49wwzg206qU2YTlIsFfQPhYkFKYiGO_fXZIJOAfzwe4JXNA0X2hyzSzrOJuXtB5Nlw7m26e7Yn6PdDENBnzihpiKOg6sRpcRg3-IdjoYy9lehNFmy76FGYNuYOtds31LNn0E92iHt9nMJVCnSpRdfgpCOdpA9djOoZ-GX-bnpGH6wuDwnpoh8omcFGmXpqcOwnnCN8FxJN9nPWB6o1GH5KcHTnw58EE"/>
+          <h4 class="text-white font-bold text-xl leading-tight">Abhi Ranjan</h4>
+          <p class="text-white/85 text-sm mt-1">Credit Analyst</p>
         </div>
-        <div class="p-4 space-y-3">
-          <div class="flex items-center gap-3 text-body-sm"><span class="material-symbols-outlined text-primary text-lg">mail</span><span class="text-secondary">alex.mercer@capitaltrust.com</span></div>
-          <div class="flex items-center gap-3 text-body-sm"><span class="material-symbols-outlined text-primary text-lg">call</span><span class="text-secondary">+91 98765 43210</span></div>
-          <div class="flex items-center gap-3 text-body-sm"><span class="material-symbols-outlined text-primary text-lg">badge</span><span class="text-secondary">Employee ID: CT-2041</span></div>
-          <div class="flex items-center gap-3 text-body-sm"><span class="material-symbols-outlined text-primary text-lg">location_on</span><span class="text-secondary">Head Office, New Delhi</span></div>
+        <div class="px-4 py-4 space-y-2 bg-surface">
+          <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-primary text-lg mt-0.5">mail</span>
+            <span class="text-secondary text-[15px] leading-5 break-all">abhi.ranjan@inprimefinserv.com</span>
+          </div>
+          <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-primary text-lg mt-0.5">call</span>
+            <span class="text-secondary text-[15px] leading-5">+91 9113774886</span>
+          </div>
+          <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-primary text-lg mt-0.5">badge</span>
+            <span class="text-secondary text-[15px] leading-5">Employee ID: IF-2041</span>
+          </div>
+          <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-primary text-lg mt-0.5">location_on</span>
+            <span class="text-secondary text-[15px] leading-5">Head Office, New Delhi</span>
+          </div>
         </div>
-        <div class="border-t border-outline-variant px-4 py-3 space-y-1">
-          <button class="w-full flex items-center gap-3 px-3 py-2 text-body-sm text-secondary hover:bg-surface-container-low rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">settings</span> Account Settings</button>
-          <button class="w-full flex items-center gap-3 px-3 py-2 text-body-sm text-secondary hover:bg-surface-container-low rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">help</span> Help &amp; Support</button>
-          <button class="w-full flex items-center gap-3 px-3 py-2 text-body-sm text-error hover:bg-error-container rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">logout</span> Sign Out</button>
+        <div class="border-t border-outline-variant px-3 py-3 bg-surface-container-low/40 space-y-1.5">
+          <button class="w-full flex items-center gap-3 px-3 py-2.5 text-body-sm text-secondary hover:bg-surface-container-low rounded-xl transition-colors"><span class="material-symbols-outlined text-lg">settings</span> Account Settings</button>
+          <button class="w-full flex items-center gap-3 px-3 py-2.5 text-body-sm text-secondary hover:bg-surface-container-low rounded-xl transition-colors"><span class="material-symbols-outlined text-lg">help</span> Help &amp; Support</button>
+          <button class="w-full flex items-center gap-3 px-3 py-2.5 text-body-sm text-error hover:bg-error-container rounded-xl transition-colors"><span class="material-symbols-outlined text-lg">logout</span> Sign Out</button>
         </div>
       </div>
     </div>
@@ -296,10 +326,9 @@ img { max-width: 100%; height: auto; }
     <div class="flex flex-wrap gap-2">
       <select id="dashDateFilter" class="btn-s text-xs flex-1 md:flex-none" onchange="applyDashboardFilters()">
         <option value="all">All Time</option>
-        <option value="today">Today</option>
-        <option value="yesterday">Yesterday</option>
-        <option value="week">This Week</option>
-        <option value="month">This Month</option>
+        <option value="day">One Day</option>
+        <option value="week">One Week</option>
+        <option value="month">One Month</option>
       </select>
       <select id="dashRegionFilter" class="btn-s text-xs flex-1 md:flex-none" onchange="applyDashboardFilters()">
         <option value="all">All Regions</option>
@@ -334,6 +363,7 @@ img { max-width: 100%; height: auto; }
     <div class="card border-l-4 border-l-[#FEF3C7] cursor-pointer hover:bg-[#FEF3C7]/40 transition-all" onclick="filterToStatus('pending')" title="Click to view Pending applications">
       <div class="flex justify-between items-start mb-3">
         <div class="p-2 bg-[#FEF3C7] rounded-lg"><span class="material-symbols-outlined text-[#92400E]">pending</span></div>
+        <span class="text-label-caps text-[#92400E]" id="statPendingPct">0%</span>
       </div>
       <p class="text-label-caps text-secondary uppercase mb-1">Pending</p>
       <h3 class="font-display-lg text-2xl text-on-surface" id="statPending">0</h3>
@@ -341,6 +371,7 @@ img { max-width: 100%; height: auto; }
     <div class="card border-l-4 border-l-[#FEE2E2] cursor-pointer hover:bg-[#FEE2E2]/40 transition-all" onclick="filterToStatus('rejected')" title="Click to view Rejected applications">
       <div class="flex justify-between items-start mb-3">
         <div class="p-2 bg-[#FEE2E2] rounded-lg"><span class="material-symbols-outlined text-[#991B1B]">cancel</span></div>
+        <span class="text-label-caps text-[#991B1B]" id="statRejectedPct">0%</span>
       </div>
       <p class="text-label-caps text-secondary uppercase mb-1">Rejected</p>
       <h3 class="font-display-lg text-2xl text-on-surface" id="statRejected">0</h3>
@@ -423,7 +454,7 @@ img { max-width: 100%; height: auto; }
       <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
         <div class="flex justify-between items-center mb-5">
           <div>
-            <h4 class="font-body-sm font-bold text-on-surface uppercase tracking-wider">Application Filling</h4>
+            <h4 class="font-body-sm font-bold text-on-surface uppercase tracking-wider">Upcoming Files Porb</h4>
             <p class="text-xs text-secondary mt-0.5">Applications currently being filled</p>
           </div>
           <span class="text-xs bg-[#DBEAFE] text-[#1E40AF] px-2 py-1 rounded font-bold" id="fillingBadge">0</span>
@@ -478,7 +509,7 @@ img { max-width: 100%; height: auto; }
 
   <!-- Footer -->
   <div class="mt-8 pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4 text-body-sm text-secondary">
-    <p>&copy; 2024 CapitalTrust LMS. All rights reserved.</p>
+    <p>&copy; 2024 Inprime Finserv LMS. All rights reserved.</p>
     <div class="flex gap-6">
       <a class="hover:text-primary transition-colors" href="#">Compliance Policy</a>
       <a class="hover:text-primary transition-colors" href="#">System Status</a>
@@ -724,7 +755,7 @@ var trendView = 'daily';
 var chartStatusInst = null;
 var chartLoanTypeInst = null;
 
-var DB_NAME = 'CapitalTrustLMS';
+var DB_NAME = 'InprimeFinservLMS';
 var DB_VERSION = 2;
 var STORE_DATA = 'loanData';
 var STORE_META = 'meta';
@@ -1012,7 +1043,7 @@ var sidebarCollapsed = false;
 function toggleSidebar() {
   sidebarCollapsed = !sidebarCollapsed;
   document.body.classList.toggle('sidebar-collapsed', sidebarCollapsed);
-  document.getElementById('sidebarToggleBtn').style.left = sidebarCollapsed ? '72px' : '256px';
+  document.getElementById('sidebarToggleBtn').style.left = sidebarCollapsed ? '88px' : '256px';
 }
 
 function openMobileSidebar() {
@@ -1469,19 +1500,58 @@ function saveEditModal() {
 // ============================================================
 // DASHBOARD STATS
 // ============================================================
+function normalizeDateString(rawDate) {
+  if (!rawDate) return '';
+  var s = String(rawDate).trim();
+
+  // yyyy-mm-dd or yyyy-mm-ddThh:mm:ss
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+
+  // dd/mm/yyyy or dd-mm-yyyy
+  var m1 = s.match(/^(\d{2})[\/-](\d{2})[\/-](\d{4})$/);
+  if (m1) return m1[3] + '-' + m1[2] + '-' + m1[1];
+
+  // dd/mm/yy or dd-mm-yy
+  var m2 = s.match(/^(\d{2})[\/-](\d{2})[\/-](\d{2})$/);
+  if (m2) return '20' + m2[3] + '-' + m2[2] + '-' + m2[1];
+
+  var d = new Date(s);
+  if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+  return '';
+}
+
 function applyDashboardFilters() {
   var period = document.getElementById('dashDateFilter').value;
   var region = document.getElementById('dashRegionFilter').value;
   var area   = document.getElementById('dashAreaFilter').value;
 
-  var now = new Date(); now.setHours(0,0,0,0);
-  var todayStr = now.toISOString().slice(0,10);
-  var yesterStr = new Date(now - 86400000).toISOString().slice(0,10);
-  // start of week (Monday)
-  var weekStart = new Date(now); weekStart.setDate(now.getDate() - now.getDay() + (now.getDay()===0?-6:1));
-  var weekStartStr = weekStart.toISOString().slice(0,10);
-  // start of month
-  var monthStartStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-01';
+  // Find max date in dataset (most recent date)
+  var maxDate = '';
+  allData.forEach(function(r) {
+    var d = normalizeDateString(r['application-date']);
+    if (d && d > maxDate) maxDate = d;
+  });
+
+  var dateLimit = '';
+  if (period === 'day' && maxDate) {
+    // Last 1 day from maxDate
+    dateLimit = maxDate;
+  } else if (period === 'week' && maxDate) {
+    // Last 7 days from maxDate
+    var md = new Date(maxDate);
+    var wd = new Date(md.getTime() - 7 * 24 * 60 * 60 * 1000);
+    dateLimit = wd.toISOString().slice(0,10);
+  } else if (period === 'month' && maxDate) {
+    // Last 30 days from maxDate
+    var md = new Date(maxDate);
+    var md30 = new Date(md.getTime() - 30 * 24 * 60 * 60 * 1000);
+    dateLimit = md30.toISOString().slice(0,10);
+  }
+
+  // For average calculations
+  window.useAverages = false;
+  window.uniqueDaysCount = 0;
+  window.uniqueWeeksCount = 0;
 
   dashFilteredData = allData.filter(function(row) {
     // Region filter by App ID prefix
@@ -1492,23 +1562,41 @@ function applyDashboardFilters() {
     }
     // Area filter — refreshed below based on region
     if (area !== 'all' && row.areaoffice_name !== area) return false;
-    // Date filter
-    var d = row['application-date'];
-    if (period === 'today') {
-      if (!d || d.slice(0,10) !== todayStr) return false;
-    } else if (period === 'yesterday') {
-      if (!d || d.slice(0,10) !== yesterStr) return false;
+
+    // Date filter with normalized date
+    var d = normalizeDateString(row['application-date']);
+    if (period === 'day') {
+      if (!d || d !== maxDate) return false;
     } else if (period === 'week') {
-      if (!d || d.slice(0,10) < weekStartStr) return false;
+      if (!d || d < dateLimit || d > maxDate) return false;
     } else if (period === 'month') {
-      if (!d || d.slice(0,10) < monthStartStr) return false;
-    } else if (period !== 'all') {
-      if (!d) return false;
-      var cutoff = new Date(now); cutoff.setDate(now.getDate() - parseInt(period));
-      if (new Date(d) < cutoff) return false;
+      if (!d || d < dateLimit || d > maxDate) return false;
     }
     return true;
   });
+
+  // For One Day, One Week, or One Month - calculate averages
+  if (period === 'day' || period === 'week' || period === 'month') {
+    window.useAverages = true;
+    var dateMap = {};
+    var weekMap = {};
+    var monthMap = {};
+    
+    allData.forEach(function(r) {
+      var d = normalizeDateString(r['application-date']);
+      if (d) {
+        dateMap[d] = 1;
+        var weekKey = getWeekKey(d);
+        weekMap[weekKey] = 1;
+        var monthKey = d.substring(0, 7);
+        monthMap[monthKey] = 1;
+      }
+    });
+    
+    window.uniqueDaysCount = Object.keys(dateMap).length;
+    window.uniqueWeeksCount = Object.keys(weekMap).length;
+    window.uniqueMonthsCount = Object.keys(monthMap).length;
+  }
 
   // Refresh area dropdown filtered by region
   var regionAreas = {};
@@ -1525,6 +1613,18 @@ function applyDashboardFilters() {
       var fmt = function(d) { var p=d.slice(0,10).split('-'); return p[2]+'/'+p[1]+'/'+p[0].slice(2); };
       rangeLabel.textContent = 'Showing: ' + fmt(dates[0]) + ' – ' + fmt(dates[dates.length-1]) + ' · ' + dashFilteredData.length.toLocaleString() + ' records';
     } else { rangeLabel.textContent = ''; }
+  }
+
+  // Keep chart granularity aligned with date filter selection
+  var targetTrend = period === 'day' ? 'daily' : period === 'week' ? 'weekly' : period === 'month' ? 'monthly' : '';
+  if (targetTrend && trendView !== targetTrend) {
+    trendView = targetTrend;
+    ['daily','weekly','monthly'].forEach(function(v) {
+      var btn = document.getElementById('trendBtn' + v.charAt(0).toUpperCase() + v.slice(1));
+      if (!btn) return;
+      if (v === targetTrend) btn.className = 'px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md transition-all bg-primary text-on-primary';
+      else btn.className = 'px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md transition-all text-secondary hover:text-primary';
+    });
   }
 
   updateDataStatus();
@@ -1652,17 +1752,43 @@ function renderDashboardStats() {
     if (!isNaN(amt)) totalAmt += amt;
   });
 
-  document.getElementById('statTotal').textContent = total.toLocaleString();
-  document.getElementById('statApproved').textContent = approved.toLocaleString();
+  // Apply averaging if in daily/weekly mode
+  var divisor = 1;
+  var avgLabel = '';
+  if (window.useAverages) {
+    var period = document.getElementById('dashDateFilter').value;
+    if (period === 'month' && window.uniqueMonthsCount > 0) {
+      divisor = window.uniqueMonthsCount;
+      avgLabel = ' / month';
+    } else if (period === 'week' && window.uniqueWeeksCount > 0) {
+      divisor = window.uniqueWeeksCount;
+      avgLabel = ' / wk';
+    } else if (period === 'day' && window.uniqueDaysCount > 0) {
+      divisor = window.uniqueDaysCount;
+      avgLabel = ' / day';
+    }
+  }
+
+  var displayTotal = Math.round(total / divisor);
+  var displayApproved = Math.round(approved / divisor);
+  var displayPending = Math.round(pending / divisor);
+  var displayRejected = Math.round(rejected / divisor);
+  var displayCreditReview = Math.round(creditReview / divisor);
+  var displayAmt = Math.round(totalAmt / divisor);
+
+  document.getElementById('statTotal').textContent = displayTotal.toLocaleString() + avgLabel;
+  document.getElementById('statApproved').textContent = displayApproved.toLocaleString() + avgLabel;
   document.getElementById('statApprovedPct').textContent = total > 0 ? Math.round(approved / total * 100) + '%' : '0%';
-  document.getElementById('statPending').textContent = pending.toLocaleString();
-  document.getElementById('statRejected').textContent = rejected.toLocaleString();
-  document.getElementById('statCreditReview').textContent = creditReview.toLocaleString();
+  document.getElementById('statPendingPct').textContent = total > 0 ? Math.round(pending / total * 100) + '%' : '0%';
+  document.getElementById('statRejectedPct').textContent = total > 0 ? Math.round(rejected / total * 100) + '%' : '0%';
+  document.getElementById('statPending').textContent = displayPending.toLocaleString() + avgLabel;
+  document.getElementById('statRejected').textContent = displayRejected.toLocaleString() + avgLabel;
+  document.getElementById('statCreditReview').textContent = displayCreditReview.toLocaleString() + avgLabel;
 
   var amtStr;
-  if (totalAmt >= 10000000) amtStr = '\u20B9' + (totalAmt / 10000000).toFixed(2) + ' Cr';
-  else if (totalAmt >= 100000) amtStr = '\u20B9' + (totalAmt / 100000).toFixed(2) + ' L';
-  else amtStr = '\u20B9' + totalAmt.toLocaleString('en-IN');
+  if (displayAmt >= 10000000) amtStr = '\u20B9' + (displayAmt / 10000000).toFixed(2) + ' Cr' + avgLabel;
+  else if (displayAmt >= 100000) amtStr = '\u20B9' + (displayAmt / 100000).toFixed(2) + ' L' + avgLabel;
+  else amtStr = '\u20B9' + displayAmt.toLocaleString('en-IN') + avgLabel;
   document.getElementById('statAmount').textContent = amtStr;
 
   var creditReviewPctEl = document.getElementById('statCreditReviewPct');
@@ -1671,7 +1797,8 @@ function renderDashboardStats() {
   var nplEl = document.getElementById('nplRatio');
   if (nplEl && total > 0) {
     var npl = ((rejected / total) * 100).toFixed(1);
-    nplEl.textContent = 'Overall rejection ratio is ' + npl + '% across ' + total.toLocaleString() + ' applications.';
+    var recordsText = window.useAverages ? 'average' : 'across ' + total.toLocaleString() + ' applications';
+    nplEl.textContent = 'Overall rejection ratio is ' + npl + '% ' + recordsText + '.';
   }
 }
 
@@ -1683,8 +1810,9 @@ function setTrendView(view) {
   trendView = view;
   ['daily','weekly','monthly'].forEach(function(v) {
     var btn = document.getElementById('trendBtn' + v.charAt(0).toUpperCase() + v.slice(1));
-    if (v === view) { btn.className = 'px-3 py-1.5 text-xs font-bold rounded-md transition-all bg-primary text-on-primary'; }
-    else { btn.className = 'px-3 py-1.5 text-xs font-bold rounded-md transition-all text-secondary hover:text-primary'; }
+    if (!btn) return;
+    if (v === view) { btn.className = 'px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md transition-all bg-primary text-on-primary'; }
+    else { btn.className = 'px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md transition-all text-secondary hover:text-primary'; }
   });
   renderTrendChart();
 }
@@ -1701,7 +1829,8 @@ function renderTrendChart() {
   var mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
   dashFilteredData.forEach(function(r) {
-    var d = r['application-date']; if (!d) return;
+    var d = normalizeDateString(r['application-date']);
+    if (!d) return;
     var key;
     if (trendView === 'daily') { key = d; }
     else if (trendView === 'weekly') { key = getWeekKey(d); }
