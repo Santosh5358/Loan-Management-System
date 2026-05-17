@@ -1015,7 +1015,7 @@ var dashboardUserFilter = 'all';
 var APP_USERS = [
   { id:'admin', name:'Priya Nair', role:'Admin', email:'admin@inprimecore.com' },
   { id:'abhi', name:'Abhi Ranjan', role:'Credit Analyst', email:'abhi.ranjan@inprimecore.com' },
-  { id:'neha', name:'Neha Sharma', role:'Senior Underwriter', email:'neha.sharma@inprimecore.com' }
+  { id:'backend', name:'Backend Gems', role:'Senior Underwriter', email:'backend.gems@inprimecore.com' }
 ];
 
 var DB_NAME = 'InprimeFinservLMS';
@@ -1425,7 +1425,7 @@ function isRowOwnedByUser(row, userId) {
   var roName = String(row.ro_name || '').toLowerCase();
   var roId = String(row.ro_id || '').toLowerCase();
   if (userId === 'abhi') return roName.indexOf('abhi') !== -1 || roId.indexOf('2041') !== -1;
-  if (userId === 'neha') return roName.indexOf('neha') !== -1 || roId.indexOf('3188') !== -1;
+  if (userId === 'backend') return roName.indexOf('backend') !== -1 || roId.indexOf('3188') !== -1;
   return false;
 }
 
@@ -2662,7 +2662,7 @@ function showToast(msg, type) {
 var LOGIN_USERS = [
   { id:'admin', name:'Priya Nair', role:'Admin', email:'admin@inprimecore.com', password:'Admin@123' },
   { id:'abhi', name:'Abhi Ranjan', role:'Credit Analyst', email:'abhi.ranjan@inprimecore.com', password:'Abhi@123' },
-  { id:'neha', name:'Neha Sharma', role:'Senior Underwriter', email:'neha.sharma@inprimecore.com', password:'Neha@123' }
+  { id:'backend', name:'Backend Gems', role:'Senior Underwriter', email:'backend.gems@inprimecore.com', password:'Backend@123' }
 ];
 
 (function initLoginForm() {
