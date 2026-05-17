@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<title>Inprime Finserv - Loan Management Dashboard</title>
+<title>Inprime Finserv</title>
 <link href="company-logo.png" rel="icon" type="image/png"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -182,7 +182,7 @@ img { max-width: 100%; height: auto; }
 <body class="bg-background text-on-surface font-body-base overflow-x-hidden">
 
 <!-- Mobile overlay -->
-<div id="mobileOverlay" onclick="closeMobileSidebar()"></div>
+<div id="mobileOverlay"></div>
 
 <!-- ========== SIDEBAR ========== -->
 <aside id="sidebar" class="h-screen w-64 fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col py-8 z-50 transition-all duration-200">
@@ -196,7 +196,6 @@ img { max-width: 100%; height: auto; }
       </div>
       <div class="sidebar-brand-text overflow-hidden">
         <h1 class="font-bold text-primary text-[22px] leading-[1.05] tracking-tight">InPrime<span class="block text-[18px] mt-0.5">Finserv</span></h1>
-        <p class="text-[10px] text-secondary uppercase tracking-widest font-bold mt-1">Loan Management System</p>
       </div>
     </div>
   </div>
@@ -236,7 +235,7 @@ img { max-width: 100%; height: auto; }
 <!-- ========== TOP BAR ========== -->
 <header id="topbar" class="h-16 fixed top-0 right-0 left-64 bg-surface border-b border-outline-variant flex justify-between items-center px-4 md:px-gutter z-40 transition-all duration-200">
   <div class="flex items-center gap-3 flex-1">
-    <button id="mobileMenuBtn" onclick="openMobileSidebar()" class="p-2 hover:bg-surface-container-high rounded-lg transition-colors">
+    <button id="mobileMenuBtn" onclick="toggleSidebar()" class="p-2 hover:bg-surface-container-high rounded-lg transition-colors">
       <span class="material-symbols-outlined">menu</span>
     </button>
     <div class="relative w-full max-w-md">
@@ -394,99 +393,72 @@ img { max-width: 100%; height: auto; }
   </div>
 
   <!-- Quality & Rework Metrics Section -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-8">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-7 mb-8">
     <!-- Decision Quality Card -->
-    <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
-      <h4 class="font-headline-md text-on-surface mb-1">Decision Quality</h4>
-      <p class="text-body-sm text-secondary mb-6">Total Decisioned: <span class="font-bold text-on-surface" id="totalDecisioned">998</span></p>
-      
-      <div class="space-y-5">
-        <!-- First Time Right (FTR) -->
-        <div class="flex items-start gap-4">
-          <div class="flex-shrink-0 p-3 bg-[#DCFCE7] rounded-lg">
-            <span class="material-symbols-outlined text-[#166534] text-2xl">check_circle</span>
-          </div>
-          <div class="flex-1">
-            <p class="text-label-caps text-secondary uppercase mb-1">First Time Right (FTR)</p>
-            <div class="flex items-baseline gap-2 mb-1">
-              <span class="font-display-lg text-2xl text-[#166534]" id="ftrCount">842</span>
-              <span class="text-label-caps text-[#166534] font-bold" id="ftrPct">84.4%</span>
-            </div>
-            <p class="text-xs text-secondary">Approved without rework</p>
-          </div>
-        </div>
-
-        <!-- First Time Not Right (FTNR) -->
-        <div class="flex items-start gap-4">
-          <div class="flex-shrink-0 p-3 bg-[#FEE2E2] rounded-lg">
-            <span class="material-symbols-outlined text-[#991B1B] text-2xl">info</span>
-          </div>
-          <div class="flex-1">
-            <p class="text-label-caps text-secondary uppercase mb-1">First Time Not Right (FTNR)</p>
-            <div class="flex items-baseline gap-2 mb-1">
-              <span class="font-display-lg text-2xl text-[#991B1B]" id="ftnrCount">156</span>
-              <span class="text-label-caps text-[#991B1B] font-bold" id="ftnrPct">15.6%</span>
-            </div>
-            <p class="text-xs text-secondary">Required post-decision edit</p>
-          </div>
-        </div>
+    <div class="bg-[#f8f9fb] border border-[#e6e8ec] rounded-2xl p-6 md:p-7 shadow-sm min-h-[278px]">
+      <div class="flex items-start gap-3 mb-6">
+        <span class="w-2 h-8 rounded-full bg-[#e7edf8]"></span>
+        <h4 class="text-lg md:text-xl leading-tight tracking-[0.04em] text-on-surface font-bold uppercase">Decision Quality <span class="text-secondary text-sm md:text-base">(Total Decisioned: <span id="totalDecisioned">998</span>)</span></h4>
       </div>
 
-      <!-- Decision Quality Trend -->
-      <div class="mt-6 pt-6 border-t border-outline-variant">
-        <p class="text-xs text-secondary mb-3">Monthly Trend</p>
-        <div class="h-20"><canvas id="chartDecisionQuality"></canvas></div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="relative bg-[#f1f3f7] border border-[#e6e9ef] rounded-2xl px-5 py-5 overflow-hidden min-h-[164px]">
+          <span class="absolute left-0 top-4 bottom-4 w-1 rounded-full bg-[#139f86]"></span>
+          <p class="text-[11px] md:text-xs uppercase tracking-[0.06em] text-[#4b5563] font-semibold mb-2">First Time Right (FTR)</p>
+          <div class="flex items-baseline gap-3 mb-1">
+            <span class="text-4xl md:text-[42px] leading-none font-bold text-[#1f2937]" id="ftrCount">842</span>
+            <span class="text-lg md:text-xl font-bold text-[#10a48f]" id="ftrPct">84.4%</span>
+          </div>
+          <p class="text-xs md:text-sm text-[#6b7280] italic">Approved without rework</p>
+        </div>
+
+        <div class="relative bg-[#f1f3f7] border border-[#e6e9ef] rounded-2xl px-5 py-5 overflow-hidden min-h-[164px]">
+          <span class="absolute left-0 top-4 bottom-4 w-1 rounded-full bg-[#ef4444]"></span>
+          <p class="text-[11px] md:text-xs uppercase tracking-[0.06em] text-[#4b5563] font-semibold mb-2">First Time Not Right (FTNR)</p>
+          <div class="flex items-baseline gap-3 mb-1">
+            <span class="text-4xl md:text-[42px] leading-none font-bold text-[#1f2937]" id="ftnrCount">156</span>
+            <span class="text-lg md:text-xl font-bold text-[#ef4444]" id="ftnrPct">15.6%</span>
+          </div>
+          <p class="text-xs md:text-sm text-[#6b7280] italic">Required post-decision edit</p>
+        </div>
       </div>
     </div>
 
     <!-- Rework Analysis Card -->
-    <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
-      <div class="flex justify-between items-start mb-6">
-        <div>
-          <h4 class="font-headline-md text-on-surface">Rework Analysis</h4>
-          <p class="text-body-sm text-secondary">/ Sendbacks</p>
-        </div>
-        <button class="text-xs text-primary font-bold hover:underline flex items-center gap-1" onclick="switchPage('applications')">
-          View Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
+    <div class="bg-[#f8f9fb] border border-[#e6e8ec] rounded-2xl p-6 md:p-7 shadow-sm min-h-[278px]">
+      <div class="flex items-center gap-3 mb-6">
+        <button id="reworkRefreshBtn" onclick="refreshReworkAnalysis()" class="w-10 h-10 rounded-xl bg-[#eef3fb] flex items-center justify-center hover:bg-[#e4ecfa] transition-colors" title="Refresh rework analysis" type="button">
+          <span id="reworkRefreshIcon" class="material-symbols-outlined text-primary text-lg">refresh</span>
         </button>
+        <h4 class="text-lg md:text-xl leading-tight tracking-[0.04em] text-on-surface font-bold uppercase">Rework Analysis / Sendbacks</h4>
       </div>
 
-      <!-- Rework Stats Grid -->
-      <div class="grid grid-cols-2 gap-3 mb-6">
-        <div class="bg-surface-container-low rounded-lg p-4 text-center">
-          <p class="text-label-caps text-secondary uppercase text-[11px] mb-1">Total Reworked</p>
-          <p class="font-display-lg text-2xl text-on-surface" id="totalReworked">312</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <div class="bg-[#f4f6fa] border border-[#e5e8ef] rounded-xl p-4 text-center">
+          <p class="text-[10px] md:text-[11px] uppercase tracking-[0.05em] text-[#6b7280] font-semibold mb-2">Total Reworked</p>
+          <p class="text-3xl md:text-[42px] leading-none font-bold text-[#1d4ed8]" id="totalReworked">312</p>
         </div>
-        <div class="bg-surface-container-low rounded-lg p-4 text-center">
-          <p class="text-label-caps text-secondary uppercase text-[11px] mb-1">1x Rework</p>
-          <p class="font-display-lg text-2xl text-[#2563eb]" id="oneXRework">210</p>
+        <div class="bg-[#f4f6fa] border border-[#e5e8ef] rounded-xl p-4 text-center">
+          <p class="text-[10px] md:text-[11px] uppercase tracking-[0.05em] text-[#6b7280] font-semibold mb-2">1x Rework</p>
+          <p class="text-3xl md:text-[42px] leading-none font-bold text-[#1f2937]" id="oneXRework">210</p>
         </div>
-        <div class="bg-surface-container-low rounded-lg p-4 text-center">
-          <p class="text-label-caps text-secondary uppercase text-[11px] mb-1">2x Rework</p>
-          <p class="font-display-lg text-2xl text-[#f59e0b]" id="twoXRework">78</p>
+        <div class="bg-[#f4f6fa] border border-[#e5e8ef] rounded-xl p-4 text-center">
+          <p class="text-[10px] md:text-[11px] uppercase tracking-[0.05em] text-[#6b7280] font-semibold mb-2">2x Rework</p>
+          <p class="text-3xl md:text-[42px] leading-none font-bold text-[#1f2937]" id="twoXRework">78</p>
         </div>
-        <div class="bg-surface-container-low rounded-lg p-4 text-center">
-          <p class="text-label-caps text-secondary uppercase text-[11px] mb-1">3+ Reworking</p>
-          <p class="font-display-lg text-2xl text-[#ef4444]" id="threeXRework">24</p>
+        <div class="bg-[#f9f6f7] border border-[#f1d9dc] rounded-xl p-4 text-center">
+          <p class="text-[10px] md:text-[11px] uppercase tracking-[0.05em] text-[#ef4444] font-semibold mb-2">3+ Reworks</p>
+          <p class="text-3xl md:text-[42px] leading-none font-bold text-[#ef4444]" id="threeXRework">24</p>
         </div>
       </div>
 
-      <!-- Efficiency Score -->
-      <div class="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg p-4">
-        <div class="flex justify-between items-center mb-2">
-          <span class="text-body-sm font-bold text-on-surface">Process Efficiency</span>
-          <span class="text-label-caps font-bold text-primary" id="efficiencyScore">75%</span>
+      <div class="flex items-center gap-4">
+        <div class="flex-1 h-4 bg-[#e7ebf2] rounded-full overflow-hidden flex items-stretch">
+          <div id="efficiencyBar" class="h-full bg-[#10a79c] transition-all" style="width:75%"></div>
+          <div class="h-full w-[22%] bg-[#334155]"></div>
+          <div class="h-full w-[3%] bg-[#ef4444]"></div>
         </div>
-        <div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
-          <div class="bg-gradient-to-r from-[#22c55e] to-[#16a34a] h-full rounded-full transition-all" id="efficiencyBar" style="width:75%"></div>
-        </div>
-        <p class="text-xs text-secondary mt-2">Higher efficiency = fewer rework rounds</p>
-      </div>
-
-      <!-- Rework Distribution -->
-      <div class="mt-4 pt-4 border-t border-outline-variant">
-        <p class="text-xs text-secondary uppercase font-bold mb-3">Rework Distribution</p>
-        <div class="h-24"><canvas id="chartReworkDist"></canvas></div>
+        <p class="text-sm md:text-base font-semibold text-[#111827] whitespace-nowrap">Efficiency: <span id="efficiencyScore">75%</span></p>
       </div>
     </div>
   </div>
@@ -1134,7 +1106,6 @@ function switchPage(page) {
   var nav = document.querySelector('[data-page="' + page + '"]');
   if (nav) nav.classList.add('active');
   if (window.innerWidth < 768) closeMobileSidebar();
-  else if (sidebarCollapsed) toggleSidebar();
 }
 
 // ============================================================
@@ -1959,12 +1930,15 @@ function renderDashboardStats() {
   efficiency = Math.max(0, Math.min(100, efficiency)); // Clamp between 0-100
   document.getElementById('efficiencyScore').textContent = efficiency + '%';
   var effBar = document.getElementById('efficiencyBar');
-  if (effBar) effBar.style.width = efficiency + '%';
+  if (effBar) {
+    // Keep side segments visible in the visual bar while text shows exact efficiency.
+    var visualEfficiency = Math.max(0, Math.min(75, efficiency));
+    effBar.style.width = visualEfficiency + '%';
+  }
 }
 
 function renderDashboardCharts() {
   renderTrendChart();
-  renderDecisionQualityChart();
   renderReworkDistributionChart();
 }
 
@@ -2120,98 +2094,18 @@ function renderFunnel() {
   }).join('');
 }
 
-// Decision Quality Chart - Shows FTR vs FTNR trend over time
-var chartDecisionQualityInst = null;
-function renderDecisionQualityChart() {
-  var d = dashFilteredData;
-  var mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var monthMap = {};
-  
-  // Build monthly data for decision quality
-  d.forEach(function(r) {
-    var dateStr = normalizeDateString(r['application-date']);
-    if (!dateStr) return;
-    var monthKey = dateStr.substring(0, 7); // YYYY-MM
-    
-    if (!monthMap[monthKey]) {
-      monthMap[monthKey] = { ftr: 0, ftnr: 0 };
-    }
-    
-    // Categorize as FTR or FTNR
-    var remarks = String(r.remarks || r.comments || '').toLowerCase();
-    var reworkCount = 0;
-    if (remarks.indexOf('rework') !== -1 || remarks.indexOf('resubmit') !== -1) {
-      var matches = remarks.match(/rework|resubmit/gi) || [];
-      reworkCount = Math.ceil(matches.length / 2);
-    }
-    
-    var s = (r.applicationstatus || '').toUpperCase();
-    if (reworkCount === 0 && s.indexOf('DISBURSED') !== -1) {
-      monthMap[monthKey].ftr++;
-    } else if (reworkCount === 0 && s.indexOf('REJECTED') === -1 && s.indexOf('EXPIRED') === -1) {
-      monthMap[monthKey].ftnr++;
-    }
-  });
-  
-  var sorted = Object.keys(monthMap).sort().slice(-12); // Last 12 months
-  var labels = sorted.map(function(k) {
-    var p = k.split('-');
-    return mNames[parseInt(p[1]) - 1] + ' ' + p[0].slice(2);
-  });
-  
-  var ftrData = sorted.map(function(k) { return monthMap[k].ftr; });
-  var ftnrData = sorted.map(function(k) { return monthMap[k].ftnr; });
-  
-  var canvasEl = document.getElementById('chartDecisionQuality');
-  if (!canvasEl) return;
-  
-  if (chartDecisionQualityInst) chartDecisionQualityInst.destroy();
-  chartDecisionQualityInst = new Chart(canvasEl, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: 'FTR (First Time Right)',
-          data: ftrData,
-          borderColor: '#16a34a',
-          backgroundColor: 'rgba(22, 163, 74, 0.05)',
-          borderWidth: 2,
-          fill: true,
-          tension: 0.3,
-          pointRadius: 3,
-          pointBackgroundColor: '#16a34a',
-          pointHoverRadius: 5
-        },
-        {
-          label: 'FTNR (First Time Not Right)',
-          data: ftnrData,
-          borderColor: '#dc2626',
-          backgroundColor: 'rgba(220, 38, 38, 0.05)',
-          borderWidth: 2,
-          fill: true,
-          tension: 0.3,
-          pointRadius: 3,
-          pointBackgroundColor: '#dc2626',
-          pointHoverRadius: 5
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { boxWidth: 12, font: { size: 11 }, usePointStyle: true }
-        }
-      },
-      scales: {
-        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
-      }
-    }
-  });
+function refreshReworkAnalysis() {
+  var btn = document.getElementById('reworkRefreshBtn');
+  var icon = document.getElementById('reworkRefreshIcon');
+  if (btn) btn.disabled = true;
+  if (icon) icon.classList.add('animate-spin');
+
+  setTimeout(function() {
+    applyDashboardFilters();
+    if (icon) icon.classList.remove('animate-spin');
+    if (btn) btn.disabled = false;
+    showToast('Rework analysis refreshed', 'success');
+  }, 250);
 }
 
 // Rework Distribution Chart - Shows breakdown of rework attempts
