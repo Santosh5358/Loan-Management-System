@@ -393,6 +393,104 @@ img { max-width: 100%; height: auto; }
     </div>
   </div>
 
+  <!-- Quality & Rework Metrics Section -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-8">
+    <!-- Decision Quality Card -->
+    <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
+      <h4 class="font-headline-md text-on-surface mb-1">Decision Quality</h4>
+      <p class="text-body-sm text-secondary mb-6">Total Decisioned: <span class="font-bold text-on-surface" id="totalDecisioned">998</span></p>
+      
+      <div class="space-y-5">
+        <!-- First Time Right (FTR) -->
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 p-3 bg-[#DCFCE7] rounded-lg">
+            <span class="material-symbols-outlined text-[#166534] text-2xl">check_circle</span>
+          </div>
+          <div class="flex-1">
+            <p class="text-label-caps text-secondary uppercase mb-1">First Time Right (FTR)</p>
+            <div class="flex items-baseline gap-2 mb-1">
+              <span class="font-display-lg text-2xl text-[#166534]" id="ftrCount">842</span>
+              <span class="text-label-caps text-[#166534] font-bold" id="ftrPct">84.4%</span>
+            </div>
+            <p class="text-xs text-secondary">Approved without rework</p>
+          </div>
+        </div>
+
+        <!-- First Time Not Right (FTNR) -->
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 p-3 bg-[#FEE2E2] rounded-lg">
+            <span class="material-symbols-outlined text-[#991B1B] text-2xl">info</span>
+          </div>
+          <div class="flex-1">
+            <p class="text-label-caps text-secondary uppercase mb-1">First Time Not Right (FTNR)</p>
+            <div class="flex items-baseline gap-2 mb-1">
+              <span class="font-display-lg text-2xl text-[#991B1B]" id="ftnrCount">156</span>
+              <span class="text-label-caps text-[#991B1B] font-bold" id="ftnrPct">15.6%</span>
+            </div>
+            <p class="text-xs text-secondary">Required post-decision edit</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decision Quality Trend -->
+      <div class="mt-6 pt-6 border-t border-outline-variant">
+        <p class="text-xs text-secondary mb-3">Monthly Trend</p>
+        <div class="h-20"><canvas id="chartDecisionQuality"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Rework Analysis Card -->
+    <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
+      <div class="flex justify-between items-start mb-6">
+        <div>
+          <h4 class="font-headline-md text-on-surface">Rework Analysis</h4>
+          <p class="text-body-sm text-secondary">/ Sendbacks</p>
+        </div>
+        <button class="text-xs text-primary font-bold hover:underline flex items-center gap-1" onclick="switchPage('applications')">
+          View Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </button>
+      </div>
+
+      <!-- Rework Stats Grid -->
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="bg-surface-container-low rounded-lg p-4 text-center">
+          <p class="text-label-caps text-secondary uppercase text-[11px] mb-1">Total Reworked</p>
+          <p class="font-display-lg text-2xl text-on-surface" id="totalReworked">312</p>
+        </div>
+        <div class="bg-surface-container-low rounded-lg p-4 text-center">
+          <p class="text-label-caps text-secondary uppercase text-[11px] mb-1">1x Rework</p>
+          <p class="font-display-lg text-2xl text-[#2563eb]" id="oneXRework">210</p>
+        </div>
+        <div class="bg-surface-container-low rounded-lg p-4 text-center">
+          <p class="text-label-caps text-secondary uppercase text-[11px] mb-1">2x Rework</p>
+          <p class="font-display-lg text-2xl text-[#f59e0b]" id="twoXRework">78</p>
+        </div>
+        <div class="bg-surface-container-low rounded-lg p-4 text-center">
+          <p class="text-label-caps text-secondary uppercase text-[11px] mb-1">3+ Reworking</p>
+          <p class="font-display-lg text-2xl text-[#ef4444]" id="threeXRework">24</p>
+        </div>
+      </div>
+
+      <!-- Efficiency Score -->
+      <div class="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg p-4">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-body-sm font-bold text-on-surface">Process Efficiency</span>
+          <span class="text-label-caps font-bold text-primary" id="efficiencyScore">75%</span>
+        </div>
+        <div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+          <div class="bg-gradient-to-r from-[#22c55e] to-[#16a34a] h-full rounded-full transition-all" id="efficiencyBar" style="width:75%"></div>
+        </div>
+        <p class="text-xs text-secondary mt-2">Higher efficiency = fewer rework rounds</p>
+      </div>
+
+      <!-- Rework Distribution -->
+      <div class="mt-4 pt-4 border-t border-outline-variant">
+        <p class="text-xs text-secondary uppercase font-bold mb-3">Rework Distribution</p>
+        <div class="h-24"><canvas id="chartReworkDist"></canvas></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Main Charts and Lists Section -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
     <!-- Center Column -->
@@ -968,6 +1066,9 @@ function processDataLoaded(mode, fileName) {
 var DEFAULT_CSV = './Page_1_Raw_Data - 2026-05-04T064339.055.csv';
 
 function init() {
+  // Apply sidebar collapsed state on init
+  document.body.classList.add('sidebar-collapsed');
+  document.getElementById('sidebarToggleBtn').style.left = '88px';
   loadDataFromDB().then(function(data) {
     if (data && data.length > 0) {
       allData = data;
@@ -1039,7 +1140,7 @@ function switchPage(page) {
 // ============================================================
 // SIDEBAR TOGGLE
 // ============================================================
-var sidebarCollapsed = false;
+var sidebarCollapsed = true;
 function toggleSidebar() {
   sidebarCollapsed = !sidebarCollapsed;
   document.body.classList.toggle('sidebar-collapsed', sidebarCollapsed);
@@ -1112,7 +1213,7 @@ function buildMsOptions(key, options) {
     var checked = msSelected[key].indexOf(opt) !== -1;
     var li = document.createElement('label');
     li.className = 'flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors text-body-sm';
-    li.innerHTML = '<input type="checkbox" class="rounded text-primary" value="' + esc(opt) + '" ' + (checked ? 'checked' : '') + ' onchange="onMsChange(\'' + key + '\',this)"/> <span class="truncate">' + esc(opt) + '</span>';
+    li.innerHTML = '<input type="checkbox" class="rounded text-primary flex-shrink-0" value="' + esc(opt) + '" ' + (checked ? 'checked' : '') + ' onchange="onMsChange(\'' + key + '\',this)"/> <span class="break-words text-left">' + esc(opt) + '</span>';
     container.appendChild(li);
   });
   updateMsLabel(key);
@@ -1262,7 +1363,9 @@ function renderTable() {
       var gi = r._rowId ? (r._rowId - 1) : allData.indexOf(r);
       html += '<tr class="trow border-b border-surface-container-low transition-colors">';
       for (var j = 0; j < TABLE_COLUMNS.length; j++) {
-        html += '<td class="px-3 py-2.5 whitespace-nowrap max-w-[200px] truncate font-data-mono text-data-mono">' + fmtCell(TABLE_COLUMNS[j], r[TABLE_COLUMNS[j]]) + '</td>';
+        var colName = TABLE_COLUMNS[j];
+        var cellClass = colName === 'borrower_name' ? 'px-3 py-2.5 max-w-xs font-data-mono text-data-mono' : 'px-3 py-2.5 whitespace-nowrap max-w-[200px] truncate font-data-mono text-data-mono';
+        html += '<td class="' + cellClass + '">' + fmtCell(colName, r[colName]) + '</td>';
       }
       html += '<td class="px-3 py-2.5 whitespace-nowrap sticky right-0 bg-surface z-10 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">';
       html += '<button onclick="openEditModal(' + gi + ')" class="p-1.5 hover:bg-primary/10 rounded-lg transition-colors" title="Edit"><span class="material-symbols-outlined text-sm text-primary">edit</span></button> ';
@@ -1738,6 +1841,10 @@ document.addEventListener('keydown', function(e) {
 function renderDashboardStats() {
   var d = dashFilteredData, total = d.length;
   var approved = 0, rejected = 0, pending = 0, creditReview = 0, totalAmt = 0;
+  
+  // Quality metrics initialization
+  var ftrCount = 0, ftnrCount = 0;
+  var oneXRework = 0, twoXRework = 0, threeXRework = 0, totalReworked = 0;
 
   d.forEach(function(r) {
     var s = (r.applicationstatus || '').toUpperCase();
@@ -1750,6 +1857,37 @@ function renderDashboardStats() {
     }
     var amt = parseFloat(r.disbursement_amount);
     if (!isNaN(amt)) totalAmt += amt;
+
+    // Quality metrics calculation
+    // Count rework attempts from remarks or funnel_status fields
+    var remarks = String(r.remarks || r.comments || '').toLowerCase();
+    var reworkCount = 0;
+    if (remarks.indexOf('rework') !== -1 || remarks.indexOf('resubmit') !== -1) {
+      // Count number of "rework" mentions
+      var matches = remarks.match(/rework|resubmit/gi) || [];
+      reworkCount = Math.ceil(matches.length / 2); // Divide by 2 as both words might appear
+    }
+
+    // Alternative: count from funnel_status if available
+    if (!reworkCount && r.funnel_status) {
+      var funnelStr = String(r.funnel_status).toLowerCase();
+      if (funnelStr.indexOf('rework') !== -1) reworkCount = 1;
+      if (funnelStr.indexOf('2nd rework') !== -1 || funnelStr.indexOf('rework 2') !== -1) reworkCount = 2;
+      if (funnelStr.indexOf('3rd rework') !== -1 || funnelStr.indexOf('rework 3') !== -1) reworkCount = 3;
+    }
+
+    // Categorize
+    if (reworkCount === 0 && s.indexOf('DISBURSED') !== -1) {
+      ftrCount++; // First time right
+    } else if (reworkCount === 0 && s.indexOf('REJECTED') === -1 && s.indexOf('EXPIRED') === -1) {
+      // Has potential rework based on status without explicit rework record
+      ftnrCount++;
+    } else if (reworkCount >= 1) {
+      totalReworked++;
+      if (reworkCount === 1) oneXRework++;
+      else if (reworkCount === 2) twoXRework++;
+      else threeXRework++;
+    }
   });
 
   // Apply averaging if in daily/weekly mode
@@ -1800,10 +1938,34 @@ function renderDashboardStats() {
     var recordsText = window.useAverages ? 'average' : 'across ' + total.toLocaleString() + ' applications';
     nplEl.textContent = 'Overall rejection ratio is ' + npl + '% ' + recordsText + '.';
   }
+
+  // Update Quality Metrics
+  var totalDecisioned = ftrCount + ftnrCount;
+  document.getElementById('totalDecisioned').textContent = totalDecisioned.toLocaleString();
+  document.getElementById('ftrCount').textContent = ftrCount.toLocaleString();
+  document.getElementById('ftrPct').textContent = totalDecisioned > 0 ? ((ftrCount / totalDecisioned) * 100).toFixed(1) + '%' : '0%';
+  document.getElementById('ftnrCount').textContent = ftnrCount.toLocaleString();
+  document.getElementById('ftnrPct').textContent = totalDecisioned > 0 ? ((ftnrCount / totalDecisioned) * 100).toFixed(1) + '%' : '0%';
+
+  // Update Rework Metrics
+  document.getElementById('totalReworked').textContent = totalReworked.toLocaleString();
+  document.getElementById('oneXRework').textContent = oneXRework.toLocaleString();
+  document.getElementById('twoXRework').textContent = twoXRework.toLocaleString();
+  document.getElementById('threeXRework').textContent = threeXRework.toLocaleString();
+
+  // Calculate Process Efficiency (higher is better)
+  var totalProcessed = approved + rejected;
+  var efficiency = totalProcessed > 0 ? Math.round((ftrCount / totalProcessed) * 100) : 0;
+  efficiency = Math.max(0, Math.min(100, efficiency)); // Clamp between 0-100
+  document.getElementById('efficiencyScore').textContent = efficiency + '%';
+  var effBar = document.getElementById('efficiencyBar');
+  if (effBar) effBar.style.width = efficiency + '%';
 }
 
 function renderDashboardCharts() {
   renderTrendChart();
+  renderDecisionQualityChart();
+  renderReworkDistributionChart();
 }
 
 function setTrendView(view) {
@@ -1956,6 +2118,156 @@ function renderFunnel() {
     var pct = total > 0 ? Math.round(s.c/total*100) : 0;
     return '<div><div class="flex justify-between text-body-sm mb-1"><span class="text-secondary">'+s.l+'</span><span class="font-bold">'+pct+'% <span class="text-outline font-normal">('+s.c.toLocaleString()+')</span></span></div><div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full" style="width:'+pct+'%"></div></div></div>';
   }).join('');
+}
+
+// Decision Quality Chart - Shows FTR vs FTNR trend over time
+var chartDecisionQualityInst = null;
+function renderDecisionQualityChart() {
+  var d = dashFilteredData;
+  var mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var monthMap = {};
+  
+  // Build monthly data for decision quality
+  d.forEach(function(r) {
+    var dateStr = normalizeDateString(r['application-date']);
+    if (!dateStr) return;
+    var monthKey = dateStr.substring(0, 7); // YYYY-MM
+    
+    if (!monthMap[monthKey]) {
+      monthMap[monthKey] = { ftr: 0, ftnr: 0 };
+    }
+    
+    // Categorize as FTR or FTNR
+    var remarks = String(r.remarks || r.comments || '').toLowerCase();
+    var reworkCount = 0;
+    if (remarks.indexOf('rework') !== -1 || remarks.indexOf('resubmit') !== -1) {
+      var matches = remarks.match(/rework|resubmit/gi) || [];
+      reworkCount = Math.ceil(matches.length / 2);
+    }
+    
+    var s = (r.applicationstatus || '').toUpperCase();
+    if (reworkCount === 0 && s.indexOf('DISBURSED') !== -1) {
+      monthMap[monthKey].ftr++;
+    } else if (reworkCount === 0 && s.indexOf('REJECTED') === -1 && s.indexOf('EXPIRED') === -1) {
+      monthMap[monthKey].ftnr++;
+    }
+  });
+  
+  var sorted = Object.keys(monthMap).sort().slice(-12); // Last 12 months
+  var labels = sorted.map(function(k) {
+    var p = k.split('-');
+    return mNames[parseInt(p[1]) - 1] + ' ' + p[0].slice(2);
+  });
+  
+  var ftrData = sorted.map(function(k) { return monthMap[k].ftr; });
+  var ftnrData = sorted.map(function(k) { return monthMap[k].ftnr; });
+  
+  var canvasEl = document.getElementById('chartDecisionQuality');
+  if (!canvasEl) return;
+  
+  if (chartDecisionQualityInst) chartDecisionQualityInst.destroy();
+  chartDecisionQualityInst = new Chart(canvasEl, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'FTR (First Time Right)',
+          data: ftrData,
+          borderColor: '#16a34a',
+          backgroundColor: 'rgba(22, 163, 74, 0.05)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.3,
+          pointRadius: 3,
+          pointBackgroundColor: '#16a34a',
+          pointHoverRadius: 5
+        },
+        {
+          label: 'FTNR (First Time Not Right)',
+          data: ftnrData,
+          borderColor: '#dc2626',
+          backgroundColor: 'rgba(220, 38, 38, 0.05)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.3,
+          pointRadius: 3,
+          pointBackgroundColor: '#dc2626',
+          pointHoverRadius: 5
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { boxWidth: 12, font: { size: 11 }, usePointStyle: true }
+        }
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+// Rework Distribution Chart - Shows breakdown of rework attempts
+var chartReworkDistInst = null;
+function renderReworkDistributionChart() {
+  var d = dashFilteredData;
+  var reworkCategories = { '1x': 0, '2x': 0, '3+': 0 };
+  
+  // Count rework distribution
+  d.forEach(function(r) {
+    var remarks = String(r.remarks || r.comments || '').toLowerCase();
+    var reworkCount = 0;
+    
+    if (remarks.indexOf('rework') !== -1 || remarks.indexOf('resubmit') !== -1) {
+      var matches = remarks.match(/rework|resubmit/gi) || [];
+      reworkCount = Math.ceil(matches.length / 2);
+    }
+    
+    if (!reworkCount && r.funnel_status) {
+      var funnelStr = String(r.funnel_status).toLowerCase();
+      if (funnelStr.indexOf('3rd rework') !== -1 || funnelStr.indexOf('rework 3') !== -1) reworkCount = 3;
+      else if (funnelStr.indexOf('2nd rework') !== -1 || funnelStr.indexOf('rework 2') !== -1) reworkCount = 2;
+      else if (funnelStr.indexOf('rework') !== -1) reworkCount = 1;
+    }
+    
+    if (reworkCount === 1) reworkCategories['1x']++;
+    else if (reworkCount === 2) reworkCategories['2x']++;
+    else if (reworkCount >= 3) reworkCategories['3+']++;
+  });
+  
+  var canvasEl = document.getElementById('chartReworkDist');
+  if (!canvasEl) return;
+  
+  if (chartReworkDistInst) chartReworkDistInst.destroy();
+  chartReworkDistInst = new Chart(canvasEl, {
+    type: 'doughnut',
+    data: {
+      labels: ['1x Rework', '2x Rework', '3+ Reworks'],
+      datasets: [{
+        data: [reworkCategories['1x'], reworkCategories['2x'], reworkCategories['3+']],
+        backgroundColor: ['#2563eb', '#f59e0b', '#ef4444'],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { boxWidth: 12, font: { size: 11 } }
+        }
+      }
+    }
+  });
 }
 
 // ============================================================
