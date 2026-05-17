@@ -1,2262 +1,488 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<title>Inprime Finserv</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>InPrimeCore - Loan Operations Platform</title>
 <link href="company-logo.png" rel="icon" type="image/png"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script>
-tailwind.config = {
-  darkMode: "class",
-  theme: {
-    extend: {
-      colors: {
-        "on-primary-fixed-variant":"#003ea8","surface-container-high":"#e6e8ea",
-        "tertiary-fixed-dim":"#b7c8e1","background":"#f7f9fb","on-tertiary":"#ffffff",
-        "on-tertiary-container":"#e9f0ff","primary-container":"#2563eb",
-        "inverse-on-surface":"#eff1f3","on-tertiary-fixed-variant":"#38485d",
-        "secondary-container":"#dae2fd","error":"#ba1a1a","error-container":"#ffdad6",
-        "primary-fixed-dim":"#b4c5ff","on-primary-container":"#eeefff",
-        "on-surface-variant":"#434655","surface-container":"#eceef0",
-        "on-error":"#ffffff","on-secondary":"#ffffff",
-        "surface-container-lowest":"#ffffff","secondary":"#565e74",
-        "on-background":"#191c1e","primary":"#004ac6","on-primary":"#ffffff",
-        "surface-bright":"#f7f9fb","surface":"#f7f9fb",
-        "surface-container-low":"#f2f4f6","secondary-fixed-dim":"#bec6e0",
-        "on-secondary-fixed-variant":"#3f465c","on-tertiary-fixed":"#0b1c30",
-        "surface-container-highest":"#e0e3e5","tertiary":"#46566c",
-        "surface-variant":"#e0e3e5","tertiary-fixed":"#d3e4fe",
-        "on-secondary-container":"#5c647a","surface-dim":"#d8dadc",
-        "secondary-fixed":"#dae2fd","on-secondary-fixed":"#131b2e",
-        "tertiary-container":"#5e6e85","inverse-primary":"#b4c5ff",
-        "on-primary-fixed":"#00174b","inverse-surface":"#2d3133",
-        "on-error-container":"#93000a","outline":"#737686",
-        "surface-tint":"#0053db","outline-variant":"#c3c6d7",
-        "on-surface":"#191c1e","primary-fixed":"#dbe1ff"
-      },
-      borderRadius: {"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},
-      spacing: {"container-max-width":"1440px","gutter":"24px","unit":"8px","margin-desktop":"40px","margin-mobile":"16px"},
-      fontFamily: {
-        "data-mono":["JetBrains Mono"],"display-lg":["Inter"],"body-base":["Inter"],
-        "label-caps":["Inter"],"headline-md":["Inter"],"body-sm":["Inter"],
-        "display-lg-mobile":["Inter"]
-      },
-      fontSize: {
-        "data-mono":["14px",{"lineHeight":"20px","fontWeight":"500"}],
-        "display-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],
-        "body-base":["16px",{"lineHeight":"24px","fontWeight":"400"}],
-        "label-caps":["12px",{"lineHeight":"16px","letterSpacing":"0.05em","fontWeight":"600"}],
-        "headline-md":["20px",{"lineHeight":"28px","fontWeight":"600"}],
-        "body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],
-        "display-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}]
-      }
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { 
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .bg-gradient-dark {
+    background: radial-gradient(ellipse 1400px 800px at 20% 50%, rgba(37, 99, 235, 0.15), transparent 60%),
+                radial-gradient(ellipse 1000px 600px at 80% 0%, rgba(16, 185, 129, 0.1), transparent 50%),
+                linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1a2f4d 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .form-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .form-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .form-input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    outline: none;
+  }
+  
+  .form-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.3);
+    transform: translateY(-2px);
+  }
+  
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .card-glass {
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  .info-box {
+    background: rgba(37, 99, 235, 0.08);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 12px;
+  }
+  
+  .credential-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .credential-item:last-child {
+    border-bottom: none;
+  }
+  
+  .error-message {
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    color: #fecaca;
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    animation: shake 0.3s ease-in-out;
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+  
+  .fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .fade-in:nth-child(1) { animation-delay: 0.1s; }
+  .fade-in:nth-child(2) { animation-delay: 0.2s; }
+  .fade-in:nth-child(3) { animation-delay: 0.3s; }
+  
+  .logo-container {
+    animation: logoFloat 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes logoFloat {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-12px) scale(1.02); }
+  }
+  
+  /* Slide in from left */
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  .slide-in-left {
+    animation: slideInLeft 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  
+  /* Slide in from right */
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  .slide-in-right {
+    animation: slideInRight 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  
+  .slide-in-right { animation-delay: 0.2s; }
+  
+  /* Pulse animation for button */
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.3); }
+    50% { box-shadow: 0 30px 40px -5px rgba(37, 99, 235, 0.5); }
+  }
+  
+  .btn-primary:hover:not(:disabled) {
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  /* Input field slide-in */
+  @keyframes inputSlideIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .form-input {
+    animation: inputSlideIn 0.5s ease-out forwards;
+  }
+  
+  input#email { animation-delay: 0.3s; }
+  input#password { animation-delay: 0.4s; }
+  
+  /* Smooth input focus glow */
+  .form-input:focus {
+    animation: inputGlow 0.4s ease-out;
+  }
+  
+  @keyframes inputGlow {
+    from { 
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2), inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    to { 
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     }
   }
-};
-</script>
-<style type="text/tailwindcss">
-.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-body { font-family: 'Inter', sans-serif; }
-.nav-link { @apply flex items-center gap-3 px-4 py-3 text-secondary hover:text-primary hover:bg-surface-container-low transition-colors duration-100 cursor-pointer; }
-.nav-link.active { @apply text-primary font-bold border-r-2 border-primary bg-surface-container-low; }
-.card { @apply bg-surface border border-outline-variant p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow; }
-.badge { @apply px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center; }
-.badge-ok { @apply bg-[#DCFCE7] text-[#166534]; }
-.badge-warn { @apply bg-[#FEF3C7] text-[#92400E]; }
-.badge-err { @apply bg-[#FEE2E2] text-[#991B1B]; }
-.badge-blue { @apply bg-[#DBEAFE] text-[#1E40AF]; }
-.badge-grey { @apply bg-surface-container-high text-on-surface-variant; }
-.btn-p { @apply px-4 py-2 bg-primary text-on-primary rounded-lg font-bold flex items-center gap-2 hover:bg-on-primary-fixed-variant transition-all active:scale-95; }
-.btn-s { @apply px-4 py-2 bg-surface border border-outline-variant rounded-lg text-body-sm font-bold text-secondary flex items-center gap-2 hover:bg-surface-container-low transition-colors; }
-.pg { display: none; }
-.pg.active { display: block; }
-.trow:hover { background: #f2f4f6; }
-.m-overlay { @apply fixed inset-0 bg-black/50 z-[100] flex items-center justify-center; }
-.m-box { @apply bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-auto p-8; }
-.uzone { @apply border-2 border-dashed border-outline-variant rounded-xl p-12 text-center transition-all cursor-pointer; }
-.uzone.dragover { @apply border-primary bg-primary-fixed/10; }
-.sidebar-collapsed .sidebar-text { display:none; }
-.sidebar-collapsed .sidebar-brand-text { display:none; }
-.sidebar-collapsed aside { width:88px; padding:16px 0 !important; }
-.sidebar-collapsed header { left:88px; }
-.sidebar-collapsed main { margin-left:88px; }
-/* Logo styling when collapsed */
-.sidebar-collapsed .px-6 { padding:12px 4px !important; margin-bottom:0 !important; }
-.sidebar-collapsed .flex.items-center.gap-3 { justify-content:center; }
-.sidebar-collapsed .w-20 { width:52px !important; height:52px !important; border-radius:10px !important; }
-/* Navigation styling when collapsed */
-.sidebar-collapsed nav { padding:12px 0; }
-.sidebar-collapsed .nav-link { padding:0 !important; height:48px; margin:4px 8px; border-radius:8px; border-right:none; border-left:none; justify-content:center; color:#64748b; transition:all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-size:22px; }
-.sidebar-collapsed .nav-link:hover { background:#e5f3ff; color:#2563eb; }
-.sidebar-collapsed .nav-link.active { background:#dbeafe; color:#2563eb; }
-/* Buttons styling when collapsed */
-.sidebar-collapsed .sidebar-bottom-btns { padding:12px 4px; border-top:1px solid #e5e7eb; }
-.sidebar-collapsed .sidebar-bottom-btns .btn-label { display:none; }
-.sidebar-collapsed .sidebar-bottom-btns button { width:60px; height:48px; margin:4px auto; padding:0 !important; border-radius:8px; display:flex; justify-content:center; align-items:center; font-size:20px; transition:all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
-.sidebar-collapsed .sidebar-bottom-btns button.bg-primary { background:#2563eb; color:white; }
-.sidebar-collapsed .sidebar-bottom-btns button.bg-primary:hover { background:#1d4ed8; }
-.sidebar-collapsed .sidebar-bottom-btns button.bg-surface { background:#f5f5f5; color:#64748b; border:1px solid #e5e7eb; }
-.sidebar-collapsed .sidebar-bottom-btns button.bg-surface:hover { background:#e5e7eb; color:#2563eb; }
-.sidebar-collapsed #dataStatus { display:none; }
-
-/* Mobile: sidebar off-canvas */
-@media (max-width: 767px) {
-  aside#sidebar { transform:translateX(-100%); width:280px; }
-  aside#sidebar.mobile-open { transform:translateX(0); }
-  header#topbar { left:0 !important; }
-  main#mainContent { margin-left:0 !important; padding-left:16px; padding-right:16px; padding-top:72px; }
-  .sidebar-collapsed aside#sidebar { width:280px; }
-  .sidebar-collapsed header#topbar { left:0 !important; }
-  .sidebar-collapsed main#mainContent { margin-left:0 !important; }
-  #mobileOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:45; }
-  #mobileOverlay.active { display:block; }
-  #sidebarToggleBtn { display:none !important; }
-}
-@media (min-width: 768px) {
-  #mobileMenuBtn { display:none !important; }
-  #mobileOverlay { display:none !important; }
-}
-
-.fadein { animation: fadeIn 0.3s ease-in; }
-@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-::-webkit-scrollbar { width:6px; height:6px; }
-::-webkit-scrollbar-track { background:#f1f5f9; }
-::-webkit-scrollbar-thumb { background:#c3c6d7; border-radius:3px; }
-::-webkit-scrollbar-thumb:hover { background:#737686; }
-
-/* Safe-area insets for notched phones (iPhone X, 11, 12, 13, 14, 15, 16 etc.) */
-@supports (padding: env(safe-area-inset-top)) {
-  aside#sidebar { padding-top: calc(2rem + env(safe-area-inset-top)); padding-bottom: env(safe-area-inset-bottom); }
-  header#topbar { padding-top: env(safe-area-inset-top); }
-  main#mainContent { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
-  .m-overlay { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
-}
-
-/* iOS momentum scrolling */
-.overflow-y-auto, .overflow-x-auto, .overflow-auto { -webkit-overflow-scrolling: touch; }
-
-/* Better touch targets - minimum 44px */
-@media (pointer: coarse) {
-  .nav-link { min-height: 48px; }
-  button, a, select, input[type="radio"], input[type="checkbox"] { min-height: 44px; min-width: 44px; }
-  select { min-height: 44px; }
-  input[type="text"], input[type="date"], input[type="number"], input[type="email"], input[type="tel"], textarea {
-    min-height: 44px; font-size: 16px; /* prevents iOS zoom on focus */
+  
+  /* Feature list item animations */
+  .feature-item {
+    animation: featureSlide 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    opacity: 0;
   }
-}
-
-/* Very small phones (< 360px like iPhone SE 1st gen, Galaxy S3) */
-@media (max-width: 359px) {
-  main#mainContent { padding-left: 8px; padding-right: 8px; }
-  .card { padding: 12px; }
-  .m-box { padding: 16px; }
-  #notifPanel, #profilePanel { width: calc(100vw - 16px) !important; right: 8px !important; left: 8px !important; }
-}
-
-/* Fix panels on mobile - prevent horizontal overflow */
-@media (max-width: 767px) {
-  #notifPanel { width: calc(100vw - 32px) !important; right: 16px !important; left: auto !important; max-width: 400px; }
-  #profilePanel { width: calc(100vw - 32px) !important; right: 16px !important; left: auto !important; max-width: 360px; }
-}
-
-/* Landscape phone handling */
-@media (max-height: 500px) and (orientation: landscape) {
-  header#topbar { height: 48px; }
-  main#mainContent { padding-top: 56px !important; }
-  .m-overlay > div { max-height: 100vh; }
-  aside#sidebar.mobile-open { width: 220px; }
-}
-
-/* Prevent content blowout */
-* { max-width: 100%; }
-table { max-width: none; }
-img { max-width: 100%; height: auto; }
+  
+  @keyframes featureSlide {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  .feature-item:nth-child(1) { animation-delay: 0.4s; }
+  .feature-item:nth-child(2) { animation-delay: 0.5s; }
+  .feature-item:nth-child(3) { animation-delay: 0.6s; }
+  
+  /* Loading spinner for button */
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  .spinner {
+    animation: spin 1s linear infinite;
+  }
+  
+  /* Card entrance animation */
+  @keyframes cardPop {
+    from { opacity: 0; transform: scale(0.95) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  
+  .card-glass {
+    animation: cardPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  
+  /* Background shimmer */
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+  
+  .shimmer-bg {
+    animation: shimmer 3s infinite;
+    background-size: 1000px 100%;
+  }
+  
+  /* Bounce animation for elements */
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  
+  .bounce:hover {
+    animation: bounce 0.6s ease-in-out;
+  }
+  
+  /* Smooth label animations */
+  @keyframes labelSlide {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  label {
+    animation: labelSlide 0.4s ease-out forwards;
+  }
+  
+  label { animation-delay: 0.1s; }
+  label:nth-of-type(2) { animation-delay: 0.2s; }
 </style>
 </head>
-<body class="bg-background text-on-surface font-body-base overflow-x-hidden">
-
-<!-- Mobile overlay -->
-<div id="mobileOverlay"></div>
-
-<!-- ========== SIDEBAR ========== -->
-<aside id="sidebar" class="h-screen w-64 fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col py-8 z-50 transition-all duration-200">
-  <div class="px-6 mb-8">
-    <div class="flex items-center gap-3">
-      <div class="w-20 h-20 rounded-xl overflow-hidden border border-outline-variant bg-white shrink-0 relative">
-        <img alt="Inprime Finserv logo" class="w-full h-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" src="company-logo.png"/>
-        <div class="absolute inset-0 hidden items-center justify-center bg-primary text-on-primary">
-          <span class="material-symbols-outlined">account_balance</span>
-        </div>
+<body class="bg-gradient-dark">
+  <div class="min-h-screen w-full flex items-stretch">
+    <!-- Left Side - Branding & Logo -->
+    <div class="hidden lg:flex lg:w-1/2 flex-col items-center justify-center px-8 py-12 bg-gradient-to-br from-slate-900 via-blue-900/30 to-slate-900 relative overflow-hidden slide-in-left">
+      <!-- Background Accent -->
+      <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -top-20 -left-20"></div>
+        <div class="absolute w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl bottom-10 right-10"></div>
       </div>
-      <div class="sidebar-brand-text overflow-hidden">
-        <h1 class="font-bold text-primary text-[22px] leading-[1.05] tracking-tight">InPrime<span class="block text-[18px] mt-0.5">Finserv</span></h1>
-      </div>
-    </div>
-  </div>
-  <nav class="flex-1 px-4 space-y-1">
-    <a class="nav-link active" data-page="dashboard" href="javascript:void(0)" onclick="switchPage('dashboard')" title="Dashboard">
-      <span class="material-symbols-outlined">dashboard</span><span class="font-body-base sidebar-text">Dashboard</span>
-    </a>
-    <a class="nav-link" data-page="applications" href="javascript:void(0)" onclick="switchPage('applications')" title="Applications">
-      <span class="material-symbols-outlined">description</span><span class="font-body-base sidebar-text">Applications</span>
-    </a>
-    <a class="nav-link" data-page="upload" href="javascript:void(0)" onclick="switchPage('upload')" title="Bulk Upload">
-      <span class="material-symbols-outlined">cloud_upload</span><span class="font-body-base sidebar-text">Bulk Upload</span>
-    </a>
-    <a class="nav-link" data-page="audit" href="javascript:void(0)" onclick="switchPage('audit')" title="Audit Logs">
-      <span class="material-symbols-outlined">history</span><span class="font-body-base sidebar-text">Audit Logs</span>
-    </a>
-  </nav>
-  <div class="px-4 mt-auto space-y-2 sidebar-bottom-btns">
-    <div id="dataStatus" class="text-xs text-secondary text-center mb-1 sidebar-text">No data loaded</div>
-    <button onclick="openAddModal()" class="w-full py-3 bg-primary text-on-primary rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-on-primary-fixed-variant transition-all active:scale-95" title="Add New Application">
-      <span class="material-symbols-outlined">add_circle</span> <span class="btn-label">New Application</span>
-    </button>
-    <button onclick="document.getElementById('csvFileHidden').click()" class="w-full py-2.5 bg-surface border border-outline-variant text-secondary rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-surface-container-low transition-all active:scale-95 text-body-sm" title="Load CSV/Excel File">
-      <span class="material-symbols-outlined text-sm">upload_file</span> <span class="btn-label">Load File</span>
-    </button>
-    <input type="file" id="csvFileHidden" accept=".csv,.xlsx,.xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hidden" onchange="handleFileUpload(this.files[0])"/>
-  </div>
-</aside>
-
-<!-- Sidebar toggle handle -->
-<button id="sidebarToggleBtn" onclick="toggleSidebar()" class="fixed top-1/2 -translate-y-1/2 z-50 w-4 h-10 bg-surface-container-low border border-outline-variant rounded-r-md shadow hover:bg-surface-container-high hover:shadow-md transition-all duration-200 flex flex-col items-center justify-center gap-[3px]" style="left:256px" title="Toggle sidebar">
-  <span class="w-[3px] h-[3px] rounded-full bg-outline"></span>
-  <span class="w-[3px] h-[3px] rounded-full bg-outline"></span>
-  <span class="w-[3px] h-[3px] rounded-full bg-outline"></span>
-</button>
-
-<!-- ========== TOP BAR ========== -->
-<header id="topbar" class="h-16 fixed top-0 right-0 left-64 bg-surface border-b border-outline-variant flex justify-between items-center px-4 md:px-gutter z-40 transition-all duration-200">
-  <div class="flex items-center gap-3 flex-1">
-    <button id="mobileMenuBtn" onclick="toggleSidebar()" class="p-2 hover:bg-surface-container-high rounded-lg transition-colors">
-      <span class="material-symbols-outlined">menu</span>
-    </button>
-    <div class="relative w-full max-w-md">
-      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
-      <input id="globalSearch" class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-body-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="Search..." type="text" oninput="handleGlobalSearch()"/>
-    </div>
-  </div>
-  <div class="flex items-center gap-2 md:gap-4">
-    <button onclick="exportCurrentView()" class="btn-s text-xs hidden md:flex">
-      <span class="material-symbols-outlined text-sm">file_download</span> Export CSV
-    </button>
-    <button onclick="exportCurrentView()" class="md:hidden hover:bg-surface-container-high rounded-full p-2 transition-all" title="Export CSV">
-      <span class="material-symbols-outlined text-on-surface-variant text-sm">file_download</span>
-    </button>
-    <button onclick="toggleNotifications()" class="hover:bg-surface-container-high rounded-full p-2 transition-all duration-200 relative" id="notifBtn">
-      <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
-      <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full" id="notifDot"></span>
-    </button>
-    <div id="notifPanel" class="absolute top-14 right-4 md:right-40 w-80 md:w-96 bg-white border border-outline-variant rounded-xl shadow-2xl z-50 overflow-hidden" style="display:none">
-      <div class="flex justify-between items-center px-4 py-3 border-b border-outline-variant bg-surface-container-low">
-        <h4 class="font-bold text-body-sm text-on-surface">Notifications</h4>
-        <button onclick="clearNotifications()" class="text-xs text-primary font-bold hover:underline">Clear All</button>
-      </div>
-      <div id="notifList" class="max-h-80 overflow-y-auto"></div>
-      <div class="px-4 py-2 border-t border-outline-variant text-center">
-        <button onclick="switchPage('audit');toggleNotifications()" class="text-xs text-primary font-bold hover:underline">View All Activity</button>
-      </div>
-    </div>
-    <button class="hover:bg-surface-container-high rounded-full p-2 transition-all duration-200">
-      <span class="material-symbols-outlined text-on-surface-variant">settings</span>
-    </button>
-    <div class="h-8 w-[1px] bg-outline-variant mx-1 md:mx-2 hidden md:block"></div>
-    <div class="relative">
-      <button onclick="toggleProfile()" id="profileBtn" class="flex items-center gap-2 md:gap-3 hover:bg-surface-container-low rounded-lg px-2 py-1 transition-colors">
-        <div class="text-right hidden md:block">
-          <p class="font-body-sm font-bold text-on-surface">Abhi Ranjan</p>
-          <p class="text-[10px] text-secondary">Credit Analyst</p>
-        </div>
-        <img alt="User profile photo" class="w-10 h-10 rounded-full border-2 border-outline-variant object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2Z5jUOP4fhmKtoHRfWbbcT-gpiaOEj2yVa44hCmQgDpuj49wwzg206qU2YTlIsFfQPhYkFKYiGO_fXZIJOAfzwe4JXNA0X2hyzSzrOJuXtB5Nlw7m26e7Yn6PdDENBnzihpiKOg6sRpcRg3-IdjoYy9lehNFmy76FGYNuYOtds31LNn0E92iHt9nMJVCnSpRdfgpCOdpA9djOoZ-GX-bnpGH6wuDwnpoh8omcFGmXpqcOwnnCN8FxJN9nPWB6o1GH5KcHTnw58EE"/>
-      </button>
-      <!-- Profile Dropdown -->
-      <div id="profilePanel" class="absolute top-14 right-0 w-80 max-w-[calc(100vw-24px)] bg-white border border-outline-variant rounded-2xl shadow-2xl z-50 overflow-hidden" style="display:none">
-        <div class="bg-gradient-to-br from-primary to-on-primary-fixed-variant px-5 pt-6 pb-5 text-center">
-          <img alt="Profile" class="w-16 h-16 rounded-full border-4 border-white/90 shadow-lg mx-auto mb-3 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2Z5jUOP4fhmKtoHRfWbbcT-gpiaOEj2yVa44hCmQgDpuj49wwzg206qU2YTlIsFfQPhYkFKYiGO_fXZIJOAfzwe4JXNA0X2hyzSzrOJuXtB5Nlw7m26e7Yn6PdDENBnzihpiKOg6sRpcRg3-IdjoYy9lehNFmy76FGYNuYOtds31LNn0E92iHt9nMJVCnSpRdfgpCOdpA9djOoZ-GX-bnpGH6wuDwnpoh8omcFGmXpqcOwnnCN8FxJN9nPWB6o1GH5KcHTnw58EE"/>
-          <h4 class="text-white font-bold text-xl leading-tight">Abhi Ranjan</h4>
-          <p class="text-white/85 text-sm mt-1">Credit Analyst</p>
-        </div>
-        <div class="px-4 py-4 space-y-2 bg-surface">
-          <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-surface-container-low transition-colors">
-            <span class="material-symbols-outlined text-primary text-lg mt-0.5">mail</span>
-            <span class="text-secondary text-[15px] leading-5 break-all">abhi.ranjan@inprimefinserv.com</span>
-          </div>
-          <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-surface-container-low transition-colors">
-            <span class="material-symbols-outlined text-primary text-lg mt-0.5">call</span>
-            <span class="text-secondary text-[15px] leading-5">+91 9113774886</span>
-          </div>
-          <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-surface-container-low transition-colors">
-            <span class="material-symbols-outlined text-primary text-lg mt-0.5">badge</span>
-            <span class="text-secondary text-[15px] leading-5">Employee ID: IF-2041</span>
-          </div>
-          <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-surface-container-low transition-colors">
-            <span class="material-symbols-outlined text-primary text-lg mt-0.5">location_on</span>
-            <span class="text-secondary text-[15px] leading-5">Head Office, New Delhi</span>
+      
+      <!-- Content -->
+      <div class="relative z-10 text-center">
+        <div class="flex justify-center mb-8 logo-container">
+          <div class="relative">
+            <img 
+              src="company-logo.png" 
+              alt="InPrimeCore Logo" 
+              class="w-32 h-32 rounded-3xl shadow-2xl object-cover border-2 border-white/20"
+            />
+            <div class="absolute inset-0 rounded-3xl bg-gradient-to-tr from-transparent via-transparent to-white/5"></div>
           </div>
         </div>
-        <div class="border-t border-outline-variant px-3 py-3 bg-surface-container-low/40 space-y-1.5">
-          <button class="w-full flex items-center gap-3 px-3 py-2.5 text-body-sm text-secondary hover:bg-surface-container-low rounded-xl transition-colors"><span class="material-symbols-outlined text-lg">settings</span> Account Settings</button>
-          <button class="w-full flex items-center gap-3 px-3 py-2.5 text-body-sm text-secondary hover:bg-surface-container-low rounded-xl transition-colors"><span class="material-symbols-outlined text-lg">help</span> Help &amp; Support</button>
-          <button class="w-full flex items-center gap-3 px-3 py-2.5 text-body-sm text-error hover:bg-error-container rounded-xl transition-colors"><span class="material-symbols-outlined text-lg">logout</span> Sign Out</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</header>
-
-<!-- ========== MAIN CONTENT ========== -->
-<main id="mainContent" class="ml-64 pt-20 pb-4 px-4 md:pt-24 md:pb-margin-desktop md:px-margin-desktop min-h-screen transition-all duration-200">
-<div class="max-w-container-max-width mx-auto">
-
-<!-- ==================== DASHBOARD ==================== -->
-<div id="page-dashboard" class="pg active fadein">
-  <div class="flex flex-col md:flex-row justify-between md:items-end mb-6 gap-4">
-    <div>
-      <h2 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">Dashboard Overview</h2>
-      <p class="text-secondary font-body-sm md:font-body-base" id="dashSubtitle">Upload a CSV file to see live data analytics.</p>
-    </div>
-    <div class="flex flex-wrap gap-2">
-      <select id="dashDateFilter" class="btn-s text-xs flex-1 md:flex-none" onchange="applyDashboardFilters()">
-        <option value="all">All Time</option>
-        <option value="day">One Day</option>
-        <option value="week">One Week</option>
-        <option value="month">One Month</option>
-      </select>
-      <select id="dashRegionFilter" class="btn-s text-xs flex-1 md:flex-none" onchange="applyDashboardFilters()">
-        <option value="all">All Regions</option>
-        <option value="south">South Region</option>
-        <option value="north">North Region</option>
-      </select>
-      <select id="dashAreaFilter" class="btn-s text-xs flex-1 md:flex-none" onchange="applyDashboardFilters()">
-        <option value="all">All Areas</option>
-      </select>
-    </div>
-    <p class="text-xs text-secondary mt-1" id="dashDateRangeLabel"></p>
-  </div>
-
-  <!-- Stat Cards -->
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-6 mb-6 md:mb-8">
-    <div class="card cursor-pointer hover:border-tertiary/60 hover:bg-tertiary-fixed/30 transition-all" onclick="filterToStatus('credit')" title="Click to view Credit Review applications">
-      <div class="flex justify-between items-start mb-3">
-        <div class="p-2 bg-tertiary-fixed rounded-lg"><span class="material-symbols-outlined text-tertiary">rate_review</span></div>
-        <span class="text-[10px] text-tertiary bg-tertiary-fixed px-1.5 py-0.5 rounded font-bold" id="statCreditReviewPct"></span>
-      </div>
-      <p class="text-label-caps text-secondary uppercase mb-1">Credit Review</p>
-      <h3 class="font-display-lg text-2xl text-on-surface" id="statCreditReview">0</h3>
-    </div>
-    <div class="card border-l-4 border-l-[#DCFCE7] cursor-pointer hover:bg-[#DCFCE7]/30 transition-all" onclick="filterToStatus('disbursed')" title="Click to view Approved/Disbursed applications">
-      <div class="flex justify-between items-start mb-3">
-        <div class="p-2 bg-[#DCFCE7] rounded-lg"><span class="material-symbols-outlined text-[#166534]">check_circle</span></div>
-        <span class="text-label-caps text-[#166534]" id="statApprovedPct">0%</span>
-      </div>
-      <p class="text-label-caps text-secondary uppercase mb-1">Approved</p>
-      <h3 class="font-display-lg text-2xl text-on-surface" id="statApproved">0</h3>
-    </div>
-    <div class="card border-l-4 border-l-[#FEF3C7] cursor-pointer hover:bg-[#FEF3C7]/40 transition-all" onclick="filterToStatus('pending')" title="Click to view Pending applications">
-      <div class="flex justify-between items-start mb-3">
-        <div class="p-2 bg-[#FEF3C7] rounded-lg"><span class="material-symbols-outlined text-[#92400E]">pending</span></div>
-        <span class="text-label-caps text-[#92400E]" id="statPendingPct">0%</span>
-      </div>
-      <p class="text-label-caps text-secondary uppercase mb-1">Pending</p>
-      <h3 class="font-display-lg text-2xl text-on-surface" id="statPending">0</h3>
-    </div>
-    <div class="card border-l-4 border-l-[#FEE2E2] cursor-pointer hover:bg-[#FEE2E2]/40 transition-all" onclick="filterToStatus('rejected')" title="Click to view Rejected applications">
-      <div class="flex justify-between items-start mb-3">
-        <div class="p-2 bg-[#FEE2E2] rounded-lg"><span class="material-symbols-outlined text-[#991B1B]">cancel</span></div>
-        <span class="text-label-caps text-[#991B1B]" id="statRejectedPct">0%</span>
-      </div>
-      <p class="text-label-caps text-secondary uppercase mb-1">Rejected</p>
-      <h3 class="font-display-lg text-2xl text-on-surface" id="statRejected">0</h3>
-    </div>
-    <div class="card cursor-pointer hover:border-primary/40 transition-all" onclick="filterToStatus('all')" title="Click to view all applications">
-      <div class="flex justify-between items-start mb-3">
-        <div class="p-2 bg-secondary-container rounded-lg"><span class="material-symbols-outlined text-primary">assessment</span></div>
-        <span class="text-label-caps text-on-surface-variant" id="statTotalPct"></span>
-      </div>
-      <p class="text-label-caps text-secondary uppercase mb-1">Total Apps</p>
-      <h3 class="font-display-lg text-2xl text-on-surface" id="statTotal">0</h3>
-    </div>
-    <div class="bg-primary p-5 rounded-xl shadow-lg hover:shadow-xl transition-shadow text-on-primary cursor-pointer" onclick="filterToStatus('disbursed')" title="Click to view disbursed applications">
-      <div class="flex justify-between items-start mb-3">
-        <div class="p-2 bg-on-primary-fixed-variant/20 rounded-lg"><span class="material-symbols-outlined text-on-primary">payments</span></div>
-      </div>
-      <p class="text-label-caps text-on-primary/80 uppercase mb-1">Disbursed</p>
-      <h3 class="font-display-lg text-2xl" id="statAmount">&#8377;0</h3>
-    </div>
-  </div>
-
-  <!-- Quality & Rework Metrics Section -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-7 mb-8">
-    <!-- Decision Quality Card -->
-    <div class="bg-[#f8f9fb] border border-[#e6e8ec] rounded-2xl p-6 md:p-7 shadow-sm min-h-[278px]">
-      <div class="flex items-start gap-3 mb-6">
-        <span class="w-2 h-8 rounded-full bg-[#e7edf8]"></span>
-        <h4 class="text-lg md:text-xl leading-tight tracking-[0.04em] text-on-surface font-bold uppercase">Decision Quality <span class="text-secondary text-sm md:text-base">(Total Decisioned: <span id="totalDecisioned">998</span>)</span></h4>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="relative bg-[#f1f3f7] border border-[#e6e9ef] rounded-2xl px-5 py-5 overflow-hidden min-h-[164px]">
-          <span class="absolute left-0 top-4 bottom-4 w-1 rounded-full bg-[#139f86]"></span>
-          <p class="text-[11px] md:text-xs uppercase tracking-[0.06em] text-[#4b5563] font-semibold mb-2">First Time Right (FTR)</p>
-          <div class="flex items-baseline gap-3 mb-1">
-            <span class="text-4xl md:text-[42px] leading-none font-bold text-[#1f2937]" id="ftrCount">842</span>
-            <span class="text-lg md:text-xl font-bold text-[#10a48f]" id="ftrPct">84.4%</span>
+        
+        <h1 class="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">InPrimeCore</h1>
+        <p class="text-xl text-slate-300 mb-12">Loan Operations Command Center</p>
+        
+        <!-- Features List -->
+        <div class="space-y-4 mt-16">
+          <div class="feature-item flex items-center gap-3 justify-center text-slate-300">
+            <span class="material-symbols-outlined text-blue-400">check_circle</span>
+            <span>Advanced Analytics & Reporting</span>
           </div>
-          <p class="text-xs md:text-sm text-[#6b7280] italic">Approved without rework</p>
-        </div>
-
-        <div class="relative bg-[#f1f3f7] border border-[#e6e9ef] rounded-2xl px-5 py-5 overflow-hidden min-h-[164px]">
-          <span class="absolute left-0 top-4 bottom-4 w-1 rounded-full bg-[#ef4444]"></span>
-          <p class="text-[11px] md:text-xs uppercase tracking-[0.06em] text-[#4b5563] font-semibold mb-2">First Time Not Right (FTNR)</p>
-          <div class="flex items-baseline gap-3 mb-1">
-            <span class="text-4xl md:text-[42px] leading-none font-bold text-[#1f2937]" id="ftnrCount">156</span>
-            <span class="text-lg md:text-xl font-bold text-[#ef4444]" id="ftnrPct">15.6%</span>
+          <div class="feature-item flex items-center gap-3 justify-center text-slate-300">
+            <span class="material-symbols-outlined text-green-400">check_circle</span>
+            <span>Real-time Performance Tracking</span>
           </div>
-          <p class="text-xs md:text-sm text-[#6b7280] italic">Required post-decision edit</p>
+          <div class="feature-item flex items-center gap-3 justify-center text-slate-300">
+            <span class="material-symbols-outlined text-cyan-400">check_circle</span>
+            <span>Secure & Compliant</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Rework Analysis Card -->
-    <div class="bg-[#f8f9fb] border border-[#e6e8ec] rounded-2xl p-6 md:p-7 shadow-sm min-h-[278px]">
-      <div class="flex items-center gap-3 mb-6">
-        <button id="reworkRefreshBtn" onclick="refreshReworkAnalysis()" class="w-10 h-10 rounded-xl bg-[#eef3fb] flex items-center justify-center hover:bg-[#e4ecfa] transition-colors" title="Refresh rework analysis" type="button">
-          <span id="reworkRefreshIcon" class="material-symbols-outlined text-primary text-lg">refresh</span>
-        </button>
-        <h4 class="text-lg md:text-xl leading-tight tracking-[0.04em] text-on-surface font-bold uppercase">Rework Analysis / Sendbacks</h4>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <div class="bg-[#f4f6fa] border border-[#e5e8ef] rounded-xl p-4 text-center">
-          <p class="text-[10px] md:text-[11px] uppercase tracking-[0.05em] text-[#6b7280] font-semibold mb-2">Total Reworked</p>
-          <p class="text-3xl md:text-[42px] leading-none font-bold text-[#1d4ed8]" id="totalReworked">312</p>
-        </div>
-        <div class="bg-[#f4f6fa] border border-[#e5e8ef] rounded-xl p-4 text-center">
-          <p class="text-[10px] md:text-[11px] uppercase tracking-[0.05em] text-[#6b7280] font-semibold mb-2">1x Rework</p>
-          <p class="text-3xl md:text-[42px] leading-none font-bold text-[#1f2937]" id="oneXRework">210</p>
-        </div>
-        <div class="bg-[#f4f6fa] border border-[#e5e8ef] rounded-xl p-4 text-center">
-          <p class="text-[10px] md:text-[11px] uppercase tracking-[0.05em] text-[#6b7280] font-semibold mb-2">2x Rework</p>
-          <p class="text-3xl md:text-[42px] leading-none font-bold text-[#1f2937]" id="twoXRework">78</p>
-        </div>
-        <div class="bg-[#f9f6f7] border border-[#f1d9dc] rounded-xl p-4 text-center">
-          <p class="text-[10px] md:text-[11px] uppercase tracking-[0.05em] text-[#ef4444] font-semibold mb-2">3+ Reworks</p>
-          <p class="text-3xl md:text-[42px] leading-none font-bold text-[#ef4444]" id="threeXRework">24</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-4">
-        <div class="flex-1 h-4 bg-[#e7ebf2] rounded-full overflow-hidden flex items-stretch">
-          <div id="efficiencyBar" class="h-full bg-[#10a79c] transition-all" style="width:75%"></div>
-          <div class="h-full w-[22%] bg-[#334155]"></div>
-          <div class="h-full w-[3%] bg-[#ef4444]"></div>
-        </div>
-        <p class="text-sm md:text-base font-semibold text-[#111827] whitespace-nowrap">Efficiency: <span id="efficiencyScore">75%</span></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Charts and Lists Section -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-    <!-- Center Column -->
-    <div class="lg:col-span-2 space-y-8">
-      <div class="bg-surface border border-outline-variant rounded-xl p-4 md:p-8 shadow-sm">
-        <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-8 gap-3">
-          <div>
-            <h4 class="font-headline-md text-headline-md text-on-surface">Application Volume Trend</h4>
-            <p class="text-body-sm text-secondary">Historical flow of loan submissions.</p>
+    <!-- Right Side - Login Form -->
+    <div class="w-full lg:w-1/2 flex flex-col items-center justify-center px-4 lg:px-8 py-12 lg:py-0 slide-in-right">
+      <div class="w-full max-w-md">
+        <!-- Mobile Logo -->
+        <div class="lg:hidden text-center mb-8">
+          <div class="flex justify-center mb-4">
+            <img 
+              src="company-logo.png" 
+              alt="InPrimeCore Logo" 
+              class="w-16 h-16 rounded-xl shadow-lg object-cover border border-white/10"
+            />
           </div>
-          <div class="flex items-center gap-4">
-            <div class="flex bg-surface-container-low border border-outline-variant rounded-lg p-0.5 flex-shrink-0">
-              <button onclick="setTrendView('daily')" id="trendBtnDaily" class="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md transition-all bg-primary text-on-primary">Daily</button>
-              <button onclick="setTrendView('weekly')" id="trendBtnWeekly" class="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md transition-all text-secondary hover:text-primary">Weekly</button>
-              <button onclick="setTrendView('monthly')" id="trendBtnMonthly" class="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md transition-all text-secondary hover:text-primary">Monthly</button>
+          <h1 class="text-3xl font-bold text-white mb-1">InPrimeCore</h1>
+          <p class="text-sm text-slate-400">Loan Operations Command Center</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="card-glass p-8 fade-in">
+          <!-- Heading -->
+          <div class="mb-8">
+            <h2 class="text-3xl font-bold text-white mb-2">Welcome Back</h2>
+            <p class="text-sm text-slate-400">Sign in to your account to continue</p>
+          </div>
+
+          <!-- Form -->
+          <form id="loginForm" class="space-y-6">
+            <!-- Email Field -->
+            <div>
+              <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                <span class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-sm">mail</span>
+                  Email Address
+                </span>
+              </label>
+              <input 
+                id="email" 
+                type="email" 
+                class="form-input w-full px-4 py-3 rounded-lg text-white transition-all" 
+                placeholder="admin@inprimecore.com" 
+                required
+                autocomplete="email"
+              />
             </div>
-          </div>
-        </div>
-        <div class="h-64"><canvas id="chartMonthly"></canvas></div>
-      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="bg-surface border border-outline-variant rounded-xl p-6">
-          <h4 class="font-body-sm font-bold text-on-surface mb-6 uppercase tracking-wider">Approval Funnel</h4>
-          <div id="funnelStats" class="space-y-4"></div>
-        </div>
-        <div class="bg-surface-container border border-outline-variant rounded-xl p-6 relative overflow-hidden group">
-          <div class="relative z-10">
-            <h4 class="font-body-sm font-bold text-on-surface mb-2">Loan Portfolio Quality</h4>
-            <p class="text-body-sm text-on-surface-variant mb-4" id="nplRatio">Overall NPL ratio is currently at a record low of 1.2%.</p>
-            <button onclick="switchPage('audit')" class="text-primary font-bold text-body-sm flex items-center gap-1 group-hover:gap-2 transition-all">
-              View Full Audit <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            <!-- Password Field -->
+            <div>
+              <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                <span class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-sm">lock</span>
+                  Password
+                </span>
+              </label>
+              <input 
+                id="password" 
+                type="password" 
+                class="form-input w-full px-4 py-3 rounded-lg text-white transition-all" 
+                placeholder="Enter your password" 
+                required
+                autocomplete="current-password"
+              />
+            </div>
+
+            <!-- Error Message -->
+            <div id="loginMsg" class="hidden error-message">
+              <span class="material-symbols-outlined text-base flex-shrink-0">error_outline</span>
+              <span>Invalid email or password. Please try again.</span>
+            </div>
+
+            <!-- Sign In Button -->
+            <button 
+              id="submitBtn"
+              type="submit" 
+              class="btn-primary w-full px-4 py-3.5 rounded-lg text-base mt-8 flex items-center justify-center gap-2 disabled:opacity-50 relative overflow-hidden"
+            >
+              <span id="btnText">Sign In</span>
+              <span id="btnIcon" class="material-symbols-outlined text-base">arrow_forward</span>
+              <span id="btnSpinner" class="hidden spinner material-symbols-outlined text-base absolute">hourglass_top</span>
             </button>
-          </div>
-          <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-9xl text-outline-variant/20 rotate-12 group-hover:rotate-0 transition-transform duration-500">verified_user</span>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
-          <h4 class="text-headline-md text-on-surface mb-1">Status Distribution</h4>
-          <p class="text-body-sm text-secondary mb-4">Breakdown of application statuses</p>
-          <div class="h-64"><canvas id="chartStatus"></canvas></div>
-        </div>
-        <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
-          <h4 class="text-headline-md text-on-surface mb-4">Loan Type Breakdown</h4>
-          <div class="h-64"><canvas id="chartLoanType"></canvas></div>
-        </div>
-      </div>
-
-      <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
-        <h4 class="text-headline-md text-on-surface mb-4">Top Area Offices</h4>
-        <div id="topAreas" class="space-y-3"></div>
-      </div>
-    </div>
-
-    <!-- Right Column -->
-    <div class="space-y-8">
-      <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
-        <div class="flex justify-between items-center mb-5">
-          <div>
-            <h4 class="font-body-sm font-bold text-on-surface uppercase tracking-wider">Upcoming Files Porb</h4>
-            <p class="text-xs text-secondary mt-0.5">Applications currently being filled</p>
-          </div>
-          <span class="text-xs bg-[#DBEAFE] text-[#1E40AF] px-2 py-1 rounded font-bold" id="fillingBadge">0</span>
-        </div>
-        <div class="flex items-center justify-center py-4">
-          <div class="relative w-32 h-32">
-            <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="#e6e8ea" stroke-width="10"/>
-              <circle cx="50" cy="50" r="40" fill="none" stroke="#004ac6" stroke-width="10" stroke-linecap="round"
-                stroke-dasharray="251.3" stroke-dashoffset="251.3" id="fillingCircle"/>
-            </svg>
-            <div class="absolute inset-0 flex flex-col items-center justify-center">
-              <span class="text-2xl font-bold text-on-surface" id="fillingCount">0</span>
-              <span class="text-[10px] text-secondary uppercase font-bold">Filling</span>
-            </div>
-          </div>
-        </div>
-        <p class="text-center text-xs text-secondary -mt-2 mb-2" id="fillingOfTotal"></p>
-        <div id="fillingStatusRows" class="space-y-2 mt-4"></div>
-        <button onclick="switchPage('applications')" class="w-full mt-4 py-2 border border-outline-variant rounded-lg text-body-sm font-bold text-secondary hover:bg-surface-container-low transition-colors">View All Applications</button>
-      </div>
-
-      <div class="bg-surface border border-outline-variant rounded-xl p-6 shadow-sm">
-        <h4 class="font-body-sm font-bold text-on-surface uppercase tracking-wider mb-6">Recent Activities</h4>
-        <div id="recentActivities" class="relative space-y-6 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[1px] before:bg-outline-variant">
-          <div class="relative pl-8">
-            <div class="absolute left-0 top-1 w-6 h-6 bg-surface border-2 border-[#DCFCE7] rounded-full flex items-center justify-center"><div class="w-2 h-2 bg-[#166534] rounded-full"></div></div>
-            <p class="text-body-sm"><span class="font-bold">App #LN-9082</span> was approved by System Auto-Check.</p>
-            <p class="text-[10px] text-secondary uppercase font-bold mt-1">2 minutes ago</p>
-          </div>
-          <div class="relative pl-8">
-            <div class="absolute left-0 top-1 w-6 h-6 bg-surface border-2 border-primary rounded-full flex items-center justify-center"><div class="w-2 h-2 bg-primary rounded-full"></div></div>
-            <p class="text-body-sm"><span class="font-bold">Alex Mercer</span> moved <span class="font-bold">K. Smith</span> to Credit Review.</p>
-            <p class="text-[10px] text-secondary uppercase font-bold mt-1">45 minutes ago</p>
-          </div>
-          <div class="relative pl-8">
-            <div class="absolute left-0 top-1 w-6 h-6 bg-surface border-2 border-[#FEE2E2] rounded-full flex items-center justify-center"><div class="w-2 h-2 bg-[#991B1B] rounded-full"></div></div>
-            <p class="text-body-sm"><span class="font-bold">Loan #LN-8911</span> rejected due to DTI ratio &gt; 45%.</p>
-            <p class="text-[10px] text-secondary uppercase font-bold mt-1">2 hours ago</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-gradient-to-br from-primary to-on-primary-fixed-variant rounded-xl p-6 text-on-primary shadow-xl">
-        <span class="material-symbols-outlined text-4xl mb-4">support_agent</span>
-        <h4 class="font-headline-md mb-2">Need help with a case?</h4>
-        <p class="text-body-sm text-on-primary/80 mb-6">Connect with a senior underwriter for complex loan structures or policy clarifications.</p>
-        <button class="w-full py-3 bg-white text-primary rounded-lg font-bold hover:bg-blue-50 transition-colors">Request Advisory</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <div class="mt-8 pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4 text-body-sm text-secondary">
-    <p>&copy; 2024 Inprime Finserv LMS. All rights reserved.</p>
-    <div class="flex gap-6">
-      <a class="hover:text-primary transition-colors" href="#">Compliance Policy</a>
-      <a class="hover:text-primary transition-colors" href="#">System Status</a>
-      <a class="hover:text-primary transition-colors" href="#">Help Center</a>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== APPLICATIONS ==================== -->
-<div id="page-applications" class="pg fadein">
-  <div class="flex flex-col sm:flex-row justify-between sm:items-end mb-6 gap-3">
-    <div>
-      <h2 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">Applications</h2>
-      <p class="text-secondary text-body-sm md:font-body-base">Browse, search, filter, and edit loan application records.</p>
-    </div>
-    <button onclick="openAddModal()" class="btn-p text-sm w-full sm:w-auto justify-center"><span class="material-symbols-outlined text-sm">add</span> Add Record</button>
-  </div>
-
-  <div class="bg-surface border border-outline-variant rounded-xl p-3 sm:p-4 mb-4 flex flex-wrap gap-2 sm:gap-3 items-end">
-    <!-- Multi-select: Status -->
-    <div class="w-full sm:w-auto relative" id="ms-wrap-status">
-      <label class="text-label-caps text-secondary block mb-1">Status</label>
-      <button type="button" onclick="toggleMsDropdown('status')" class="w-full sm:w-48 text-body-sm border border-outline-variant rounded-lg px-3 py-2 bg-white flex justify-between items-center gap-2 hover:border-primary transition-colors">
-        <span id="ms-label-status" class="truncate text-left">All Statuses</span>
-        <span class="material-symbols-outlined text-sm text-secondary flex-shrink-0">expand_more</span>
-      </button>
-      <div id="ms-drop-status" class="hidden absolute z-30 top-full mt-1 w-56 bg-white border border-outline-variant rounded-xl shadow-2xl overflow-hidden">
-        <div class="p-2 border-b border-outline-variant flex gap-2">
-          <button onclick="msClearAll('status')" class="flex-1 text-xs py-1 rounded border border-outline-variant text-secondary hover:bg-surface-container-low">Clear</button>
-          <button onclick="msSelectAll('status')" class="flex-1 text-xs py-1 rounded bg-primary text-white hover:bg-on-primary-fixed-variant">All</button>
-        </div>
-        <div id="ms-options-status" class="max-h-52 overflow-y-auto p-1"></div>
-      </div>
-    </div>
-    <!-- Multi-select: Loan Type -->
-    <div class="w-full sm:w-auto relative" id="ms-wrap-loantype">
-      <label class="text-label-caps text-secondary block mb-1">Loan Type</label>
-      <button type="button" onclick="toggleMsDropdown('loantype')" class="w-full sm:w-48 text-body-sm border border-outline-variant rounded-lg px-3 py-2 bg-white flex justify-between items-center gap-2 hover:border-primary transition-colors">
-        <span id="ms-label-loantype" class="truncate text-left">All Types</span>
-        <span class="material-symbols-outlined text-sm text-secondary flex-shrink-0">expand_more</span>
-      </button>
-      <div id="ms-drop-loantype" class="hidden absolute z-30 top-full mt-1 w-56 bg-white border border-outline-variant rounded-xl shadow-2xl overflow-hidden">
-        <div class="p-2 border-b border-outline-variant flex gap-2">
-          <button onclick="msClearAll('loantype')" class="flex-1 text-xs py-1 rounded border border-outline-variant text-secondary hover:bg-surface-container-low">Clear</button>
-          <button onclick="msSelectAll('loantype')" class="flex-1 text-xs py-1 rounded bg-primary text-white hover:bg-on-primary-fixed-variant">All</button>
-        </div>
-        <div id="ms-options-loantype" class="max-h-52 overflow-y-auto p-1"></div>
-      </div>
-    </div>
-    <!-- Multi-select: Area Office -->
-    <div class="w-full sm:w-auto relative" id="ms-wrap-area">
-      <label class="text-label-caps text-secondary block mb-1">Area Office</label>
-      <button type="button" onclick="toggleMsDropdown('area')" class="w-full sm:w-48 text-body-sm border border-outline-variant rounded-lg px-3 py-2 bg-white flex justify-between items-center gap-2 hover:border-primary transition-colors">
-        <span id="ms-label-area" class="truncate text-left">All Areas</span>
-        <span class="material-symbols-outlined text-sm text-secondary flex-shrink-0">expand_more</span>
-      </button>
-      <div id="ms-drop-area" class="hidden absolute z-30 top-full mt-1 w-56 bg-white border border-outline-variant rounded-xl shadow-2xl overflow-hidden">
-        <div class="p-2 border-b border-outline-variant flex gap-2">
-          <button onclick="msClearAll('area')" class="flex-1 text-xs py-1 rounded border border-outline-variant text-secondary hover:bg-surface-container-low">Clear</button>
-          <button onclick="msSelectAll('area')" class="flex-1 text-xs py-1 rounded bg-primary text-white hover:bg-on-primary-fixed-variant">All</button>
-        </div>
-        <div id="ms-options-area" class="max-h-52 overflow-y-auto p-1"></div>
-      </div>
-    </div>
-    <div class="w-[calc(50%-4px)] sm:w-auto"><label class="text-label-caps text-secondary block mb-1">Date From</label>
-      <input type="date" id="filterDateFrom" class="w-full sm:w-auto text-body-sm border border-outline-variant rounded-lg px-3 py-2 bg-white" onchange="applyFilters()"/></div>
-    <div class="w-[calc(50%-4px)] sm:w-auto"><label class="text-label-caps text-secondary block mb-1">Date To</label>
-      <input type="date" id="filterDateTo" class="w-full sm:w-auto text-body-sm border border-outline-variant rounded-lg px-3 py-2 bg-white" onchange="applyFilters()"/></div>
-    <button onclick="clearFilters()" class="btn-s text-xs h-fit"><span class="material-symbols-outlined text-sm">filter_alt_off</span> Clear</button>
-    <div class="flex items-center gap-2 ml-auto">
-      <span id="activeFilterBadge" class="hidden bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded-full">0 filters</span>
-      <div class="text-body-sm text-secondary" id="filterCount">0 records</div>
-    </div>
-  </div>
-
-  <div class="bg-surface border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full text-body-sm">
-        <thead class="bg-surface-container-low border-b border-outline-variant"><tr id="tableHeader"></tr></thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-    <div class="flex justify-between items-center px-4 py-3 border-t border-outline-variant bg-surface-container-low">
-      <div class="flex items-center gap-2">
-        <span class="text-body-sm text-secondary">Rows per page:</span>
-        <select id="pageSize" class="text-body-sm border border-outline-variant rounded px-2 py-1 bg-white" onchange="currentPage=1;renderTable()">
-          <option value="25">25</option><option value="50">50</option><option value="100">100</option><option value="500">500</option>
-        </select>
-      </div>
-      <div class="flex items-center gap-3">
-        <span class="text-body-sm text-secondary" id="paginationInfo">0 records</span>
-        <button onclick="goToPage(currentPage-1)" class="p-1 rounded hover:bg-surface-container-high transition-colors" id="btnPrev"><span class="material-symbols-outlined">chevron_left</span></button>
-        <span class="text-body-sm text-secondary font-mono" id="pageIndicator">1 / 1</span>
-        <button onclick="goToPage(currentPage+1)" class="p-1 rounded hover:bg-surface-container-high transition-colors" id="btnNext"><span class="material-symbols-outlined">chevron_right</span></button>
-        <input type="number" id="jumpToPage" min="1" class="w-14 text-xs border border-outline-variant rounded px-2 py-1 text-center bg-white" placeholder="Go" onkeydown="if(event.key==='Enter'){goToPage(parseInt(this.value));this.value='';}" title="Jump to page"/>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== BULK UPLOAD ==================== -->
-<div id="page-upload" class="pg fadein">
-  <div class="mb-6">
-    <h2 class="font-display-lg text-display-lg text-on-surface">Bulk Upload</h2>
-    <p class="text-secondary font-body-base">Upload CSV data to refresh or append records. Use this for daily or monthly data updates.</p>
-  </div>
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-    <div>
-      <div id="uploadZone" class="uzone" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="event.preventDefault();this.classList.remove('dragover');handleBulkUpload(event.dataTransfer.files[0])" onclick="document.getElementById('uploadFileInput').click()">
-        <span class="material-symbols-outlined text-6xl text-outline-variant mb-4">cloud_upload</span>
-        <p class="text-headline-md text-on-surface mb-2">Drag &amp; drop your CSV or Excel file here</p>
-        <p class="text-body-sm text-secondary mb-4">or click to browse files</p>
-        <p class="text-label-caps text-outline">Supports: .csv, .xlsx, .xls</p>
-        <input type="file" id="uploadFileInput" accept=".csv,.xlsx,.xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hidden" onchange="handleBulkUpload(this.files[0])"/>
-      </div>
-      <div class="mt-6 bg-surface border border-outline-variant rounded-xl p-6">
-        <h4 class="text-headline-md text-on-surface mb-4">Upload Mode</h4>
-        <div class="space-y-3">
-          <label class="flex items-start gap-3 p-3 border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors">
-            <input type="radio" name="uploadMode" value="replace" checked class="mt-1 text-primary focus:ring-primary"/>
-            <div><p class="font-bold text-body-sm">Replace All Data</p><p class="text-xs text-secondary">Remove existing data and load fresh CSV. Best for monthly full refreshes.</p></div>
-          </label>
-          <label class="flex items-start gap-3 p-3 border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors">
-            <input type="radio" name="uploadMode" value="append" class="mt-1 text-primary focus:ring-primary"/>
-            <div><p class="font-bold text-body-sm">Append / Update</p><p class="text-xs text-secondary">Add new records and update existing ones by Application ID. Best for daily updates.</p></div>
-          </label>
-        </div>
-      </div>
-    </div>
-    <div>
-      <div class="bg-surface border border-outline-variant rounded-xl p-6 mb-6">
-        <h4 class="text-headline-md text-on-surface mb-4">Current Data Summary</h4>
-        <div class="space-y-3">
-          <div class="flex justify-between py-2 border-b border-outline-variant"><span class="text-secondary text-body-sm">Total Records</span><span class="font-mono font-bold" id="sumTotal">0</span></div>
-          <div class="flex justify-between py-2 border-b border-outline-variant"><span class="text-secondary text-body-sm">Last Upload</span><span class="font-mono font-bold" id="sumLastUpload">Never</span></div>
-          <div class="flex justify-between py-2 border-b border-outline-variant"><span class="text-secondary text-body-sm">Date Range</span><span class="font-mono font-bold" id="sumDateRange">&mdash;</span></div>
-          <div class="flex justify-between py-2"><span class="text-secondary text-body-sm">Area Offices</span><span class="font-mono font-bold" id="sumAreas">0</span></div>
-        </div>
-      </div>
-      <div class="bg-surface border border-outline-variant rounded-xl p-6">
-        <h4 class="text-headline-md text-on-surface mb-4">Upload History</h4>
-        <div id="uploadHistory" class="space-y-3"><p class="text-body-sm text-secondary">No uploads yet.</p></div>
-      </div>
-      <div class="mt-6 bg-surface border border-outline-variant rounded-xl p-6">
-        <h4 class="text-headline-md text-on-surface mb-4">Data Actions</h4>
-        <div class="flex flex-wrap gap-3">
-          <button onclick="exportAllData()" class="btn-s text-sm"><span class="material-symbols-outlined text-sm">download</span> Export All Data</button>
-          <button onclick="confirmClearData()" class="btn-s text-sm text-error border-error/30 hover:bg-error-container"><span class="material-symbols-outlined text-sm">delete</span> Clear All Data</button>
+          </form>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ==================== AUDIT LOGS ==================== -->
-<div id="page-audit" class="pg fadein">
-  <div class="mb-6">
-    <h2 class="font-display-lg text-display-lg text-on-surface">Audit Logs</h2>
-    <p class="text-secondary font-body-base">Track all data changes made through the dashboard.</p>
-  </div>
-  <div class="bg-surface border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-    <table class="w-full text-body-sm">
-      <thead class="bg-surface-container-low border-b border-outline-variant">
-        <tr>
-          <th class="text-left px-4 py-3 text-label-caps text-secondary">Timestamp</th>
-          <th class="text-left px-4 py-3 text-label-caps text-secondary">Action</th>
-          <th class="text-left px-4 py-3 text-label-caps text-secondary">Application ID</th>
-          <th class="text-left px-4 py-3 text-label-caps text-secondary">Field</th>
-          <th class="text-left px-4 py-3 text-label-caps text-secondary">Old Value</th>
-          <th class="text-left px-4 py-3 text-label-caps text-secondary">New Value</th>
-        </tr>
-      </thead>
-      <tbody id="auditBody"><tr><td colspan="6" class="px-4 py-8 text-center text-secondary">No audit logs yet.</td></tr></tbody>
-    </table>
-  </div>
-</div>
-
-</div>
-</main>
-
-<!-- ========== EDIT MODAL ========== -->
-<div id="editModal" class="m-overlay" style="display:none">
-  <div class="bg-white rounded-none md:rounded-2xl shadow-2xl w-full md:max-w-4xl h-full md:h-auto md:max-h-[92vh] overflow-hidden flex flex-col">
-    <!-- Modal Header -->
-    <div class="flex justify-between items-center px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant bg-surface-container-low">
-      <div class="flex items-center gap-3">
-        <div class="p-2 bg-primary rounded-lg" id="modalIcon"><span class="material-symbols-outlined text-on-primary">edit_note</span></div>
-        <div>
-          <h3 class="text-base md:text-headline-md font-bold text-on-surface" id="modalTitle">Edit Application</h3>
-          <p class="text-xs text-secondary" id="modalSubtitle">Update the fields below and save changes</p>
-        </div>
-      </div>
-      <button onclick="closeEditModal()" class="p-2 hover:bg-surface-container-high rounded-full transition-colors" title="Close"><span class="material-symbols-outlined text-secondary">close</span></button>
-    </div>
-    <!-- Modal Body -->
-    <div class="flex-1 overflow-y-auto px-4 md:px-8 py-4 md:py-6">
-      <div id="modalFields"></div>
-    </div>
-    <!-- Modal Footer -->
-    <div class="flex justify-between items-center px-4 md:px-8 py-3 md:py-4 border-t border-outline-variant bg-surface-container-low" id="modalActions">
-      <p class="text-xs text-secondary hidden md:block" id="modalFieldCount"></p>
-      <div class="flex gap-3 w-full md:w-auto">
-        <button onclick="closeEditModal()" class="flex-1 md:flex-none px-5 py-2.5 bg-surface border border-outline-variant rounded-lg text-body-sm font-bold text-secondary hover:bg-surface-container-high transition-colors">Cancel</button>
-        <button onclick="saveEditModal()" class="flex-1 md:flex-none px-5 py-2.5 bg-primary text-on-primary rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-on-primary-fixed-variant transition-all active:scale-95"><span class="material-symbols-outlined text-sm">save</span> Save</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ========== LOADING ========== -->
-<div id="loadingOverlay" class="fixed inset-0 bg-black/30 z-[200] flex items-center justify-center" style="display:none">
-  <div class="bg-white rounded-xl p-8 flex flex-col items-center gap-4 shadow-2xl">
-    <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-    <p class="text-body-base font-bold" id="loadingText">Processing...</p>
-  </div>
-</div>
-
-<!-- ========== TOAST ========== -->
-<div id="toast" class="fixed bottom-6 right-6 z-[300]" style="display:none">
-  <div class="bg-inverse-surface text-inverse-on-surface px-6 py-3 rounded-xl shadow-xl flex items-center gap-3">
-    <span class="material-symbols-outlined" id="toastIcon">check_circle</span>
-    <span id="toastMsg"></span>
-  </div>
-</div>
-
-<!-- ========== JAVASCRIPT ========== -->
 <script>
-// ============================================================
-// STATE
-// ============================================================
-var allData = [];
-var filteredData = [];
-var dashFilteredData = [];
-var currentPage = 1;
-var sortCol = null;
-var sortAsc = true;
-var editingRowIdx = null;
-var isAddMode = false;
-var auditLogs = [];
-var uploadHistory = [];
-var chartMonthlyInst = null;
-var trendView = 'daily';
-var chartStatusInst = null;
-var chartLoanTypeInst = null;
-
-var DB_NAME = 'InprimeFinservLMS';
-var DB_VERSION = 2;
-var STORE_DATA = 'loanData';
-var STORE_META = 'meta';
-
-var TABLE_COLUMNS = [
-  'application_id','areaoffice_name','loan_type','application-date',
-  'borrower_name','borrower_id','applicationstatus','stage',
-  'loanamountrequired','disbursement_amount','disbursement_date',
-  'ro_name','funnel_status'
+var USERS = [
+  { id:'admin', name:'Admin admin', role:'Admin', email:'admin@inprimecore.com', password:'Admin@123' },
+  { id:'abhi', name:'Abhi Ranjan', role:'Credit Analyst', email:'abhi.ranjan@inprimecore.com', password:'Abhi@123' },
+  { id:'neha', name:'Backend Gems', role:'Senior Underwriter', email:'backend.gems@inprimecore.com', password:'Backend@123' }
 ];
 
-var COLUMN_LABELS = {
-  'application_id':'App ID','areaoffice_name':'Area Office',
-  'loan_type':'Loan Type','application-date':'App Date',
-  'borrower_name':'Borrower','borrower_id':'Borrower ID',
-  'applicationstatus':'Status','stage':'Stage',
-  'loanamountrequired':'Amount Req','disbursement_amount':'Disbursed Amt',
-  'disbursement_date':'Disburse Date','ro_name':'RO Name',
-  'funnel_status':'Funnel Status'
-};
-
-var EDITABLE_FIELDS = [
-  'application_id','areaoffice_name','loan_type','application-date',
-  'borrower_name','borrower_id','pincode','microarea',
-  'loanamountrequired','loanpurpose','applicationstatus','stage','substage',
-  'disbursement_amount','disbursement_date','maxloanamt','proposedloanamtinpd',
-  'ro_name','ro_id','coapplicant1_name','coapplicant2_name',
-  'comments','remarks','funnel_status'
-];
-
-var FIELD_GROUPS = [
-  { title:'Application Info', icon:'description', fields:['application_id','areaoffice_name','loan_type','application-date','applicationstatus','stage','substage','funnel_status'] },
-  { title:'Borrower Details', icon:'person', fields:['borrower_name','borrower_id','pincode','microarea','coapplicant1_name','coapplicant2_name'] },
-  { title:'Loan & Financials', icon:'payments', fields:['loanamountrequired','loanpurpose','disbursement_amount','disbursement_date','maxloanamt','proposedloanamtinpd'] },
-  { title:'Officer & Notes', icon:'badge', fields:['ro_name','ro_id','comments','remarks'] }
-];
-
-// ============================================================
-// INDEXED DB
-// ============================================================
-function openDB() {
-  return new Promise(function(resolve, reject) {
-    var req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = function(e) {
-      var db = e.target.result;
-      if (!db.objectStoreNames.contains(STORE_DATA)) db.createObjectStore(STORE_DATA, { keyPath:'_rowId', autoIncrement:true });
-      if (!db.objectStoreNames.contains(STORE_META)) db.createObjectStore(STORE_META, { keyPath:'key' });
-    };
-    req.onsuccess = function() { resolve(req.result); };
-    req.onerror = function() { reject(req.error); };
-  });
+function setAuthSession(user) {
+  sessionStorage.setItem('inprimecoreAuth', JSON.stringify({
+    isLoggedIn: true,
+    user: { id:user.id, name:user.name, role:user.role, email:user.email },
+    loginAt: new Date().toISOString()
+  }));
+  window.location.href = 'code.html';
 }
 
-function saveDataToDB(data) {
-  return openDB().then(function(db) {
-    return new Promise(function(resolve, reject) {
-      var tx = db.transaction(STORE_DATA, 'readwrite');
-      var store = tx.objectStore(STORE_DATA);
-      store.clear();
-      for (var i = 0; i < data.length; i++) { data[i]._rowId = i + 1; store.put(data[i]); }
-      tx.oncomplete = resolve;
-      tx.onerror = reject;
-    });
-  });
-}
+var loginForm = document.getElementById('loginForm');
+var emailInput = document.getElementById('email');
+var passwordInput = document.getElementById('password');
+var submitBtn = document.getElementById('submitBtn');
+var loginMsg = document.getElementById('loginMsg');
 
-function saveOneRecord(record) {
-  return openDB().then(function(db) {
-    return new Promise(function(resolve, reject) {
-      var tx = db.transaction(STORE_DATA, 'readwrite');
-      tx.objectStore(STORE_DATA).put(record);
-      tx.oncomplete = resolve;
-      tx.onerror = reject;
-    });
-  });
-}
+emailInput.addEventListener('focus', function() {
+  loginMsg.classList.add('hidden');
+});
 
-function addOneRecord(record) {
-  return openDB().then(function(db) {
-    return new Promise(function(resolve, reject) {
-      var tx = db.transaction(STORE_DATA, 'readwrite');
-      var req = tx.objectStore(STORE_DATA).add(record);
-      req.onsuccess = function() { record._rowId = req.result; resolve(); };
-      tx.onerror = reject;
-    });
-  });
-}
+passwordInput.addEventListener('focus', function() {
+  loginMsg.classList.add('hidden');
+});
 
-function loadDataFromDB() {
-  return openDB().then(function(db) {
-    return new Promise(function(resolve, reject) {
-      var tx = db.transaction(STORE_DATA, 'readonly');
-      var req = tx.objectStore(STORE_DATA).getAll();
-      req.onsuccess = function() { resolve(req.result || []); };
-      req.onerror = function() { reject(req.error); };
-    });
-  });
-}
+loginForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  submitBtn.disabled = true;
+  
+  var btnText = document.getElementById('btnText');
+  var btnIcon = document.getElementById('btnIcon');
+  var btnSpinner = document.getElementById('btnSpinner');
+  
+  btnText.textContent = 'Signing in...';
+  btnIcon.classList.add('hidden');
+  btnSpinner.classList.remove('hidden');
+  
+  var email = emailInput.value.trim().toLowerCase();
+  var password = passwordInput.value;
 
-function saveMeta(key, value) {
-  return openDB().then(function(db) {
-    var tx = db.transaction(STORE_META, 'readwrite');
-    tx.objectStore(STORE_META).put({ key:key, value:value });
-  });
-}
-
-function loadMeta(key) {
-  return openDB().then(function(db) {
-    return new Promise(function(resolve) {
-      var tx = db.transaction(STORE_META, 'readonly');
-      var req = tx.objectStore(STORE_META).get(key);
-      req.onsuccess = function() { resolve(req.result ? req.result.value : null); };
-      req.onerror = function() { resolve(null); };
-    });
-  });
-}
-
-// ============================================================
-// CSV PARSING
-// ============================================================
-function isExcelFile(file) {
-  return !!(file && /\.(xlsx|xls)$/i.test(file.name || ''));
-}
-
-function parseUploadedFile(file) {
-  return new Promise(function(resolve, reject) {
-    if (!file) { resolve([]); return; }
-
-    if (isExcelFile(file)) {
-      file.arrayBuffer().then(function(buffer) {
-        var workbook = XLSX.read(buffer, { type:'array' });
-        var sheetName = workbook.SheetNames[0];
-        if (!sheetName) { resolve([]); return; }
-        var sheet = workbook.Sheets[sheetName];
-        resolve(XLSX.utils.sheet_to_json(sheet, { defval:'', raw:false }));
-      }).catch(reject);
+  // Simulate network delay for better visual feedback
+  setTimeout(function() {
+    var user = USERS.find(function(u) { return u.email.toLowerCase() === email && u.password === password; });
+    if (!user) {
+      loginMsg.classList.remove('hidden');
+      passwordInput.value = '';
+      submitBtn.disabled = false;
+      
+      btnText.textContent = 'Sign In';
+      btnIcon.classList.remove('hidden');
+      btnSpinner.classList.add('hidden');
+      
+      passwordInput.focus();
       return;
     }
 
-    Papa.parse(file, {
-      header:true,
-      skipEmptyLines:true,
-      complete:function(result) { resolve(result.data || []); },
-      error:reject
-    });
-  });
-}
-
-function handleFileUpload(file) {
-  if (!file) return;
-  showLoading('Parsing ' + (isExcelFile(file) ? 'Excel' : 'CSV') + ' file...');
-  parseUploadedFile(file).then(function(rows) {
-    allData = rows;
-    processDataLoaded('replace', file.name);
-  }).catch(function() {
-    hideLoading();
-    showToast('Failed to parse file','error');
-  });
-}
-
-function handleBulkUpload(file) {
-  if (!file) return;
-  var mode = document.querySelector('input[name="uploadMode"]:checked').value;
-  showLoading('Processing ' + (isExcelFile(file) ? 'Excel' : 'CSV') + ' (' + mode + ')...');
-  parseUploadedFile(file).then(function(rows) {
-      if (mode === 'replace') {
-        allData = rows;
-      } else {
-        var map = {};
-        allData.forEach(function(row, i) { if (row.application_id) map[row.application_id] = i; });
-        var added = 0, updated = 0;
-        rows.forEach(function(row) {
-          if (row.application_id && map.hasOwnProperty(row.application_id)) {
-            var idx = map[row.application_id];
-            var rid = allData[idx]._rowId;
-            Object.assign(allData[idx], row);
-            allData[idx]._rowId = rid;
-            updated++;
-          } else {
-            allData.push(row);
-            added++;
-          }
-        });
-        showToast('Added ' + added + ', updated ' + updated + ' records', 'success');
-      }
-      processDataLoaded(mode, file.name);
-  }).catch(function() {
-    hideLoading();
-    showToast('Failed to parse file','error');
-  });
-}
-
-function processDataLoaded(mode, fileName) {
-  saveDataToDB(allData).then(function() {
-    var now = new Date().toLocaleString();
-    uploadHistory.unshift({ date:now, file:fileName, mode:mode, count:allData.length });
-    if (uploadHistory.length > 20) uploadHistory = uploadHistory.slice(0,20);
-    saveMeta('uploadHistory', uploadHistory);
-    saveMeta('lastUpload', now);
-    addAuditLog('UPLOAD','-','data','-', mode + ': ' + allData.length + ' records from ' + fileName);
-    initAfterLoad();
-    hideLoading();
-    showToast('Loaded ' + allData.length.toLocaleString() + ' records','success');
-  });
-}
-
-// ============================================================
-// INIT
-// ============================================================
-var DEFAULT_CSV = './Page_1_Raw_Data - 2026-05-04T064339.055.csv';
-
-function init() {
-  // Apply sidebar collapsed state on init
-  document.body.classList.add('sidebar-collapsed');
-  document.getElementById('sidebarToggleBtn').style.left = '88px';
-  loadDataFromDB().then(function(data) {
-    if (data && data.length > 0) {
-      allData = data;
-      initAfterLoad();
-    } else {
-      autoLoadCSV();
-    }
-    return loadMeta('uploadHistory');
-  }).then(function(hist) {
-    if (hist) uploadHistory = hist;
-    return loadMeta('auditLogs');
-  }).then(function(logs) {
-    if (logs) { auditLogs = logs; renderAuditLogs(); }
-    renderUploadSummary();
-    renderUploadHistory();
-  }).catch(function(e) { console.error('Init error:', e); });
-}
-
-function autoLoadCSV() {
-  showLoading('Loading default dataset...');
-  fetch(DEFAULT_CSV).then(function(res) {
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.text();
-  }).then(function(text) {
-    var result = Papa.parse(text, { header:true, skipEmptyLines:true });
-    if (result.data && result.data.length > 0) {
-      allData = result.data;
-      processDataLoaded('replace', 'Default Dataset');
-    } else {
-      hideLoading();
-    }
-  }).catch(function(err) {
-    console.log('Auto-load CSV not available (expected when opening as file://):', err.message);
-    hideLoading();
-  });
-}
-
-function initAfterLoad() {
-  filteredData = allData.slice();
-  dashFilteredData = allData.slice();
-  populateFilterDropdowns();
-  buildTableHeader();
-  applyFilters();
-  applyDashboardFilters();
-  renderFillingStatus();
-  renderUploadSummary();
-  renderUploadHistory();
-  updateDataStatus();
-}
-
-function updateDataStatus() {
-  document.getElementById('dataStatus').textContent = allData.length.toLocaleString() + ' records loaded';
-  document.getElementById('dashSubtitle').textContent = 'Showing analytics for ' + dashFilteredData.length.toLocaleString() + ' loan applications.';
-}
-
-// ============================================================
-// NAVIGATION
-// ============================================================
-function switchPage(page) {
-  document.querySelectorAll('.pg').forEach(function(p) { p.classList.remove('active'); });
-  document.querySelectorAll('.nav-link').forEach(function(n) { n.classList.remove('active'); });
-  document.getElementById('page-' + page).classList.add('active');
-  var nav = document.querySelector('[data-page="' + page + '"]');
-  if (nav) nav.classList.add('active');
-  if (window.innerWidth < 768) closeMobileSidebar();
-}
-
-// ============================================================
-// SIDEBAR TOGGLE
-// ============================================================
-var sidebarCollapsed = true;
-function toggleSidebar() {
-  sidebarCollapsed = !sidebarCollapsed;
-  document.body.classList.toggle('sidebar-collapsed', sidebarCollapsed);
-  document.getElementById('sidebarToggleBtn').style.left = sidebarCollapsed ? '88px' : '256px';
-}
-
-function openMobileSidebar() {
-  document.getElementById('sidebar').classList.add('mobile-open');
-  document.getElementById('mobileOverlay').classList.add('active');
-}
-function closeMobileSidebar() {
-  document.getElementById('sidebar').classList.remove('mobile-open');
-  document.getElementById('mobileOverlay').classList.remove('active');
-}
-
-// ============================================================
-// PROFILE DROPDOWN
-// ============================================================
-var profileOpen = false;
-function toggleProfile() {
-  profileOpen = !profileOpen;
-  document.getElementById('profilePanel').style.display = profileOpen ? 'block' : 'none';
-}
-document.addEventListener('click', function(e) {
-  var panel = document.getElementById('profilePanel');
-  var btn = document.getElementById('profileBtn');
-  if (profileOpen && !panel.contains(e.target) && !btn.contains(e.target)) {
-    profileOpen = false;
-    panel.style.display = 'none';
-  }
+    loginMsg.classList.add('hidden');
+    submitBtn.disabled = true;
+    setAuthSession(user);
+  }, 600);
 });
 
-// ============================================================
-// FILTERS
-// ============================================================
-// ============================================================
-// MULTI-SELECT FILTER STATE
-// ============================================================
-var msSelected = { status: [], loantype: [], area: [] };
-var msOptions  = { status: [], loantype: [], area: [] };
-var msFieldMap = { status:'applicationstatus', loantype:'loan_type', area:'areaoffice_name' };
-var msLabelAll = { status:'All Statuses', loantype:'All Types', area:'All Areas' };
-
-function toggleMsDropdown(key) {
-  var drop = document.getElementById('ms-drop-' + key);
-  var isOpen = !drop.classList.contains('hidden');
-  // close all
-  ['status','loantype','area'].forEach(function(k) {
-    document.getElementById('ms-drop-' + k).classList.add('hidden');
-  });
-  if (!isOpen) drop.classList.remove('hidden');
-}
-
-document.addEventListener('click', function(e) {
-  ['status','loantype','area'].forEach(function(k) {
-    var wrap = document.getElementById('ms-wrap-' + k);
-    if (wrap && !wrap.contains(e.target)) {
-      var drop = document.getElementById('ms-drop-' + k);
-      if (drop) drop.classList.add('hidden');
-    }
-  });
-});
-
-function buildMsOptions(key, options) {
-  msOptions[key] = options;
-  var container = document.getElementById('ms-options-' + key);
-  if (!container) return;
-  container.innerHTML = '';
-  options.forEach(function(opt) {
-    var checked = msSelected[key].indexOf(opt) !== -1;
-    var li = document.createElement('label');
-    li.className = 'flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors text-body-sm';
-    li.innerHTML = '<input type="checkbox" class="rounded text-primary flex-shrink-0" value="' + esc(opt) + '" ' + (checked ? 'checked' : '') + ' onchange="onMsChange(\'' + key + '\',this)"/> <span class="break-words text-left">' + esc(opt) + '</span>';
-    container.appendChild(li);
-  });
-  updateMsLabel(key);
-}
-
-function onMsChange(key, cb) {
-  if (cb.checked) {
-    if (msSelected[key].indexOf(cb.value) === -1) msSelected[key].push(cb.value);
-  } else {
-    msSelected[key] = msSelected[key].filter(function(v) { return v !== cb.value; });
-  }
-  updateMsLabel(key);
-  applyFilters();
-}
-
-function msSelectAll(key) {
-  msSelected[key] = msOptions[key].slice();
-  buildMsOptions(key, msOptions[key]);
-  applyFilters();
-}
-
-function msClearAll(key) {
-  msSelected[key] = [];
-  buildMsOptions(key, msOptions[key]);
-  applyFilters();
-}
-
-function updateMsLabel(key) {
-  var lbl = document.getElementById('ms-label-' + key);
-  if (!lbl) return;
-  var sel = msSelected[key];
-  if (sel.length === 0) lbl.textContent = msLabelAll[key];
-  else if (sel.length === 1) lbl.textContent = sel[0];
-  else lbl.textContent = sel.length + ' selected';
-}
-
-function populateFilterDropdowns() {
-  buildMsOptions('status', getUnique('applicationstatus'));
-  buildMsOptions('loantype', getUnique('loan_type'));
-  buildMsOptions('area', getUnique('areaoffice_name'));
-  fillSelect('dashAreaFilter', getUnique('areaoffice_name'));
-}
-
-function getUnique(field) {
-  var s = {}; allData.forEach(function(r) { if (r[field]) s[r[field]] = 1; });
-  return Object.keys(s).sort();
-}
-
-function fillSelect(id, options) {
-  var sel = document.getElementById(id);
-  if (!sel) return;
-  var cur = sel.value;
-  while (sel.options.length > 1) sel.remove(1);
-  options.forEach(function(o) { var opt = document.createElement('option'); opt.value = o; opt.textContent = o; sel.appendChild(opt); });
-  sel.value = cur;
-}
-
-function applyFilters() {
-  var selStatus   = msSelected.status;
-  var selLoanType = msSelected.loantype;
-  var selArea     = msSelected.area;
-  var dateFrom = document.getElementById('filterDateFrom').value;
-  var dateTo = document.getElementById('filterDateTo').value;
-  var search = document.getElementById('globalSearch').value.toLowerCase().trim();
-
-  filteredData = allData.filter(function(row) {
-    if (selStatus.length   > 0 && selStatus.indexOf(row.applicationstatus) === -1) return false;
-    if (selLoanType.length > 0 && selLoanType.indexOf(row.loan_type) === -1) return false;
-    if (selArea.length     > 0 && selArea.indexOf(row.areaoffice_name) === -1) return false;
-    if (dateFrom && row['application-date'] < dateFrom) return false;
-    if (dateTo && row['application-date'] > dateTo) return false;
-    if (search) {
-      var h = [row.application_id, row.borrower_name, row.borrower_id, row.areaoffice_name, row.ro_name, row.applicationstatus].join(' ').toLowerCase();
-      if (h.indexOf(search) === -1) return false;
-    }
-    return true;
-  });
-
-  if (sortCol) {
-    filteredData.sort(function(a, b) {
-      var va = a[sortCol] || '', vb = b[sortCol] || '';
-      var na = parseFloat(va), nb = parseFloat(vb);
-      if (!isNaN(na) && !isNaN(nb)) return sortAsc ? na - nb : nb - na;
-      return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
-    });
-  }
-
-  currentPage = 1;
-  renderTable();
-  document.getElementById('filterCount').textContent = filteredData.length.toLocaleString() + ' records';
-  // Active filter badge
-  var activeCount = (msSelected.status.length > 0 ? 1 : 0) + (msSelected.loantype.length > 0 ? 1 : 0) + (msSelected.area.length > 0 ? 1 : 0);
-  var badge = document.getElementById('activeFilterBadge');
-  if (badge) {
-    if (activeCount > 0) { badge.textContent = activeCount + ' filter' + (activeCount > 1 ? 's' : '') + ' active'; badge.classList.remove('hidden'); }
-    else { badge.classList.add('hidden'); }
-  }
-}
-
-function clearFilters() {
-  msSelected.status = []; msSelected.loantype = []; msSelected.area = [];
-  buildMsOptions('status', msOptions.status);
-  buildMsOptions('loantype', msOptions.loantype);
-  buildMsOptions('area', msOptions.area);
-  document.getElementById('filterDateFrom').value = '';
-  document.getElementById('filterDateTo').value = '';
-  document.getElementById('globalSearch').value = '';
-  applyFilters();
-}
-
-// ============================================================
-// TABLE
-// ============================================================
-function buildTableHeader() {
-  var row = document.getElementById('tableHeader');
-  row.innerHTML = '';
-  TABLE_COLUMNS.forEach(function(col) {
-    var th = document.createElement('th');
-    th.className = 'text-left px-3 py-3 text-label-caps text-secondary cursor-pointer select-none hover:text-primary transition-colors whitespace-nowrap';
-    var arrow = sortCol === col ? (sortAsc ? 'arrow_upward' : 'arrow_downward') : 'unfold_more';
-    th.innerHTML = esc(COLUMN_LABELS[col] || col) + ' <span class="material-symbols-outlined text-xs align-middle">' + arrow + '</span>';
-    th.onclick = (function(c) { return function() {
-      if (sortCol === c) sortAsc = !sortAsc; else { sortCol = c; sortAsc = true; }
-      buildTableHeader(); applyFilters();
-    }; })(col);
-    row.appendChild(th);
-  });
-  var th2 = document.createElement('th');
-  th2.className = 'text-left px-3 py-3 text-label-caps text-secondary whitespace-nowrap sticky right-0 bg-surface-container-low z-10 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]';
-  th2.textContent = 'Actions';
-  row.appendChild(th2);
-}
-
-function renderTable() {
-  var tbody = document.getElementById('tableBody');
-  var ps = parseInt(document.getElementById('pageSize').value);
-  var start = (currentPage - 1) * ps;
-  var end = Math.min(start + ps, filteredData.length);
-  var page = filteredData.slice(start, end);
-
-  if (page.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="' + (TABLE_COLUMNS.length + 1) + '" class="px-4 py-12 text-center text-secondary">No records found. Upload a CSV to get started.</td></tr>';
-  } else {
-    var html = '';
-    for (var i = 0; i < page.length; i++) {
-      var r = page[i];
-      var gi = r._rowId ? (r._rowId - 1) : allData.indexOf(r);
-      html += '<tr class="trow border-b border-surface-container-low transition-colors">';
-      for (var j = 0; j < TABLE_COLUMNS.length; j++) {
-        var colName = TABLE_COLUMNS[j];
-        var cellClass = colName === 'borrower_name' ? 'px-3 py-2.5 max-w-xs font-data-mono text-data-mono' : 'px-3 py-2.5 whitespace-nowrap max-w-[200px] truncate font-data-mono text-data-mono';
-        html += '<td class="' + cellClass + '">' + fmtCell(colName, r[colName]) + '</td>';
+(function initLogin() {
+  var existing = sessionStorage.getItem('inprimecoreAuth');
+  if (existing) {
+    try {
+      var auth = JSON.parse(existing);
+      if (auth && auth.isLoggedIn) {
+        window.location.href = 'code.html';
       }
-      html += '<td class="px-3 py-2.5 whitespace-nowrap sticky right-0 bg-surface z-10 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">';
-      html += '<button onclick="openEditModal(' + gi + ')" class="p-1.5 hover:bg-primary/10 rounded-lg transition-colors" title="Edit"><span class="material-symbols-outlined text-sm text-primary">edit</span></button> ';
-      html += '<button onclick="viewRow(' + gi + ')" class="p-1.5 hover:bg-surface-container-high rounded-lg transition-colors" title="View"><span class="material-symbols-outlined text-sm text-secondary">visibility</span></button>';
-      html += '</td></tr>';
-    }
-    tbody.innerHTML = html;
-  }
-
-  var tp = Math.ceil(filteredData.length / ps) || 1;
-  document.getElementById('paginationInfo').textContent = filteredData.length > 0 ? (start + 1) + '-' + end + ' of ' + filteredData.length.toLocaleString() : '0 records';
-  var pi = document.getElementById('pageIndicator'); if (pi) pi.textContent = currentPage + ' / ' + tp;
-  document.getElementById('btnPrev').disabled = currentPage <= 1;
-  document.getElementById('btnNext').disabled = currentPage >= tp;
-}
-
-function fmtCell(col, val) {
-  if (!val || val === '') return '<span class="text-outline">\u2014</span>';
-  if (col === 'applicationstatus') return statusBadge(val);
-  if (col === 'loan_type') return '<span class="badge badge-blue">' + esc(val) + '</span>';
-  if (col === 'loanamountrequired' || col === 'disbursement_amount') {
-    var n = parseFloat(val); if (!isNaN(n)) return '\u20B9' + n.toLocaleString('en-IN');
-  }
-  return esc(String(val));
-}
-
-function statusBadge(s) {
-  var u = String(s).toUpperCase();
-  if (u.indexOf('DISBURSED') !== -1 && u.indexOf('FAILED') === -1) return '<span class="badge badge-ok">' + esc(s) + '</span>';
-  if (u.indexOf('REJECTED') !== -1) return '<span class="badge badge-err">' + esc(s) + '</span>';
-  if (u.indexOf('EXPIRED') !== -1) return '<span class="badge badge-grey">' + esc(s) + '</span>';
-  if (u.indexOf('FILLING') !== -1) return '<span class="badge badge-warn">' + esc(s) + '</span>';
-  return '<span class="badge badge-blue">' + esc(s) + '</span>';
-}
-
-function goToPage(p) {
-  var tp = Math.ceil(filteredData.length / parseInt(document.getElementById('pageSize').value)) || 1;
-  if (p < 1 || p > tp) return;
-  currentPage = p; renderTable();
-}
-
-// ============================================================
-// EDIT / ADD / VIEW MODAL
-// ============================================================
-function openEditModal(idx) {
-  if (idx < 0 || idx >= allData.length || !allData[idx]) { showToast('Record not found. Please refresh the page.','error'); return; }
-  editingRowIdx = idx; isAddMode = false;
-  document.getElementById('modalTitle').textContent = 'Edit Application';
-  document.getElementById('modalSubtitle').textContent = 'Application #' + (allData[idx].application_id || idx) + ' — Update fields below';
-  document.getElementById('modalIcon').innerHTML = '<span class="material-symbols-outlined text-on-primary">edit_note</span>';
-  document.getElementById('modalIcon').className = 'p-2 bg-primary rounded-lg';
-  buildModalFields(allData[idx], false);
-  document.getElementById('modalActions').style.display = '';
-  document.getElementById('editModal').style.display = 'flex';
-}
-
-function openAddModal() {
-  isAddMode = true; editingRowIdx = null;
-  document.getElementById('modalTitle').textContent = 'New Application';
-  document.getElementById('modalSubtitle').textContent = 'Fill in the details to create a new loan application';
-  document.getElementById('modalIcon').innerHTML = '<span class="material-symbols-outlined text-on-primary">add_circle</span>';
-  document.getElementById('modalIcon').className = 'p-2 bg-[#166534] rounded-lg';
-  buildModalFields({}, false);
-  document.getElementById('modalActions').style.display = '';
-  document.getElementById('editModal').style.display = 'flex';
-}
-
-function buildModalFields(row, readOnly) {
-  var c = document.getElementById('modalFields');
-  var fieldCount = 0;
-  var html = '';
-  FIELD_GROUPS.forEach(function(g) {
-    html += '<div class="mb-6">';
-    html += '<div class="flex items-center gap-2 mb-3 pb-2 border-b border-outline-variant">';
-    html += '<span class="material-symbols-outlined text-primary text-lg">' + g.icon + '</span>';
-    html += '<h4 class="text-body-sm font-bold text-on-surface uppercase tracking-wider">' + g.title + '</h4>';
-    html += '</div>';
-    html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">';
-    g.fields.forEach(function(f) {
-      var v = row[f] || '';
-      var label = COLUMN_LABELS[f] || f.replace(/_/g,' ').replace(/-/g,' ');
-      fieldCount++;
-      if (readOnly) {
-        html += '<div><label class="text-[11px] font-semibold text-secondary uppercase tracking-wide block mb-1">' + esc(label) + '</label>';
-        html += '<div class="px-3 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg text-body-sm font-data-mono">' + (esc(String(v)) || '<span class="text-outline">\u2014</span>') + '</div></div>';
-      } else {
-        var isLarge = (f === 'comments' || f === 'remarks');
-        html += '<div' + (isLarge ? ' class="md:col-span-2"' : '') + '>';
-        html += '<label class="text-[11px] font-semibold text-secondary uppercase tracking-wide block mb-1">' + esc(label) + '</label>';
-        if (isLarge) {
-          html += '<textarea data-field="' + f + '" rows="2" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg text-body-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none">' + esc(String(v)) + '</textarea>';
-        } else {
-          html += '<input type="text" data-field="' + f + '" value="' + escA(String(v)) + '" class="w-full px-3 py-2.5 border border-outline-variant rounded-lg text-body-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all hover:border-primary/50"/>';
-        }
-        html += '</div>';
-      }
-    });
-    html += '</div></div>';
-  });
-
-  // For view mode, show ALL remaining fields not in groups
-  if (readOnly) {
-    var grouped = {};
-    FIELD_GROUPS.forEach(function(g) { g.fields.forEach(function(f) { grouped[f]=1; }); });
-    var extra = Object.keys(row).filter(function(k) { return k !== '_rowId' && !grouped[k]; });
-    if (extra.length > 0) {
-      html += '<div class="mb-6"><div class="flex items-center gap-2 mb-3 pb-2 border-b border-outline-variant">';
-      html += '<span class="material-symbols-outlined text-primary text-lg">more_horiz</span>';
-      html += '<h4 class="text-body-sm font-bold text-on-surface uppercase tracking-wider">Additional Fields</h4>';
-      html += '</div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3">';
-      extra.forEach(function(f) {
-        var v = row[f] || '';
-        fieldCount++;
-        html += '<div><label class="text-[11px] font-semibold text-secondary uppercase tracking-wide block mb-1">' + esc(f.replace(/_/g,' ')) + '</label>';
-        html += '<div class="px-3 py-2 bg-surface-container-low border border-outline-variant rounded-lg text-xs font-data-mono truncate" title="' + escA(String(v)) + '">' + (esc(String(v)) || '<span class="text-outline">\u2014</span>') + '</div></div>';
-      });
-      html += '</div></div>';
+    } catch (e) {
+      // Ignore parsing errors, allow login
     }
   }
-  c.innerHTML = html;
-  var fc = document.getElementById('modalFieldCount');
-  if (fc) fc.textContent = fieldCount + ' fields';
-}
-
-function viewRow(idx) {
-  if (idx < 0 || idx >= allData.length || !allData[idx]) { showToast('Record not found. Please refresh the page.','error'); return; }
-  var row = allData[idx];
-  document.getElementById('modalTitle').textContent = 'Application Details';
-  document.getElementById('modalSubtitle').textContent = '#' + (row.application_id || idx) + ' — Read-only view';
-  document.getElementById('modalIcon').innerHTML = '<span class="material-symbols-outlined text-on-primary">visibility</span>';
-  document.getElementById('modalIcon').className = 'p-2 bg-tertiary rounded-lg';
-  buildModalFields(row, true);
-  document.getElementById('modalActions').style.display = 'none';
-  document.getElementById('editModal').style.display = 'flex';
-}
-
-function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
-
-// ============================================================
-// GLOBAL SEARCH
-// ============================================================
-var searchDebounce = null;
-function handleGlobalSearch() {
-  clearTimeout(searchDebounce);
-  searchDebounce = setTimeout(function() {
-    var q = document.getElementById('globalSearch').value.trim();
-    if (q.length > 0) {
-      switchPage('applications');
-    }
-    applyFilters();
-  }, 300);
-}
-
-// ============================================================
-// NOTIFICATIONS
-// ============================================================
-var notifications = [];
-var notifOpen = false;
-
-function toggleNotifications() {
-  notifOpen = !notifOpen;
-  var panel = document.getElementById('notifPanel');
-  panel.style.display = notifOpen ? 'block' : 'none';
-  if (notifOpen) {
-    document.getElementById('notifDot').style.display = 'none';
-    renderNotifications();
-  }
-}
-
-function addNotification(icon, text, type) {
-  notifications.unshift({ icon:icon, text:text, type:type||'info', time:new Date().toLocaleTimeString() });
-  if (notifications.length > 50) notifications = notifications.slice(0,50);
-  document.getElementById('notifDot').style.display = '';
-}
-
-function renderNotifications() {
-  var c = document.getElementById('notifList');
-  if (notifications.length === 0) {
-    c.innerHTML = '<div class="px-4 py-8 text-center text-secondary text-body-sm">No notifications yet.</div>';
-    return;
-  }
-  c.innerHTML = notifications.slice(0,20).map(function(n) {
-    var bg = n.type==='success'?'bg-[#DCFCE7]':n.type==='error'?'bg-[#FEE2E2]':n.type==='warn'?'bg-[#FEF3C7]':'bg-[#DBEAFE]';
-    var tc = n.type==='success'?'text-[#166534]':n.type==='error'?'text-[#991B1B]':n.type==='warn'?'text-[#92400E]':'text-[#1E40AF]';
-    return '<div class="flex gap-3 items-start px-4 py-3 border-b border-surface-container-low hover:bg-surface-container-low transition-colors cursor-default">'+
-      '<div class="p-1.5 rounded-lg shrink-0 '+bg+'"><span class="material-symbols-outlined text-sm '+tc+'">'+n.icon+'</span></div>'+
-      '<div class="flex-1 min-w-0"><p class="text-body-sm text-on-surface">'+n.text+'</p><p class="text-[10px] text-secondary mt-0.5">'+n.time+'</p></div></div>';
-  }).join('');
-}
-
-function clearNotifications() {
-  notifications = [];
-  renderNotifications();
-  document.getElementById('notifDot').style.display = 'none';
-}
-
-// Close notification panel when clicking outside
-document.addEventListener('click', function(e) {
-  var panel = document.getElementById('notifPanel');
-  var btn = document.getElementById('notifBtn');
-  if (notifOpen && !panel.contains(e.target) && !btn.contains(e.target)) {
-    notifOpen = false;
-    panel.style.display = 'none';
-  }
-});
-
-function saveEditModal() {
-  var inputs = document.querySelectorAll('#modalFields input[data-field], #modalFields textarea[data-field]');
-  var savePromise;
-  if (isAddMode) {
-    var newRow = {};
-    inputs.forEach(function(inp) { newRow[inp.dataset.field] = inp.value; });
-    allData.push(newRow);
-    addAuditLog('ADD', newRow.application_id || 'N/A', '-', '-', 'New record added');
-    savePromise = addOneRecord(newRow);
-  } else {
-    var row = allData[editingRowIdx];
-    inputs.forEach(function(inp) {
-      var f = inp.dataset.field, ov = row[f] || '', nv = inp.value;
-      if (ov !== nv) { addAuditLog('EDIT', row.application_id || String(editingRowIdx), f, ov, nv); row[f] = nv; }
-    });
-    savePromise = saveOneRecord(row);
-  }
-  closeEditModal();
-  applyFilters();
-  showToast(isAddMode ? 'Record added' : 'Record updated', 'success');
-  savePromise.then(function() {
-    setTimeout(applyDashboardFilters, 100);
-  }).catch(function(err) {
-    console.error('Save failed:', err);
-    showToast('DB sync failed — changes are in memory.', 'error');
-  });
-}
-
-// ============================================================
-// DASHBOARD STATS
-// ============================================================
-function normalizeDateString(rawDate) {
-  if (!rawDate) return '';
-  var s = String(rawDate).trim();
-
-  // yyyy-mm-dd or yyyy-mm-ddThh:mm:ss
-  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
-
-  // dd/mm/yyyy or dd-mm-yyyy
-  var m1 = s.match(/^(\d{2})[\/-](\d{2})[\/-](\d{4})$/);
-  if (m1) return m1[3] + '-' + m1[2] + '-' + m1[1];
-
-  // dd/mm/yy or dd-mm-yy
-  var m2 = s.match(/^(\d{2})[\/-](\d{2})[\/-](\d{2})$/);
-  if (m2) return '20' + m2[3] + '-' + m2[2] + '-' + m2[1];
-
-  var d = new Date(s);
-  if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
-  return '';
-}
-
-function applyDashboardFilters() {
-  var period = document.getElementById('dashDateFilter').value;
-  var region = document.getElementById('dashRegionFilter').value;
-  var area   = document.getElementById('dashAreaFilter').value;
-
-  // Find max date in dataset (most recent date)
-  var maxDate = '';
-  allData.forEach(function(r) {
-    var d = normalizeDateString(r['application-date']);
-    if (d && d > maxDate) maxDate = d;
-  });
-
-  var dateLimit = '';
-  if (period === 'day' && maxDate) {
-    // Last 1 day from maxDate
-    dateLimit = maxDate;
-  } else if (period === 'week' && maxDate) {
-    // Last 7 days from maxDate
-    var md = new Date(maxDate);
-    var wd = new Date(md.getTime() - 7 * 24 * 60 * 60 * 1000);
-    dateLimit = wd.toISOString().slice(0,10);
-  } else if (period === 'month' && maxDate) {
-    // Last 30 days from maxDate
-    var md = new Date(maxDate);
-    var md30 = new Date(md.getTime() - 30 * 24 * 60 * 60 * 1000);
-    dateLimit = md30.toISOString().slice(0,10);
-  }
-
-  // For average calculations
-  window.useAverages = false;
-  window.uniqueDaysCount = 0;
-  window.uniqueWeeksCount = 0;
-
-  dashFilteredData = allData.filter(function(row) {
-    // Region filter by App ID prefix
-    if (region !== 'all') {
-      var appId = String(row.application_id || '').trim();
-      if (region === 'south' && appId.charAt(0) !== '1') return false;
-      if (region === 'north' && appId.charAt(0) !== '2') return false;
-    }
-    // Area filter — refreshed below based on region
-    if (area !== 'all' && row.areaoffice_name !== area) return false;
-
-    // Date filter with normalized date
-    var d = normalizeDateString(row['application-date']);
-    if (period === 'day') {
-      if (!d || d !== maxDate) return false;
-    } else if (period === 'week') {
-      if (!d || d < dateLimit || d > maxDate) return false;
-    } else if (period === 'month') {
-      if (!d || d < dateLimit || d > maxDate) return false;
-    }
-    return true;
-  });
-
-  // For One Day, One Week, or One Month - calculate averages
-  if (period === 'day' || period === 'week' || period === 'month') {
-    window.useAverages = true;
-    var dateMap = {};
-    var weekMap = {};
-    var monthMap = {};
-    
-    allData.forEach(function(r) {
-      var d = normalizeDateString(r['application-date']);
-      if (d) {
-        dateMap[d] = 1;
-        var weekKey = getWeekKey(d);
-        weekMap[weekKey] = 1;
-        var monthKey = d.substring(0, 7);
-        monthMap[monthKey] = 1;
-      }
-    });
-    
-    window.uniqueDaysCount = Object.keys(dateMap).length;
-    window.uniqueWeeksCount = Object.keys(weekMap).length;
-    window.uniqueMonthsCount = Object.keys(monthMap).length;
-  }
-
-  // Refresh area dropdown filtered by region
-  var regionAreas = {};
-  dashFilteredData.forEach(function(r) { if (r.areaoffice_name) regionAreas[r.areaoffice_name] = 1; });
-  var prevArea = document.getElementById('dashAreaFilter').value;
-  fillSelect('dashAreaFilter', Object.keys(regionAreas).sort());
-  if (regionAreas[prevArea]) document.getElementById('dashAreaFilter').value = prevArea;
-
-  // Date range label
-  var rangeLabel = document.getElementById('dashDateRangeLabel');
-  if (rangeLabel) {
-    var dates = dashFilteredData.map(function(r){return r['application-date'];}).filter(Boolean).sort();
-    if (dates.length > 0) {
-      var fmt = function(d) { var p=d.slice(0,10).split('-'); return p[2]+'/'+p[1]+'/'+p[0].slice(2); };
-      rangeLabel.textContent = 'Showing: ' + fmt(dates[0]) + ' – ' + fmt(dates[dates.length-1]) + ' · ' + dashFilteredData.length.toLocaleString() + ' records';
-    } else { rangeLabel.textContent = ''; }
-  }
-
-  // Keep chart granularity aligned with date filter selection
-  var targetTrend = period === 'day' ? 'daily' : period === 'week' ? 'weekly' : period === 'month' ? 'monthly' : '';
-  if (targetTrend && trendView !== targetTrend) {
-    trendView = targetTrend;
-    ['daily','weekly','monthly'].forEach(function(v) {
-      var btn = document.getElementById('trendBtn' + v.charAt(0).toUpperCase() + v.slice(1));
-      if (!btn) return;
-      if (v === targetTrend) btn.className = 'px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md transition-all bg-primary text-on-primary';
-      else btn.className = 'px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md transition-all text-secondary hover:text-primary';
-    });
-  }
-
-  updateDataStatus();
-  renderDashboardStats();
-  renderDashboardCharts();
-  renderTopAreas();
-  renderFunnel();
-  renderFillingStatus();
-}
-
-// ============================================================
-// APPLICATION FILLING STATUS WIDGET
-// ============================================================
-function renderFillingStatus() {
-  var fillingKeywords = ['filling','application filling','under filling','being filled','in filing','filing'];
-  var fillingRows = dashFilteredData.filter(function(r) {
-    return fillingKeywords.some(function(kw) {
-      return (r.applicationstatus || '').toLowerCase().indexOf(kw) !== -1 ||
-             (r.stage || '').toLowerCase().indexOf(kw) !== -1;
-    });
-  });
-
-  // Also count any status that literally contains 'fill'
-  if (fillingRows.length === 0) {
-    fillingRows = dashFilteredData.filter(function(r) {
-      return (r.applicationstatus || '').toLowerCase().indexOf('fill') !== -1;
-    });
-  }
-
-  var total = dashFilteredData.length;
-  var count = fillingRows.length;
-  var pct = total > 0 ? Math.round(count / total * 100) : 0;
-  var circumference = 251.3;
-  var offset = circumference - (circumference * pct / 100);
-
-  var badge = document.getElementById('fillingBadge');
-  var countEl = document.getElementById('fillingCount');
-  var circle = document.getElementById('fillingCircle');
-  var ofTotalEl = document.getElementById('fillingOfTotal');
-  if (badge) badge.textContent = count.toLocaleString();
-  if (countEl) countEl.textContent = count.toLocaleString();
-  if (circle) circle.setAttribute('stroke-dashoffset', offset);
-  if (ofTotalEl) ofTotalEl.textContent = total > 0 ? pct + '% of ' + total.toLocaleString() + ' total' : '';
-
-  // Breakdown by area
-  var areaMap = {};
-  fillingRows.forEach(function(r) {
-    var a = r.areaoffice_name || 'Unknown';
-    areaMap[a] = (areaMap[a] || 0) + 1;
-  });
-  var rows = document.getElementById('fillingStatusRows');
-  if (!rows) return;
-  rows.innerHTML = '';
-  var sorted = Object.entries(areaMap).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
-  if (sorted.length === 0 && total > 0) {
-    rows.innerHTML = '<p class="text-center text-secondary text-body-sm py-2">No applications in filling stage</p>';
-    return;
-  }
-  sorted.forEach(function(pair) {
-    var barPct = count > 0 ? Math.round(pair[1]/count*100) : 0;
-    var div = document.createElement('div');
-    div.innerHTML = '<div class="flex justify-between text-xs mb-1"><span class="text-secondary truncate max-w-[150px]">' + esc(pair[0]) + '</span><span class="font-bold text-on-surface">' + pair[1] + '</span></div><div class="h-1.5 bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full" style="width:' + barPct + '%"></div></div>';
-    rows.appendChild(div);
-  });
-}
-
-// ============================================================
-// STAT CARD CLICK — FILTER TO STATUS
-// ============================================================
-function filterToStatus(type) {
-  // Clear multi-select filters first
-  msSelected.status = []; msSelected.loantype = []; msSelected.area = [];
-  if (type === 'disbursed') {
-    msSelected.status = msOptions.status.filter(function(s) { return s.toUpperCase().indexOf('DISBURSED') !== -1; });
-  } else if (type === 'rejected') {
-    msSelected.status = msOptions.status.filter(function(s) { return s.toUpperCase().indexOf('REJECTED') !== -1; });
-  } else if (type === 'pending') {
-    msSelected.status = msOptions.status.filter(function(s) {
-      var u = s.toUpperCase();
-      return u.indexOf('DISBURSED') === -1 && u.indexOf('REJECTED') === -1 && u.indexOf('EXPIRED') === -1;
-    });
-  } else if (type === 'credit') {
-    msSelected.status = msOptions.status.filter(function(s) {
-      var u = s.toUpperCase();
-      return u.indexOf('CREDIT') !== -1 || u.indexOf('REVIEW') !== -1;
-    });
-  }
-  buildMsOptions('status', msOptions.status);
-  buildMsOptions('loantype', msOptions.loantype);
-  buildMsOptions('area', msOptions.area);
-  switchPage('applications');
-  applyFilters();
-}
-
-// Keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-  // ESC closes modals
-  if (e.key === 'Escape') {
-    closeEditModal();
-    var notifPanel = document.getElementById('notifPanel');
-    if (notifOpen) { notifOpen = false; notifPanel.style.display = 'none'; }
-    if (profileOpen) { profileOpen = false; document.getElementById('profilePanel').style.display = 'none'; }
-  }
-  // Ctrl+K or / focuses search
-  if ((e.ctrlKey && e.key === 'k') || (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA')) {
-    e.preventDefault();
-    document.getElementById('globalSearch').focus();
-  }
-});
-
-function renderDashboardStats() {
-  var d = dashFilteredData, total = d.length;
-  var approved = 0, rejected = 0, pending = 0, creditReview = 0, totalAmt = 0;
-  
-  // Quality metrics initialization
-  var ftrCount = 0, ftnrCount = 0;
-  var oneXRework = 0, twoXRework = 0, threeXRework = 0, totalReworked = 0;
-
-  d.forEach(function(r) {
-    var s = (r.applicationstatus || '').toUpperCase();
-    if (s.indexOf('DISBURSED') !== -1) approved++;
-    else if (s.indexOf('REJECTED') !== -1) rejected++;
-    else pending++;
-
-    if (r['submit_for_credit_review'] && !r['disbursement_date'] && s.indexOf('REJECTED') === -1 && s.indexOf('EXPIRED') === -1) {
-      creditReview++;
-    }
-    var amt = parseFloat(r.disbursement_amount);
-    if (!isNaN(amt)) totalAmt += amt;
-
-    // Quality metrics calculation
-    // Count rework attempts from remarks or funnel_status fields
-    var remarks = String(r.remarks || r.comments || '').toLowerCase();
-    var reworkCount = 0;
-    if (remarks.indexOf('rework') !== -1 || remarks.indexOf('resubmit') !== -1) {
-      // Count number of "rework" mentions
-      var matches = remarks.match(/rework|resubmit/gi) || [];
-      reworkCount = Math.ceil(matches.length / 2); // Divide by 2 as both words might appear
-    }
-
-    // Alternative: count from funnel_status if available
-    if (!reworkCount && r.funnel_status) {
-      var funnelStr = String(r.funnel_status).toLowerCase();
-      if (funnelStr.indexOf('rework') !== -1) reworkCount = 1;
-      if (funnelStr.indexOf('2nd rework') !== -1 || funnelStr.indexOf('rework 2') !== -1) reworkCount = 2;
-      if (funnelStr.indexOf('3rd rework') !== -1 || funnelStr.indexOf('rework 3') !== -1) reworkCount = 3;
-    }
-
-    // Categorize
-    if (reworkCount === 0 && s.indexOf('DISBURSED') !== -1) {
-      ftrCount++; // First time right
-    } else if (reworkCount === 0 && s.indexOf('REJECTED') === -1 && s.indexOf('EXPIRED') === -1) {
-      // Has potential rework based on status without explicit rework record
-      ftnrCount++;
-    } else if (reworkCount >= 1) {
-      totalReworked++;
-      if (reworkCount === 1) oneXRework++;
-      else if (reworkCount === 2) twoXRework++;
-      else threeXRework++;
-    }
-  });
-
-  // Apply averaging if in daily/weekly mode
-  var divisor = 1;
-  var avgLabel = '';
-  if (window.useAverages) {
-    var period = document.getElementById('dashDateFilter').value;
-    if (period === 'month' && window.uniqueMonthsCount > 0) {
-      divisor = window.uniqueMonthsCount;
-      avgLabel = ' / month';
-    } else if (period === 'week' && window.uniqueWeeksCount > 0) {
-      divisor = window.uniqueWeeksCount;
-      avgLabel = ' / wk';
-    } else if (period === 'day' && window.uniqueDaysCount > 0) {
-      divisor = window.uniqueDaysCount;
-      avgLabel = ' / day';
-    }
-  }
-
-  var displayTotal = Math.round(total / divisor);
-  var displayApproved = Math.round(approved / divisor);
-  var displayPending = Math.round(pending / divisor);
-  var displayRejected = Math.round(rejected / divisor);
-  var displayCreditReview = Math.round(creditReview / divisor);
-  var displayAmt = Math.round(totalAmt / divisor);
-
-  document.getElementById('statTotal').textContent = displayTotal.toLocaleString() + avgLabel;
-  document.getElementById('statApproved').textContent = displayApproved.toLocaleString() + avgLabel;
-  document.getElementById('statApprovedPct').textContent = total > 0 ? Math.round(approved / total * 100) + '%' : '0%';
-  document.getElementById('statPendingPct').textContent = total > 0 ? Math.round(pending / total * 100) + '%' : '0%';
-  document.getElementById('statRejectedPct').textContent = total > 0 ? Math.round(rejected / total * 100) + '%' : '0%';
-  document.getElementById('statPending').textContent = displayPending.toLocaleString() + avgLabel;
-  document.getElementById('statRejected').textContent = displayRejected.toLocaleString() + avgLabel;
-  document.getElementById('statCreditReview').textContent = displayCreditReview.toLocaleString() + avgLabel;
-
-  var amtStr;
-  if (displayAmt >= 10000000) amtStr = '\u20B9' + (displayAmt / 10000000).toFixed(2) + ' Cr' + avgLabel;
-  else if (displayAmt >= 100000) amtStr = '\u20B9' + (displayAmt / 100000).toFixed(2) + ' L' + avgLabel;
-  else amtStr = '\u20B9' + displayAmt.toLocaleString('en-IN') + avgLabel;
-  document.getElementById('statAmount').textContent = amtStr;
-
-  var creditReviewPctEl = document.getElementById('statCreditReviewPct');
-  if (creditReviewPctEl) creditReviewPctEl.textContent = total > 0 ? Math.round(creditReview/total*100) + '%' : '';
-
-  var nplEl = document.getElementById('nplRatio');
-  if (nplEl && total > 0) {
-    var npl = ((rejected / total) * 100).toFixed(1);
-    var recordsText = window.useAverages ? 'average' : 'across ' + total.toLocaleString() + ' applications';
-    nplEl.textContent = 'Overall rejection ratio is ' + npl + '% ' + recordsText + '.';
-  }
-
-  // Update Quality Metrics
-  var totalDecisioned = ftrCount + ftnrCount;
-  document.getElementById('totalDecisioned').textContent = totalDecisioned.toLocaleString();
-  document.getElementById('ftrCount').textContent = ftrCount.toLocaleString();
-  document.getElementById('ftrPct').textContent = totalDecisioned > 0 ? ((ftrCount / totalDecisioned) * 100).toFixed(1) + '%' : '0%';
-  document.getElementById('ftnrCount').textContent = ftnrCount.toLocaleString();
-  document.getElementById('ftnrPct').textContent = totalDecisioned > 0 ? ((ftnrCount / totalDecisioned) * 100).toFixed(1) + '%' : '0%';
-
-  // Update Rework Metrics
-  document.getElementById('totalReworked').textContent = totalReworked.toLocaleString();
-  document.getElementById('oneXRework').textContent = oneXRework.toLocaleString();
-  document.getElementById('twoXRework').textContent = twoXRework.toLocaleString();
-  document.getElementById('threeXRework').textContent = threeXRework.toLocaleString();
-
-  // Calculate Process Efficiency (higher is better)
-  var totalProcessed = approved + rejected;
-  var efficiency = totalProcessed > 0 ? Math.round((ftrCount / totalProcessed) * 100) : 0;
-  efficiency = Math.max(0, Math.min(100, efficiency)); // Clamp between 0-100
-  document.getElementById('efficiencyScore').textContent = efficiency + '%';
-  var effBar = document.getElementById('efficiencyBar');
-  if (effBar) {
-    // Keep side segments visible in the visual bar while text shows exact efficiency.
-    var visualEfficiency = Math.max(0, Math.min(75, efficiency));
-    effBar.style.width = visualEfficiency + '%';
-  }
-}
-
-function renderDashboardCharts() {
-  renderTrendChart();
-  renderReworkDistributionChart();
-}
-
-function setTrendView(view) {
-  trendView = view;
-  ['daily','weekly','monthly'].forEach(function(v) {
-    var btn = document.getElementById('trendBtn' + v.charAt(0).toUpperCase() + v.slice(1));
-    if (!btn) return;
-    if (v === view) { btn.className = 'px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md transition-all bg-primary text-on-primary'; }
-    else { btn.className = 'px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md transition-all text-secondary hover:text-primary'; }
-  });
-  renderTrendChart();
-}
-
-function getWeekKey(dateStr) {
-  var d = new Date(dateStr);
-  var day = d.getDay(); var diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  var mon = new Date(d.setDate(diff));
-  return mon.toISOString().substring(0,10);
-}
-
-function renderTrendChart() {
-  var dataMap = {};
-  var mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-  dashFilteredData.forEach(function(r) {
-    var d = normalizeDateString(r['application-date']);
-    if (!d) return;
-    var key;
-    if (trendView === 'daily') { key = d; }
-    else if (trendView === 'weekly') { key = getWeekKey(d); }
-    else { key = d.substring(0,7); }
-    dataMap[key] = (dataMap[key] || 0) + 1;
-  });
-
-  var sorted = Object.keys(dataMap).sort();
-
-  // Limit labels for daily view to last 60 days to avoid clutter
-  if (trendView === 'daily' && sorted.length > 60) { sorted = sorted.slice(sorted.length - 60); }
-  if (trendView === 'weekly' && sorted.length > 26) { sorted = sorted.slice(sorted.length - 26); }
-
-  var labels = sorted.map(function(k) {
-    if (trendView === 'monthly') {
-      var p = k.split('-'); return mNames[parseInt(p[1]) - 1] + ' ' + p[0].slice(2);
-    } else if (trendView === 'weekly') {
-      var p2 = k.split('-'); return p2[2] + ' ' + mNames[parseInt(p2[1]) - 1];
-    } else {
-      var p3 = k.split('-'); return p3[2] + '/' + p3[1];
-    }
-  });
-
-  var values = sorted.map(function(k) { return dataMap[k]; });
-  var chartType = trendView === 'daily' ? 'line' : 'bar';
-
-  if (chartMonthlyInst) chartMonthlyInst.destroy();
-  chartMonthlyInst = new Chart(document.getElementById('chartMonthly'), {
-    type: chartType,
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Applications',
-        data: values,
-        backgroundColor: trendView === 'daily' ? 'rgba(37,99,235,0.1)' : '#2563eb',
-        borderColor: '#2563eb',
-        borderWidth: trendView === 'daily' ? 2 : 0,
-        borderRadius: chartType === 'bar' ? 6 : 0,
-        barPercentage: 0.6,
-        fill: trendView === 'daily',
-        tension: 0.3,
-        pointRadius: trendView === 'daily' ? 2 : 0,
-        pointHoverRadius: 5
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-        x: { grid: { display: false }, ticks: { maxRotation: trendView === 'daily' ? 45 : 0, font: { size: 10 } } }
-      }
-    }
-  });
-
-  // Continue rendering other charts
-  var statusMap = {};
-  dashFilteredData.forEach(function(r) { var s = r.applicationstatus || 'UNKNOWN'; statusMap[s] = (statusMap[s] || 0) + 1; });
-  var sLabels = Object.keys(statusMap).sort(function(a,b){return statusMap[b]-statusMap[a];}).slice(0,8);
-  var sColors = sLabels.map(function(s) {
-    var u = s.toUpperCase();
-    if (u.indexOf('DISBURSED') !== -1 && u.indexOf('FAILED') === -1) return '#16a34a';
-    if (u.indexOf('REJECTED') !== -1) return '#dc2626';
-    if (u.indexOf('EXPIRED') !== -1) return '#6b7280';
-    if (u.indexOf('FILLING') !== -1) return '#f59e0b';
-    if (u.indexOf('FAILED') !== -1) return '#ea580c';
-    return '#2563eb';
-  });
-
-  if (chartStatusInst) chartStatusInst.destroy();
-  chartStatusInst = new Chart(document.getElementById('chartStatus'), {
-    type:'doughnut',
-    data:{ labels:sLabels, datasets:[{ data:sLabels.map(function(s){return statusMap[s];}), backgroundColor:sColors, borderWidth:2, borderColor:'#fff' }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, font:{ size:11 } } } } }
-  });
-
-  var ltMap = {};
-  dashFilteredData.forEach(function(r) { var t = r.loan_type || 'UNKNOWN'; ltMap[t] = (ltMap[t] || 0) + 1; });
-  var ltLabels = Object.keys(ltMap).sort(function(a,b){return ltMap[b]-ltMap[a];});
-  var ltColors = ['#2563eb','#7c3aed','#0891b2','#059669','#d97706','#e11d48'];
-
-  if (chartLoanTypeInst) chartLoanTypeInst.destroy();
-  chartLoanTypeInst = new Chart(document.getElementById('chartLoanType'), {
-    type:'bar',
-    data:{ labels:ltLabels.map(function(l){return l.replace(/_/g,' ');}), datasets:[{ label:'Count', data:ltLabels.map(function(l){return ltMap[l];}), backgroundColor:ltColors.slice(0,ltLabels.length), borderRadius:6 }] },
-    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ beginAtZero:true, grid:{ color:'#f1f5f9' } }, y:{ grid:{ display:false } } } }
-  });
-}
-
-function renderTopAreas() {
-  var m = {};
-  dashFilteredData.forEach(function(r) { var a = r.areaoffice_name || 'Unknown'; m[a] = (m[a]||0)+1; });
-  var sorted = Object.entries(m).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
-  var max = sorted[0] ? sorted[0][1] : 1;
-  document.getElementById('topAreas').innerHTML = sorted.map(function(e) {
-    var regionTag = '';
-    var firstChar = String(e[0] || '').charAt(0);
-    // tag by region based on majority of app IDs in this area
-    var appIdsInArea = dashFilteredData.filter(function(r) { return r.areaoffice_name === e[0]; });
-    var southCount = appIdsInArea.filter(function(r) { return String(r.application_id || '').charAt(0) === '1'; }).length;
-    var northCount = appIdsInArea.filter(function(r) { return String(r.application_id || '').charAt(0) === '2'; }).length;
-    if (southCount > northCount) regionTag = '<span class="ml-1 text-[9px] bg-[#DCFCE7] text-[#166534] px-1 rounded font-bold">S</span>';
-    else if (northCount > southCount) regionTag = '<span class="ml-1 text-[9px] bg-[#DBEAFE] text-[#1E40AF] px-1 rounded font-bold">N</span>';
-    return '<div><div class="flex justify-between text-body-sm mb-1"><span class="text-secondary truncate max-w-[180px] flex items-center gap-1">'+esc(e[0])+regionTag+'</span><span class="font-bold font-mono">'+e[1].toLocaleString()+'</span></div><div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full" style="width:'+Math.round(e[1]/max*100)+'%"></div></div></div>';
-  }).join('');
-}
-
-function renderFunnel() {
-  var d = dashFilteredData, total = d.length;
-  var a1=0, hh=0, pd=0, cr=0, dis=0;
-  d.forEach(function(r) {
-    if (r['app1 pass date']) a1++;
-    if (r['HH credit-o-meter submitted']) hh++;
-    if (r['PD Completed']) pd++;
-    if (r['credit review date']) cr++;
-    if (r['disbursement_date']) dis++;
-  });
-  var steps = [
-    {l:'App Submitted',c:total},{l:'App1 BRE Pass',c:a1},{l:'HH Credit Check',c:hh},
-    {l:'PD Completed',c:pd},{l:'Credit Review',c:cr},{l:'Disbursed',c:dis}
-  ];
-  document.getElementById('funnelStats').innerHTML = steps.map(function(s) {
-    var pct = total > 0 ? Math.round(s.c/total*100) : 0;
-    return '<div><div class="flex justify-between text-body-sm mb-1"><span class="text-secondary">'+s.l+'</span><span class="font-bold">'+pct+'% <span class="text-outline font-normal">('+s.c.toLocaleString()+')</span></span></div><div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full" style="width:'+pct+'%"></div></div></div>';
-  }).join('');
-}
-
-function refreshReworkAnalysis() {
-  var btn = document.getElementById('reworkRefreshBtn');
-  var icon = document.getElementById('reworkRefreshIcon');
-  if (btn) btn.disabled = true;
-  if (icon) icon.classList.add('animate-spin');
-
-  setTimeout(function() {
-    applyDashboardFilters();
-    if (icon) icon.classList.remove('animate-spin');
-    if (btn) btn.disabled = false;
-    showToast('Rework analysis refreshed', 'success');
-  }, 250);
-}
-
-// Rework Distribution Chart - Shows breakdown of rework attempts
-var chartReworkDistInst = null;
-function renderReworkDistributionChart() {
-  var d = dashFilteredData;
-  var reworkCategories = { '1x': 0, '2x': 0, '3+': 0 };
-  
-  // Count rework distribution
-  d.forEach(function(r) {
-    var remarks = String(r.remarks || r.comments || '').toLowerCase();
-    var reworkCount = 0;
-    
-    if (remarks.indexOf('rework') !== -1 || remarks.indexOf('resubmit') !== -1) {
-      var matches = remarks.match(/rework|resubmit/gi) || [];
-      reworkCount = Math.ceil(matches.length / 2);
-    }
-    
-    if (!reworkCount && r.funnel_status) {
-      var funnelStr = String(r.funnel_status).toLowerCase();
-      if (funnelStr.indexOf('3rd rework') !== -1 || funnelStr.indexOf('rework 3') !== -1) reworkCount = 3;
-      else if (funnelStr.indexOf('2nd rework') !== -1 || funnelStr.indexOf('rework 2') !== -1) reworkCount = 2;
-      else if (funnelStr.indexOf('rework') !== -1) reworkCount = 1;
-    }
-    
-    if (reworkCount === 1) reworkCategories['1x']++;
-    else if (reworkCount === 2) reworkCategories['2x']++;
-    else if (reworkCount >= 3) reworkCategories['3+']++;
-  });
-  
-  var canvasEl = document.getElementById('chartReworkDist');
-  if (!canvasEl) return;
-  
-  if (chartReworkDistInst) chartReworkDistInst.destroy();
-  chartReworkDistInst = new Chart(canvasEl, {
-    type: 'doughnut',
-    data: {
-      labels: ['1x Rework', '2x Rework', '3+ Reworks'],
-      datasets: [{
-        data: [reworkCategories['1x'], reworkCategories['2x'], reworkCategories['3+']],
-        backgroundColor: ['#2563eb', '#f59e0b', '#ef4444'],
-        borderWidth: 2,
-        borderColor: '#fff'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { boxWidth: 12, font: { size: 11 } }
-        }
-      }
-    }
-  });
-}
-
-// ============================================================
-// UPLOAD PAGE
-// ============================================================
-function renderUploadSummary() {
-  document.getElementById('sumTotal').textContent = allData.length.toLocaleString();
-  document.getElementById('sumLastUpload').textContent = uploadHistory[0] ? uploadHistory[0].date : 'Never';
-  var dates = allData.map(function(r){return r['application-date'];}).filter(Boolean).sort();
-  document.getElementById('sumDateRange').textContent = dates.length > 0 ? dates[0]+' to '+dates[dates.length-1] : '\u2014';
-  var areas = {}; allData.forEach(function(r){if(r.areaoffice_name) areas[r.areaoffice_name]=1;});
-  document.getElementById('sumAreas').textContent = Object.keys(areas).length;
-}
-
-function renderUploadHistory() {
-  var c = document.getElementById('uploadHistory');
-  if (uploadHistory.length === 0) { c.innerHTML = '<p class="text-body-sm text-secondary">No uploads yet.</p>'; return; }
-  c.innerHTML = uploadHistory.slice(0,10).map(function(h) {
-    return '<div class="flex items-center gap-3 p-3 bg-surface-container-low rounded-lg"><span class="material-symbols-outlined text-primary">cloud_done</span><div class="flex-1"><p class="text-body-sm font-bold">'+esc(h.file)+'</p><p class="text-xs text-secondary">'+h.date+' \u2022 '+h.mode+' \u2022 '+h.count.toLocaleString()+' records</p></div></div>';
-  }).join('');
-}
-
-// ============================================================
-// EXPORT
-// ============================================================
-function exportCurrentView() {
-  if (filteredData.length === 0) { showToast('No data to export','error'); return; }
-  downloadCSV(Papa.unparse(filteredData.map(function(r){var c=Object.assign({},r);delete c._rowId;return c;})), 'loan_data_export.csv');
-}
-
-function exportAllData() {
-  if (allData.length === 0) { showToast('No data to export','error'); return; }
-  downloadCSV(Papa.unparse(allData.map(function(r){var c=Object.assign({},r);delete c._rowId;return c;})), 'loan_data_full_export.csv');
-}
-
-function downloadCSV(csv, fn) {
-  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a'); a.href = url; a.download = fn;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast('Exported '+fn,'success');
-}
-
-function confirmClearData() {
-  if (!confirm('Are you sure you want to clear ALL data? This cannot be undone.')) return;
-  allData = []; filteredData = []; dashFilteredData = [];
-  saveDataToDB([]).then(function() {
-    addAuditLog('CLEAR','-','-','-','All data cleared');
-    initAfterLoad();
-    showToast('All data cleared','success');
-  });
-}
-
-// ============================================================
-// AUDIT LOGS
-// ============================================================
-function addAuditLog(action, appId, field, oldVal, newVal) {
-  auditLogs.unshift({ timestamp:new Date().toLocaleString(), action:action, appId:String(appId), field:field, oldVal:String(oldVal).substring(0,100), newVal:String(newVal).substring(0,100) });
-  if (auditLogs.length > 500) auditLogs = auditLogs.slice(0,500);
-  saveMeta('auditLogs', auditLogs);
-  renderAuditLogs();
-}
-
-function renderAuditLogs() {
-  var tb = document.getElementById('auditBody');
-  if (auditLogs.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-secondary">No audit logs yet.</td></tr>'; return; }
-  tb.innerHTML = auditLogs.slice(0,100).map(function(l) {
-    var bc = l.action==='EDIT'?'badge-warn':l.action==='ADD'?'badge-ok':l.action==='UPLOAD'?'badge-blue':'badge-err';
-    return '<tr class="border-b border-surface-container-low"><td class="px-4 py-2 font-mono text-xs whitespace-nowrap">'+l.timestamp+'</td><td class="px-4 py-2"><span class="badge '+bc+'">'+l.action+'</span></td><td class="px-4 py-2 font-mono">'+esc(l.appId)+'</td><td class="px-4 py-2 text-secondary">'+esc(l.field)+'</td><td class="px-4 py-2 text-xs max-w-[150px] truncate">'+esc(l.oldVal)+'</td><td class="px-4 py-2 text-xs max-w-[150px] truncate">'+esc(l.newVal)+'</td></tr>';
-  }).join('');
-}
-
-// ============================================================
-// UTILITIES
-// ============================================================
-function esc(s) { var d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
-function escA(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function showLoading(t) { document.getElementById('loadingText').textContent = t || 'Processing...'; document.getElementById('loadingOverlay').style.display = 'flex'; }
-function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
-
-function showToast(msg, type) {
-  document.getElementById('toastMsg').textContent = msg;
-  document.getElementById('toastIcon').textContent = type === 'error' ? 'error' : 'check_circle';
-  var t = document.getElementById('toast'); t.style.display = 'block';
-  setTimeout(function() { t.style.display = 'none'; }, 3000);
-  var icon = type === 'error' ? 'error' : type === 'success' ? 'check_circle' : 'info';
-  addNotification(icon, msg, type || 'info');
-}
-
-// ============================================================
-// BOOT
-// ============================================================
-init();
+})();
 </script>
 </body>
 </html>
